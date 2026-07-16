@@ -10,7 +10,7 @@ export default function ComingSoon() {
 
         {/* Logo */}
         <div className="logo-container">
-          <img src="/logos/logo.png" alt="Khurja Deals Logo" className="logo" />
+          <img src="/logos/white-logo.png" alt="Khurja Deals Logo" className="logo" />
         </div>
 
         {/* Live badge */}
