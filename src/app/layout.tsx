@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Khurja Deals — Coming Soon",
+  title: "KhurjaDeals — Khurja's Local Marketplace",
   description:
-    "We are currently building our platform. For inquiries, contact us at +91 7906896546.",
+    "Khurja ka apna local directory. Verified properties, second-hand vehicles, electronics & handcrafted pottery — sab ek jagah.",
   icons: {
     icon: "/logos/logo.png",
     apple: "/logos/logo.png",
   },
   openGraph: {
-    title: "Khurja Deals — Coming Soon",
+    title: "KhurjaDeals — Khurja's Local Marketplace",
     description:
-      "We are currently building our platform. Stay tuned for great deals!",
+      "Buy, sell & rent in Khurja. Properties, vehicles, mobiles, laptops, pottery — all in one place.",
     images: ["/logos/logo.png"],
   },
 };
@@ -29,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geist.variable}>
+    <html lang="en" data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

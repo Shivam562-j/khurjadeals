@@ -1,43 +1,65 @@
 import React from "react";
 import Link from "next/link";
 import { SERVICES } from "@/constants/services";
-import Container from "@/components/layout/Container";
+
+const steps = [
+  { num: "01", title: "Browse Listings", desc: "Explore verified properties and products listed by local sellers in Khurja." },
+  { num: "02", title: "Submit Your Query", desc: "Fill out a quick form. Our admin team reviews and calls you within 24 hours." },
+  { num: "03", title: "Close the Deal", desc: "Discuss, verify, and finalize your deal directly with the seller. Zero commission." },
+];
 
 export default function Services() {
   return (
-    <section className="py-20 bg-neutral-950">
-      <Container className="space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-[var(--primary)]">
-            Our Offerings
-          </span>
-          <h2 className="text-3xl font-black text-white">
-            Services We Provide
-          </h2>
-          <p className="text-sm text-neutral-450">
-            We offer professional services to help you make informed decisions in the local Khurja market.
-          </p>
-        </div>
+    <>
+      {/* ── Services Cards ── */}
+      <section className="section-light">
+        <div className="container">
+          <div className="sec-head center">
+            <div className="eyebrow">⚡ What We Offer</div>
+            <h2 className="h2">Our Services</h2>
+            <p>Everything you need to buy, sell, or rent in Khurja — all in one trusted platform.</p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {SERVICES.map((srv) => (
-            <div
-              key={srv.id}
-              className="bg-neutral-900 border border-neutral-850 p-6 rounded-2xl space-y-4 hover:border-neutral-750 transition-all shadow-md group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-neutral-950 flex items-center justify-center text-2xl shadow border border-neutral-800 group-hover:bg-[var(--primary)] group-hover:text-white transition-colors duration-300 select-none">
-                {srv.icon}
+          <div className="cards">
+            {SERVICES.map((srv) => (
+              <div key={srv.id} className="card">
+                <div className="card-ic">
+                  <span style={{ fontSize: "1.5rem" }}>{srv.icon}</span>
+                </div>
+                <h3>{srv.title}</h3>
+                <p>{srv.description}</p>
+                <Link href="/submit-query" className="linkarrow">
+                  Get Started
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </Link>
               </div>
-              <h3 className="font-bold text-white text-base">
-                {srv.title}
-              </h3>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                {srv.description}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </Container>
-    </section>
+      </section>
+
+      {/* ── How It Works Steps ── */}
+      <section className="section-alt">
+        <div className="container">
+          <div className="sec-head center">
+            <div className="eyebrow">📋 Process</div>
+            <h2 className="h2">How It Works</h2>
+            <p>Getting started is easy. Three simple steps to your next deal.</p>
+          </div>
+
+          <div className="steps">
+            {steps.map((step) => (
+              <div key={step.num} className="step">
+                <div className="num" />
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

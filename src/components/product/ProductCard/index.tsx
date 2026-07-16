@@ -1,99 +1,45 @@
+"use client";
 import React from "react";
 import Link from "next/link";
 import { Product } from "@/types/product";
 import { formatPriceShort } from "@/utils/formatter";
 
-interface ProductCardProps {
-  product: Product;
-}
+interface ProductCardProps { product: Product; }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const {
-    title,
-    slug,
-    category,
-    condition,
-    price,
-    images,
-    location,
-    isFeatured,
-  } = product;
-
-  const displayImage = images && images.length > 0 ? images[0] : "/images/placeholder.jpg";
+  const { title, slug, category, condition, price, images, location, isFeatured } = product;
+  const displayImage = images?.[0] ?? "/images/placeholder.jpg";
 
   return (
-    <div className="group flex flex-col bg-neutral-900 border border-neutral-850 rounded-2xl overflow-hidden hover:border-neutral-750 transition-all duration-300 shadow-lg">
-      {/* Media Cover */}
-      <div className="relative aspect-square w-full overflow-hidden bg-neutral-950">
-        {isFeatured && (
-          <span className="absolute top-3 left-3 z-10 bg-[var(--primary)] text-white text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md shadow">
-            Featured
-          </span>
-        )}
-        <span className="absolute top-3 right-3 z-10 bg-neutral-950/85 backdrop-blur text-white text-xs px-2.5 py-1 rounded-md border border-neutral-800 capitalize font-medium">
-          {condition}
-        </span>
-        <img
-          src={displayImage}
-          alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+    <div className="listing-card">
+      {/* Image */}
+      <div className="listing-card-media" style={{ aspectRatio: "1/1" }}>
+        {isFeatured && <span className="listing-badge">Featured</span>}
+        <span className="listing-type-badge">{condition}</span>
+        <img src={displayImage} alt={title} loading="lazy" />
       </div>
 
-      {/* Info Body */}
-      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-        <div className="space-y-2">
-          {/* Tag */}
-          <div className="text-[10px] text-neutral-450 font-bold uppercase tracking-wider">
-            {category}
-          </div>
-
-          {/* Title */}
-          <h3 className="text-base font-bold text-white leading-snug line-clamp-1 group-hover:text-[var(--primary)] transition-colors">
-            <Link href={`/products/${slug}`}>{title}</Link>
-          </h3>
-
-          {/* Location */}
-          <p className="text-xs text-neutral-450 flex items-center gap-1">
-            <svg
-              className="h-3.5 w-3.5 text-neutral-500 shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-            </svg>
-            <span className="truncate">{location}</span>
-          </p>
+      {/* Body */}
+      <div className="listing-card-body">
+        <div className="listing-tags">
+          <span className="listing-tag">{category}</span>
         </div>
 
-        {/* Pricing footer */}
-        <div className="pt-4 border-t border-neutral-850 flex items-center justify-between">
-          <span className="text-lg font-black text-[var(--primary)]">
-            {formatPriceShort(price)}
-          </span>
-          <Link
-            href={`/products/${slug}`}
-            className="text-xs font-semibold text-white hover:text-[var(--primary)] transition-colors inline-flex items-center gap-1"
-          >
+        <Link href={`/products/${slug}`} className="listing-title">{title}</Link>
+
+        <div className="listing-location">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          </svg>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{location}</span>
+        </div>
+
+        <div className="listing-footer">
+          <span className="listing-price">{formatPriceShort(price)}</span>
+          <Link href={`/products/${slug}`} className="listing-action">
             Buy Now
-            <svg
-              className="h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5l7 7-7 7"
-              />
+            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/>
             </svg>
           </Link>
         </div>

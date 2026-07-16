@@ -1,109 +1,197 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import Container from "@/components/layout/Container";
-import { FaBicycle, FaMobileAlt, FaLaptop, FaBoxOpen, FaHome, FaKey, FaEnvelope } from "react-icons/fa";
+
+const stats = [
+  { value: "500+",  label: "Active Listings" },
+  { value: "200+",  label: "Properties" },
+  { value: "1k+",   label: "Happy Buyers" },
+  { value: "100%",  label: "Verified" },
+];
+
+const hpoints = [
+  { icon: "🏠", label: "Properties", sub: "200+ listings" },
+  { icon: "📦", label: "Products",   sub: "300+ items" },
+  { icon: "🏺", label: "Pottery",    sub: "Khurja Special" },
+];
+
+const quickLinks = [
+  { label: "Buy Property",  href: "/properties?listingType=sell",   icon: "🏢" },
+  { label: "Rent Property", href: "/properties?listingType=rent",   icon: "🔑" },
+  { label: "Used Bikes",    href: "/products?search=bike",          icon: "🚲" },
+  { label: "Mobiles",       href: "/products?search=phone",         icon: "📱" },
+  { label: "Laptops",       href: "/products?search=laptop",        icon: "💻" },
+  { label: "Pottery",       href: "/products?category=Pottery",     icon: "🏺" },
+];
 
 export default function Hero() {
-  const quickCategories = [
-    { label: "Bikes", icon: FaBicycle, href: "/products?search=bike" },
-    { label: "Mobiles", icon: FaMobileAlt, href: "/products?search=phone" },
-    { label: "Laptops", icon: FaLaptop, href: "/products?search=laptop" },
-    { label: "Pottery", icon: FaBoxOpen, href: "/products?category=Pottery+%26+Ceramics" },
-    { label: "For Sale", icon: FaHome, href: "/properties?listingType=sell" },
-    { label: "For Rent", icon: FaKey, href: "/properties?listingType=rent" },
-    { label: "Wanted Ad", icon: FaEnvelope, href: "/submit-query" },
-  ];
-
   return (
-    <section className="relative min-h-[85vh] flex flex-col justify-center overflow-hidden py-16 bg-[radial-gradient(ellipse_at_top,_var(--hero-bg-2)_0%,_var(--hero-bg-1)_60%,_#0a0a0a_100%)]">
-      {/* Decorative Gradients */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[var(--primary)]/10 blur-[130px] pointer-events-none" />
+    <>
+      <section className="hero bg-grid">
+        {/* Ambient glow */}
+        <div style={{
+          position: "absolute", top: "50%", left: "30%",
+          transform: "translate(-50%,-50%)",
+          width: 700, height: 700, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(232,89,12,0.13) 0%, transparent 65%)",
+          pointerEvents: "none", zIndex: 1,
+        }} />
 
-      <Container className="relative z-10 text-center space-y-12 max-w-5xl mx-auto">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900/80 border border-neutral-800 text-xs text-neutral-300 font-semibold tracking-wider uppercase backdrop-blur-sm shadow-lg mx-auto">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" />
-          Khurja's Own Marketplace
-        </div>
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
+          <div className="hero-inner">
+            {/* ── Left: Copy ── */}
+            <div className="hero-copy animate-fade-up">
+              <div className="eyebrow animate-fade-up">
+                <span style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "var(--primary)",
+                  display: "inline-block",
+                  boxShadow: "0 0 8px var(--primary)",
+                  animation: "blink 2s ease-in-out infinite",
+                }} />
+                Khurja&apos;s #1 Local Marketplace
+              </div>
 
-        {/* Headline */}
-        <div className="space-y-4 max-w-3xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight">
-            Vehicles & Properties <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--primary)] to-amber-500">
-              Ek Jagah Par
-            </span>
-          </h1>
-          <p className="text-neutral-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Khurja ka apna local directory. Verified commercial properties, plots, residential houses, second-hand mobile phones, laptops, and bikes.
-          </p>
-        </div>
+              <h1 className="h1 animate-fade-up delay-100" style={{ marginBottom: 20 }}>
+                Buy, Sell &amp; Rent in{" "}
+                <span className="accent">Khurja</span>
+              </h1>
 
-        {/* Double Core Category Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Products & Vehicles */}
-          <div className="group bg-neutral-900/60 border border-neutral-850 hover:border-neutral-750 p-8 rounded-3xl text-left flex flex-col justify-between space-y-6 transition-all duration-350 shadow-2xl backdrop-blur-md">
-            <div className="space-y-3">
-              <div className="text-3xl">📦</div>
-              <h3 className="text-xl font-bold text-white group-hover:text-[var(--primary)] transition-colors">
-                Vehicles & Bazaar Products
-              </h3>
-              <p className="text-sm text-neutral-455 leading-relaxed">
-                Second-hand mobile phones, laptops, electronics, pre-owned bikes, scooters, and local handcrafted pottery ceramics.
+              <p className="lead animate-fade-up delay-200">
+                Khurja ka apna local directory — verified commercial properties,
+                residential plots, used vehicles, electronics &amp; handcrafted pottery.
+                Sab kuch ek jagah.
               </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Link href="/products" className="flex items-center justify-center font-bold rounded-xl py-3 bg-neutral-950 text-xs uppercase tracking-wide border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-600 transition-all cursor-pointer">
-                Browse Items
-              </Link>
-              <Link href="/submit-query" className="flex items-center justify-center font-bold rounded-xl py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-xs uppercase tracking-wide text-white transition-all cursor-pointer shadow-lg">
-                Sell / Post Ad
-              </Link>
-            </div>
-          </div>
 
-          {/* Real Estate & Properties */}
-          <div className="group bg-neutral-900/60 border border-neutral-850 hover:border-neutral-750 p-8 rounded-3xl text-left flex flex-col justify-between space-y-6 transition-all duration-350 shadow-2xl backdrop-blur-md">
-            <div className="space-y-3">
-              <div className="text-3xl">🏢</div>
-              <h3 className="text-xl font-bold text-white group-hover:text-[var(--primary)] transition-colors">
-                Real Estate & Properties
-              </h3>
-              <p className="text-sm text-neutral-455 leading-relaxed">
-                List or search for commercial shops on G.T. Road, residential plots near Junction Road, agricultural lands, and home rentals.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Link href="/properties" className="flex items-center justify-center font-bold rounded-xl py-3 bg-neutral-950 text-xs uppercase tracking-wide border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-600 transition-all cursor-pointer">
-                Buy / Rent
-              </Link>
-              <Link href="/submit-query" className="flex items-center justify-center font-bold rounded-xl py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-xs uppercase tracking-wide text-white transition-all cursor-pointer shadow-lg">
-                List Property
-              </Link>
-            </div>
-          </div>
-        </div>
+              <div className="hero-cta animate-fade-up delay-300">
+                <Link href="/properties" className="btn btn-primary btn-lg">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                  </svg>
+                  Explore Properties
+                </Link>
+                <Link href="/products" className="btn btn-outline btn-lg">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                  Browse Products
+                </Link>
+              </div>
 
-        {/* Circular Quick Categories Icons */}
-        <div className="max-w-4xl mx-auto pt-6">
-          <div className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-6">
-            Quick Categories
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            {quickCategories.map((cat, idx) => (
-              <Link key={idx} href={cat.href} className="group flex flex-col items-center gap-2 cursor-pointer transition">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-neutral-850 bg-neutral-900/80 group-hover:bg-[var(--primary)] group-hover:border-[var(--primary)] flex items-center justify-center text-xl sm:text-2xl shadow transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-                  {React.createElement(cat.icon, { className: "text-2xl" })}
+              {/* Hero points */}
+              <div className="hero-points animate-fade-up delay-400">
+                {hpoints.map((p) => (
+                  <div key={p.label} className="hpoint">
+                    <div className="hp-ic">
+                      <span style={{ fontSize: "1.25rem" }}>{p.icon}</span>
+                    </div>
+                    <div className="hp-label">
+                      {p.label}
+                      <span>{p.sub}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Right: Cards ── */}
+            <div className="animate-fade-up delay-200">
+              {/* Stats Grid */}
+              <div className="hero-stat-card">
+                <div className="hero-stat-grid">
+                  {stats.map((s) => (
+                    <div key={s.label} className="stat-box">
+                      <div className="stat-box-val">{s.value}</div>
+                      <div className="stat-box-lbl">{s.label}</div>
+                    </div>
+                  ))}
                 </div>
-                <span className="text-xs font-semibold text-neutral-450 group-hover:text-white transition-colors">
+
+                {/* Mini CTA card */}
+                <div className="hero-cta-card">
+                  <p>Have something to sell?</p>
+                  <span>List for free — admin calls you in 24h</span>
+                  <Link href="/submit-query" className="btn btn-primary" style={{ width: "100%" }}>
+                    Post Your Ad — Free
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Quick Browse ── */}
+          <div style={{
+            marginTop: 64, paddingTop: 40,
+            borderTop: "1px solid var(--border-color)",
+          }}>
+            <p style={{
+              textAlign: "center", fontSize: "0.72rem", fontWeight: 700,
+              textTransform: "uppercase", letterSpacing: "0.22em",
+              color: "var(--text-muted)", marginBottom: 24,
+            }}>
+              Quick Browse
+            </p>
+            <div style={{
+              display: "flex", flexWrap: "wrap",
+              justifyContent: "center", gap: 10,
+            }}>
+              {quickLinks.map((cat) => (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 8,
+                    padding: "9px 18px", borderRadius: 999,
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1.5px solid var(--border-color)",
+                    color: "var(--text-muted)", fontSize: "0.86rem", fontWeight: 600,
+                    transition: "var(--transition-smooth)",
+                  }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = "var(--primary-light)";
+                    el.style.borderColor = "var(--primary)";
+                    el.style.color = "var(--primary)";
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.background = "rgba(255,255,255,0.03)";
+                    el.style.borderColor = "var(--border-color)";
+                    el.style.color = "var(--text-muted)";
+                  }}
+                >
+                  <span>{cat.icon}</span>
                   {cat.label}
-                </span>
-              </Link>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust Strip ── */}
+      <div className="trust-strip">
+        <div className="container">
+          <div className="trust-row">
+            {[
+              { icon: "✅", big: "100% Free", text: "To list your property or product" },
+              { icon: "🔍", big: "Admin Verified", text: "Every listing is manually checked" },
+              { icon: "📞", big: "Direct Call", text: "Admin contacts you within 24 hours" },
+              { icon: "🏺", big: "Khurja Pottery", text: "Authentic local ceramics marketplace" },
+            ].map((item) => (
+              <div key={item.big} className="trust-cell">
+                <div className="tc-icon">
+                  <span style={{ fontSize: "1rem" }}>{item.icon}</span>
+                </div>
+                <div>
+                  <div className="tc-big">{item.big}</div>
+                  <div className="tc-text">{item.text}</div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      </Container>
-    </section>
+      </div>
+    </>
   );
 }

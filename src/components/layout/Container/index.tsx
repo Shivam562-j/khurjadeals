@@ -6,13 +6,17 @@ interface ContainerProps {
   as?: React.ElementType;
 }
 
+/**
+ * Thin wrapper that applies the `.container` utility class from globals.css.
+ * max-width: 1200px, centered, 0 24px padding.
+ */
 export default function Container({
   children,
   className = "",
   as: Component = "div",
 }: ContainerProps) {
   return (
-    <Component className={`w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
+    <Component className={`container ${className}`.trim()}>
       {children}
     </Component>
   );

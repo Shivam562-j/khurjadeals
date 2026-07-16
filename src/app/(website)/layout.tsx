@@ -8,7 +8,7 @@ export const metadata: Metadata = DEFAULT_METADATA;
 
 export default function WebsiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-950 text-white selection:bg-[var(--primary)] selection:text-white">
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: "var(--bg-base)", color: "var(--text-primary)" }}>
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />

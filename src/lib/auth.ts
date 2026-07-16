@@ -5,7 +5,7 @@ import type { AuthUser } from "@/types/user";
 const SECRET = process.env.JWT_SECRET || "khurjadeals-secret-change-in-production";
 
 const COOKIE_NAME = "kd_token";
-const EXPIRES_IN  = 60 * 60 * 24 * 7; // 7 days
+const EXPIRES_IN = 60 * 60 * 24 * 7; // 7 days
 
 /** Sign a JWT and set it in an HttpOnly cookie */
 export async function signIn(user: AuthUser): Promise<void> {
@@ -14,10 +14,10 @@ export async function signIn(user: AuthUser): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure:   process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge:   EXPIRES_IN,
-    path:     "/",
+    maxAge: EXPIRES_IN,
+    path: "/",
   });
 }
 
