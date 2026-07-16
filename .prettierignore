@@ -1,0 +1,16 @@
+/.vscode
+/node_modules
+./dist
+
+.next
+node_modules
+dist
+build
+coverage
+public
+*.lock
+
+*.env
+.env
+.env-*
+.env.*
