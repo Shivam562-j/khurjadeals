@@ -1,26 +1,348 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ─── Brand Tokens ──────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary:       #E8590C;
+  --primary-dark:  #C2410C;
+  --primary-glow:  rgba(232, 89, 12, 0.55);
+  --dark:          #1B1B1B;
+  --hero-bg-1:     #111111;
+  --hero-bg-2:     #2A1508;
+  --whatsapp:      #25D366;
+  --whatsapp-dark: #128C7E;
+  --text-white:    #FFFFFF;
+  --text-muted:    rgba(255,255,255,0.55);
+  --text-dim:      rgba(255,255,255,0.25);
+  --border-orange: rgba(232, 89, 12, 0.25);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', system-ui, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Full-screen Page ──────────────────────────────────────── */
+.coming-soon-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem 1rem;
+  background: radial-gradient(ellipse at 70% 20%, #2A1508 0%, #111111 55%, #0d0d0d 100%);
+}
+
+/* Diagonal stripe texture */
+.coming-soon-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 40px,
+    rgba(232, 89, 12, 0.045) 40px,
+    rgba(232, 89, 12, 0.045) 80px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Glow Blobs ────────────────────────────────────────────── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.blob-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #E8590C 0%, transparent 65%);
+  top: -200px; right: -150px;
+  animation: float1 10s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #ff7a35 0%, transparent 65%);
+  bottom: -120px; left: -80px;
+  animation: float1 12s ease-in-out 4s infinite;
+}
+
+.blob-3 {
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, #E8590C 0%, transparent 65%);
+  top: 40%; left: 20%;
+  animation: float1 8s ease-in-out 2s infinite;
+  opacity: 0.1;
+}
+
+@keyframes float1 {
+  0%,100% { transform: translateY(0px) scale(1); }
+  50%      { transform: translateY(-30px) scale(1.07); }
+}
+
+/* ─── Card ──────────────────────────────────────────────────── */
+.content-wrapper {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+  background: linear-gradient(
+    160deg,
+    rgba(255,255,255,0.06) 0%,
+    rgba(255,255,255,0.02) 100%
+  );
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid var(--border-orange);
+  border-radius: 28px;
+  padding: 3rem 2.75rem;
+  box-shadow:
+    0 0 0 1px rgba(232,89,12,0.08) inset,
+    0 40px 100px rgba(0,0,0,0.7),
+    0 0 80px rgba(232,89,12,0.08);
+  animation: card-in 0.9s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(36px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Logo ──────────────────────────────────────────────────── */
+.logo-container {
+  margin-bottom: 1.5rem;
+  animation: pop-in 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+}
+
+.logo {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 20px rgba(232,89,12,0.4))
+    drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+  transition: transform 0.35s ease, filter 0.35s ease;
+  border-radius: 16px;
+}
+
+.logo:hover {
+  transform: scale(1.07) rotate(-2deg);
+  filter:
+    drop-shadow(0 0 30px rgba(232,89,12,0.65))
+    drop-shadow(0 12px 40px rgba(0,0,0,0.7));
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.7) rotate(-4deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* ─── Live Badge ────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(232,89,12,0.12);
+  border: 1.5px solid rgba(232,89,12,0.35);
+  color: #ffb899;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.38rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  animation: fade-up 0.5s ease 0.3s both;
+}
+
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; box-shadow: 0 0 10px var(--primary); }
+  50%      { opacity: 0.35; box-shadow: 0 0 4px var(--primary); }
+}
+
+/* ─── Main Heading ──────────────────────────────────────────── */
+.heading {
+  font-size: clamp(3rem, 9vw, 5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text-white);
+  margin-bottom: 0.6rem;
+  animation: fade-up 0.5s ease 0.4s both;
+}
+
+.heading-accent {
+  color: var(--primary);
+  text-shadow:
+    0 0 30px rgba(232,89,12,0.7),
+    0 0 60px rgba(232,89,12,0.3);
+}
+
+/* ─── Tagline ───────────────────────────────────────────────── */
+.tagline {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+  animation: fade-up 0.5s ease 0.48s both;
+}
+
+/* ─── Divider ───────────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto 1.5rem;
+  animation: fade-up 0.5s ease 0.52s both;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(232,89,12,0.45), transparent);
+}
+
+.divider-icon {
+  color: var(--primary);
+  font-size: 0.6rem;
+}
+
+/* ─── Description ───────────────────────────────────────────── */
+.description {
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 440px;
+  margin-bottom: 2rem;
+  animation: fade-up 0.5s ease 0.56s both;
+}
+
+/* ─── Contact Box ───────────────────────────────────────────── */
+.contact-card {
+  width: 100%;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  margin-bottom: 1.75rem;
+  animation: fade-up 0.5s ease 0.62s both;
+}
+
+.contact-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 1.1rem;
+}
+
+.contact-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  justify-content: center;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────── */
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.82rem 1.65rem;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.contact-btn:active { transform: scale(0.97); }
+
+/* Phone — orange */
+.phone-btn {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(232,89,12,0.4);
+}
+.phone-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(232,89,12,0.6);
+}
+
+/* WhatsApp — green */
+.whatsapp-btn {
+  background: var(--whatsapp);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+}
+.whatsapp-btn:hover {
+  background: var(--whatsapp-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(37,211,102,0.5);
+}
+
+/* ─── Footer ────────────────────────────────────────────────── */
+.footer-text {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.06em;
+  animation: fade-up 0.5s ease 0.7s both;
+}
+
+/* ─── Shared Keyframes ──────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Mobile ────────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .content-wrapper {
+    padding: 2.25rem 1.5rem;
+    border-radius: 22px;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  .logo { width: 105px; height: 105px; }
+
+  .heading { font-size: clamp(2.6rem, 13vw, 3.5rem); }
+
+  .contact-buttons { flex-direction: column; }
+
+  .contact-btn {
+    justify-content: center;
+    width: 100%;
+  }
 }
