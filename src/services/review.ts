@@ -18,7 +18,7 @@ export async function createReview(data: Partial<IReview>) {
 
 export async function updateReviewStatus(id: string, status: "approved" | "rejected" | "pending") {
   await connectDB();
-  return Review.findByIdAndUpdate(id, { status }, { new: true });
+  return Review.findByIdAndUpdate(id, { status }, { returnDocument: "after" });
 }
 
 export async function deleteReview(id: string) {

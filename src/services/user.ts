@@ -32,7 +32,7 @@ export async function updateUser(id: string, data: Partial<IUser>) {
     return JSON.parse(JSON.stringify(doc.toObject()));
   }
 
-  const user = await User.findByIdAndUpdate(id, data, { new: true }).lean();
+  const user = await User.findByIdAndUpdate(id, data, { returnDocument: "after" }).lean();
   if (!user) return null;
   return JSON.parse(JSON.stringify(user));
 }

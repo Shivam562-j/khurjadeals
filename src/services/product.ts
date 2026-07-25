@@ -74,7 +74,7 @@ export async function getProducts(filters: ProductFilter = {}) {
 export async function getProductBySlug(slug: string, incViews: boolean = false) {
   await connectDB();
   const query = incViews
-    ? Product.findOneAndUpdate({ slug }, { $inc: { views: 1 } }, { new: true })
+    ? Product.findOneAndUpdate({ slug }, { $inc: { views: 1 } }, { returnDocument: "after" })
     : Product.findOne({ slug });
 
   const product = await query.lean();
@@ -108,7 +108,7 @@ export async function createProduct(data: Partial<IProduct>) {
 /** Update product */
 export async function updateProduct(id: string, data: Partial<IProduct>) {
   await connectDB();
-  const product = await Product.findByIdAndUpdate(id, data, { new: true }).lean();
+  const product = await Product.findByIdAndUpdate(id, data, { returnDocument: "after" }).lean();
   if (!product) return null;
   return JSON.parse(JSON.stringify(product));
 }

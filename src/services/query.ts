@@ -22,7 +22,7 @@ export async function createQuery(data: Partial<IQuery>) {
 /** Update query status (admin management) */
 export async function updateQueryStatus(id: string, status: QueryStatus) {
   await connectDB();
-  const query = await Query.findByIdAndUpdate(id, { status }, { new: true }).lean();
+  const query = await Query.findByIdAndUpdate(id, { status }, { returnDocument: "after" }).lean();
   if (!query) return null;
   return JSON.parse(JSON.stringify(query));
 }

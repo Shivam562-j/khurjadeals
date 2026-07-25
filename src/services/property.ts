@@ -73,7 +73,7 @@ export async function getProperties(filters: PropertyFilter = {}) {
 export async function getPropertyBySlug(slug: string, incViews: boolean = false) {
   await connectDB();
   const query = incViews
-    ? Property.findOneAndUpdate({ slug }, { $inc: { views: 1 } }, { new: true })
+    ? Property.findOneAndUpdate({ slug }, { $inc: { views: 1 } }, { returnDocument: "after" })
     : Property.findOne({ slug });
 
   const property = await query.lean();
@@ -107,7 +107,7 @@ export async function createProperty(data: Partial<IProperty>) {
 /** Update property */
 export async function updateProperty(id: string, data: Partial<IProperty>) {
   await connectDB();
-  const property = await Property.findByIdAndUpdate(id, data, { new: true }).lean();
+  const property = await Property.findByIdAndUpdate(id, data, { returnDocument: "after" }).lean();
   if (!property) return null;
   return JSON.parse(JSON.stringify(property));
 }
