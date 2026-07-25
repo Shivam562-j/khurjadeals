@@ -22,11 +22,13 @@ import {
 const LIMIT = 12;
 
 const CATEGORY_OPTIONS = [
-  { label: "Pottery & Ceramics", value: "Pottery & Ceramics" },
-  { label: "Vehicles & Tech", value: "Vehicles & Tech" },
-  { label: "Bicycles & Tech", value: "Bicycles & Tech" },
+  { label: "Bikes & Cars", value: "Bikes & Cars" },
+  { label: "Electric Vehicles (EV)", value: "Electric Vehicles" },
+  { label: "Mobiles & Laptops", value: "Mobiles & Laptops" },
+  { label: "Electronics", value: "Electronics" },
+  { label: "Home Appliances (Fridge/AC/Washer)", value: "Home Appliances" },
   { label: "Furniture & Decor", value: "Furniture & Decor" },
-  { label: "Household Appliances", value: "Household Appliances" },
+  { label: "Others", value: "Others" },
 ];
 
 const CONDITION_OPTIONS = [
@@ -207,9 +209,9 @@ function ProductsList() {
       <div className="page-hero">
         <div className="container">
           <span className="eyebrow">Local Bazaar</span>
-          <h1 className="h1">Marketplace &amp; Khurja Pottery</h1>
+          <h1 className="h1">Marketplace &amp; Used Items Bazaar</h1>
           <p className="lead">
-            Discover local products, used vehicles, household appliances, and famous Khurja ceramic pottery directly from local sellers.
+            Discover used bikes, cars, electric vehicles (EV), laptops, smartphones, refrigerators, ACs, coolers &amp; washing machines directly from local sellers in Khurja.
           </p>
         </div>
       </div>
@@ -222,7 +224,7 @@ function ProductsList() {
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search products, pottery, vehicles, appliances..."
+                placeholder="Search bikes, EVs, cars, mobiles, laptops, fridge, AC, cooler..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
@@ -365,7 +367,7 @@ function ProductsList() {
                       </label>
                       <input
                         type="text"
-                        placeholder="e.g. GT Road, Pottery Market"
+                        placeholder="e.g. GT Road, Subhash Road"
                         value={localLocation}
                         onChange={(e) => setLocalLocation(e.target.value)}
                       />

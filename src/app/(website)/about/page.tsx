@@ -9,7 +9,7 @@ import {
   FaChevronRight,
   FaPhoneAlt,
   FaBuilding,
-  FaStore,
+  FaTv,
   FaRocket,
   FaEye,
 } from "react-icons/fa";
@@ -28,9 +28,9 @@ export default function AboutPage() {
       icon: <FaShieldAlt />,
     },
     {
-      title: "Famous Pottery Bazaar",
-      desc: "Explore factory-direct ceramics, decorative pots, and traditional Khurja pottery directly from local artisans.",
-      icon: <FaStore />,
+      title: "Used Vehicles, EVs & Tech",
+      desc: "Find used bikes, cars, electric vehicles (EV), laptops, smartphones, refrigerators, ACs, coolers & washing machines at affordable local prices.",
+      icon: <FaTv />,
     },
     {
       title: "24/7 Local Support",
@@ -57,7 +57,7 @@ export default function AboutPage() {
           <span className="eyebrow">About Us</span>
           <h1 className="h1">Khurja&apos;s Trusted Local Marketplace</h1>
           <p className="lead">
-            Your dependable directory partner across Khurja — for real estate, second-hand items, and pottery ceramics.
+            Your dependable directory partner across Khurja — for real estate properties, used vehicles, EVs &amp; home appliances.
           </p>
         </div>
       </div>
@@ -71,20 +71,20 @@ export default function AboutPage() {
             </div>
             <span className="eyebrow">Who We Are</span>
             <h2 className="h2" style={{ color: "var(--text-white)", marginBottom: "16px" }}>
-              Empowering Khurja&apos;s Local Commerce
+              Empowering Khurja&apos;s Local Deals
             </h2>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed">
               At <strong>{SITE_CONFIG.name}</strong>, we&apos;re more than just a listing website — we&apos;re your dependable local marketplace partner across Khurja, Bulandshahr, Uttar Pradesh.
             </p>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              Khurja is globally famous for its ceramic industries and beautiful pottery, as well as being a fast-growing hub for local trades. However, finding verified property listings, commercial shops, plots, or second-hand products historically required dealing with high agent fees or unverified brokers.
+              Finding verified property listings (plots, houses, shops for buy/sell/rent) or used items (bikes, cars, EVs, laptops, mobiles, fridge, AC, cooler, washing machines) historically required dealing with high agent fees or unverified brokers.
             </p>
             <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              We built <strong>{SITE_CONFIG.name}</strong> to digitize Khurja&apos;s real estate directory and bazaar, allowing buyers to connect directly with owners on call or WhatsApp.
+              We built <strong>{SITE_CONFIG.name}</strong> to digitize Khurja&apos;s real estate directory and used items bazaar, allowing buyers to connect directly with owners on call or WhatsApp.
             </p>
           </div>
 
-          {/* Right Side: Our Mission & Our Vision Cards with prominent row gap */}
+          {/* Right Side: Our Mission & Our Vision Cards */}
           <div style={{ display: "flex", flexDirection: "column", gap: "36px" }}>
             {/* Our Mission Card */}
             <div className="card space-y-4" style={{ marginBottom: "0px" }}>
@@ -95,7 +95,7 @@ export default function AboutPage() {
                 <h3 className="text-xl font-bold text-white mb-0">Our Mission</h3>
               </div>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-0">
-                To create a clean, scam-free, transparent digital directory where every resident of Khurja can buy, sell, or rent properties and products with zero middleman commissions.
+                To create a clean, scam-free, transparent digital directory where every resident of Khurja can buy, sell, or rent properties and second-hand items with zero middleman commissions.
               </p>
             </div>
 
@@ -108,7 +108,7 @@ export default function AboutPage() {
                 <h3 className="text-xl font-bold text-white mb-0">Our Vision</h3>
               </div>
               <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-0">
-                To showcase Khurja&apos;s pottery craftsmanship worldwide while building the most reliable hyper-local marketplace in Western Uttar Pradesh.
+                To build the most reliable, free hyper-local marketplace in Western Uttar Pradesh for verified real estate and pre-owned goods.
               </p>
             </div>
           </div>

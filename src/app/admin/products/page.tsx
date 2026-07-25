@@ -189,12 +189,15 @@ export default function ProductsManager() {
     setIsSubmitLoading(false);
   };
 
+  const [category, setCategory] = useState("Bikes & Scooters");
+
   const categories = [
-    { label: "Pottery & Ceramics", value: "Pottery & Ceramics" },
     { label: "Phones & Mobiles", value: "Phones & Mobiles" },
     { label: "Laptops & Computers", value: "Laptops & Computers" },
     { label: "Bikes & Scooters", value: "Bikes & Scooters" },
-    { label: "Electrical Appliances", value: "Electrical Appliances" },
+    { label: "Cars & Vehicles", value: "Cars & Vehicles" },
+    { label: "Electric Vehicles (EV)", value: "Electric Vehicles" },
+    { label: "Electrical Appliances (Fridge/AC/Washer)", value: "Electrical Appliances" },
     { label: "Others / General", value: "Others" },
   ];
 
@@ -216,7 +219,7 @@ export default function ProductsManager() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-white">Bazaar Products</h1>
           <p className="text-sm text-neutral-450">
-            Create, update, or remove products and ceramic pottery deals.
+            Create, update, or remove used products and vehicles.
           </p>
         </div>
         <Button onClick={handleOpenAdd} size="sm">
@@ -300,7 +303,7 @@ export default function ProductsManager() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Product Title *"
-            placeholder="e.g. Handmade Ceramic Tea Cups (Set of 6)"
+            placeholder="e.g. Used Honda Shine Bike 2021 Model / EV Scooter"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required

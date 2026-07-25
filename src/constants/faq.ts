@@ -14,7 +14,7 @@ export const GENERAL_FAQS: FAQItem[] = [
     categoryLabel: "1. Homepage FAQs (General Platform Help)",
     question: "What is KhurjaDeals and how does it work?",
     answer:
-      "KhurjaDeals is a local online marketplace that connects buyers and sellers in Khurja and nearby areas. You can buy, sell, or rent second-hand products (mobiles, bikes, cars, furniture) and real estate properties (houses, shops, land). We directly connect buyers with sellers—there are no middleman fees or commissions involved.",
+      "KhurjaDeals is a local online marketplace that connects buyers and sellers in Khurja and nearby areas. You can buy, sell, or rent used products (bikes, cars, electric vehicles/EV, mobiles, laptops, fridge, AC, washing machine) and real estate properties (houses, shops, land). We directly connect buyers with sellers—there are no middleman fees or commissions involved.",
   },
   {
     id: "gen-2",

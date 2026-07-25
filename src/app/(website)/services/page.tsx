@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { FaHome, FaKey, FaBox, FaStore, FaComments, FaCheckCircle, FaChevronRight, FaPhoneAlt, FaArrowRight } from "react-icons/fa";
+import { FaHome, FaKey, FaBox, FaTv, FaComments, FaCheckCircle, FaChevronRight, FaPhoneAlt, FaArrowRight } from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
 
 export default function ServicesPage() {
@@ -17,13 +17,13 @@ export default function ServicesPage() {
     },
     {
       icon: <FaBox />,
-      title: "Second-Hand Products Bazaar",
-      desc: "Discover quality pre-owned goods including used motorcycles, smartphones, laptops, electronics, home furniture, and appliances."
+      title: "Used Bikes, Cars & Electric Vehicles",
+      desc: "Discover quality pre-owned motorcycles, scooters, cars and electric vehicles (EV) with verified owner contact details across Khurja."
     },
     {
-      icon: <FaStore />,
-      title: "Khurja Pottery Ceramics Showcase",
-      desc: "Direct access to Khurja's world-famous pottery factories and ceramic artisans. Order decorative flower pots, dinner sets, and ceramic handicrafts."
+      icon: <FaTv />,
+      title: "Used Electronics & Home Appliances",
+      desc: "Buy and sell used smartphones, laptops, refrigerators, ACs, coolers, and washing machines at budget prices."
     },
     {
       icon: <FaComments />,
@@ -32,7 +32,7 @@ export default function ServicesPage() {
     },
     {
       icon: <FaCheckCircle />,
-      title: "Verified Admin Verification",
+      title: "Verified Admin Review",
       desc: "Every listing uploaded on KhurjaDeals undergoes manual verification by our local team to ensure zero fraud and clean listings."
     }
   ];
@@ -43,7 +43,7 @@ export default function ServicesPage() {
         <div className="container">
           <span className="eyebrow">What We Do</span>
           <h1 className="h1">Every Local Deal, Covered</h1>
-          <p className="lead">From real estate plots to pottery and second-hand items — we provide the right platform for every transaction in Khurja.</p>
+          <p className="lead">From real estate plots &amp; rentals to used vehicles, EVs &amp; appliances — we provide the right platform for every transaction in Khurja.</p>
         </div>
       </div>
 

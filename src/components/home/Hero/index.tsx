@@ -7,12 +7,13 @@ import {
   FaMotorcycle,
   FaMobileAlt,
   FaLaptop,
-  FaStore,
+  FaTv,
   FaHome,
   FaBox,
   FaCheckCircle,
   FaSearch,
   FaPhoneAlt,
+  FaCar,
 } from "react-icons/fa";
 
 const stats = [
@@ -23,18 +24,18 @@ const stats = [
 ];
 
 const hpoints = [
-  { icon: <FaHome />, label: "Properties", sub: "200+ listings" },
-  { icon: <FaBox />, label: "Products",   sub: "300+ items" },
-  { icon: <FaStore />, label: "Pottery",    sub: "Khurja Special" },
+  { icon: <FaHome />, label: "Properties", sub: "Buy, Sell & Rent" },
+  { icon: <FaBox />, label: "Used Items", sub: "Bikes, Cars & Tech" },
+  { icon: <FaTv />, label: "Appliances", sub: "Fridge, AC & Washer" },
 ];
 
 const quickLinks = [
   { label: "Buy Property",  href: "/properties?listingType=sell",   icon: <FaBuilding /> },
   { label: "Rent Property", href: "/properties?listingType=rent",   icon: <FaKey /> },
-  { label: "Used Bikes",    href: "/products?search=bike",          icon: <FaMotorcycle /> },
+  { label: "Used Bikes & Cars", href: "/products?search=bike",      icon: <FaMotorcycle /> },
   { label: "Mobiles",       href: "/products?search=phone",         icon: <FaMobileAlt /> },
   { label: "Laptops",       href: "/products?search=laptop",        icon: <FaLaptop /> },
-  { label: "Pottery",       href: "/products?category=Pottery",     icon: <FaStore /> },
+  { label: "Appliances (AC/Fridge)", href: "/products?search=fridge", icon: <FaTv /> },
 ];
 
 export default function Hero() {
@@ -71,8 +72,8 @@ export default function Hero() {
               </h1>
 
               <p className="lead animate-fade-up delay-200">
-                Khurja ka apna local directory — verified commercial properties,
-                residential plots, used vehicles, electronics &amp; handcrafted pottery.
+                Khurja ka apna local directory — verified commercial &amp; residential properties,
+                plots for sale/rent, used bikes, cars, EVs, laptops, mobiles, fridge, AC &amp; washing machines.
                 Sab kuch ek jagah.
               </p>
 
@@ -87,7 +88,7 @@ export default function Hero() {
                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                   </svg>
-                  Browse Products
+                  Browse Used Items
                 </Link>
               </div>
 
@@ -122,7 +123,7 @@ export default function Hero() {
 
                 {/* Mini CTA card */}
                 <div className="hero-cta-card">
-                  <p>Have something to sell?</p>
+                  <p>Have property or items to sell?</p>
                   <span>List for free — admin calls you in 24h</span>
                   <Link href="/submit-query" className="btn btn-primary" style={{ width: "100%" }}>
                     Post Your Ad — Free
@@ -142,7 +143,7 @@ export default function Hero() {
               textTransform: "uppercase", letterSpacing: "0.22em",
               color: "var(--text-muted)", marginBottom: 24,
             }}>
-              Quick Browse
+              Quick Browse Categories
             </p>
             <div style={{
               display: "flex", flexWrap: "wrap",
@@ -189,8 +190,8 @@ export default function Hero() {
             {[
               { icon: <FaCheckCircle />, big: "100% Free", text: "To list your property or product" },
               { icon: <FaSearch />, big: "Admin Verified", text: "Every listing is manually checked" },
-              { icon: <FaPhoneAlt />, big: "Direct Call", text: "Admin contacts you within 24 hours" },
-              { icon: <FaStore />, big: "Khurja Pottery", text: "Authentic local ceramics marketplace" },
+              { icon: <FaPhoneAlt />, big: "Direct Contact", text: "Direct owner & buyer connection" },
+              { icon: <FaCar />, big: "Local Marketplace", text: "Second-hand bikes, tech & appliances" },
             ].map((item) => (
               <div key={item.big} className="trust-cell">
                 <div className="tc-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>

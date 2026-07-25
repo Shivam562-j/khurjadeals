@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
     if (rawType.includes("property")) {
       validEnum = "property";
-    } else if (rawType.includes("product") || rawType.includes("pottery")) {
+    } else if (rawType.includes("product") || rawType.includes("appliance") || rawType.includes("vehicle")) {
       validEnum = "product";
     }
 

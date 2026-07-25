@@ -12,7 +12,7 @@ interface FeaturedProductsProps {
 
 export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   const carouselContainer = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState("All Bazaar");
+  const [activeTab, setActiveTab] = useState("All Used Items");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -26,17 +26,36 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   };
 
   const filteredProducts = products.filter((prod) => {
-    if (activeTab === "Pottery Ceramics") {
-      return (
-        prod.category?.toLowerCase().includes("pottery") ||
-        prod.category?.toLowerCase().includes("ceramic")
-      );
-    }
-    if (activeTab === "Vehicles & Tech") {
+    if (activeTab === "Bikes & Cars") {
       return (
         prod.category?.toLowerCase().includes("vehicle") ||
+        prod.category?.toLowerCase().includes("bike") ||
+        prod.category?.toLowerCase().includes("car")
+      );
+    }
+    if (activeTab === "Electronics & Mobiles") {
+      return (
         prod.category?.toLowerCase().includes("electronics") ||
-        prod.category?.toLowerCase().includes("mobile")
+        prod.category?.toLowerCase().includes("mobile") ||
+        prod.category?.toLowerCase().includes("phone") ||
+        prod.category?.toLowerCase().includes("laptop")
+      );
+    }
+    if (activeTab === "Home Appliances") {
+      return (
+        prod.category?.toLowerCase().includes("appliance") ||
+        prod.category?.toLowerCase().includes("fridge") ||
+        prod.category?.toLowerCase().includes("ac") ||
+        prod.category?.toLowerCase().includes("cooler") ||
+        prod.category?.toLowerCase().includes("washing")
+      );
+    }
+    if (activeTab === "Electric Vehicles") {
+      return (
+        prod.category?.toLowerCase().includes("electric") ||
+        prod.category?.toLowerCase().includes("ev") ||
+        prod.title?.toLowerCase().includes("electric") ||
+        prod.title?.toLowerCase().includes(" ev ")
       );
     }
     return true;
@@ -88,7 +107,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
               <FaStore />
               <span>Khurja Local Marketplace</span>
             </div>
-            <h2 className="h2" style={{ margin: 0, marginTop: 6 }}>Featured Products &amp; Pottery</h2>
+            <h2 className="h2" style={{ margin: 0, marginTop: 6 }}>Used Products &amp; Vehicles</h2>
           </div>
           <Link href="/products" className="btn btn-outline sec-viewall-btn">
             <span>View All</span>
@@ -98,14 +117,14 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
 
         {/* Description */}
         <p className="sec-carousel-desc">
-          Second-hand electronics, vehicles &amp; world-famous Khurja ceramic handicrafts
+          Used bikes, cars, EVs, laptops, mobiles, fridge, AC, cooler &amp; washing machines in Khurja
         </p>
 
         {/* Row 2: Tabs left, Arrow buttons strictly side-by-side in 1 row on right */}
         <div className="sec-carousel-controls">
           <div className="overflow-x-auto pb-1 no-scrollbar">
             <SwitchTabs
-              data={["All Bazaar", "Pottery Ceramics", "Vehicles & Tech"]}
+              data={["All Used Items", "Bikes & Cars", "Electronics & Mobiles", "Home Appliances", "Electric Vehicles"]}
               onTabChange={handleTabChange}
             />
           </div>

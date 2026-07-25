@@ -20,7 +20,7 @@ export default function HowItWorksPage() {
       num: "01",
       icon: <FaSearch />,
       title: "Browse or Post Listing",
-      desc: "Explore verified residential properties, commercial shops, plots, or second-hand items. Or post your own ad for free in 2 minutes.",
+      desc: "Explore verified residential properties, commercial shops, plots, or used items. Or post your own ad for free in 2 minutes.",
     },
     {
       num: "02",
@@ -54,13 +54,13 @@ export default function HowItWorksPage() {
     },
     {
       icon: <FaStore />,
-      title: "Pottery & Ceramics Hub",
-      desc: "Direct access to factory-rate ceramic items and art from Khurja's world-famous master artisans.",
+      title: "Used Vehicles, EVs & Tech",
+      desc: "Direct access to local sellers for used bikes, cars, electric vehicles (EV), laptops, mobiles & home appliances.",
     },
     {
       icon: <FaRocket />,
       title: "100% Free Ad Posting",
-      desc: "Post your residential house, commercial plot, or second-hand items with zero listing charges.",
+      desc: "Post your residential house, commercial plot, or used items with zero listing charges.",
     },
     {
       icon: <FaClock />,

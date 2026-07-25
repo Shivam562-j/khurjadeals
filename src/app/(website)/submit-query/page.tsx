@@ -192,9 +192,10 @@ export default function SubmitQueryPage() {
                       onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     >
                       <option value="property-sell" className="bg-[#141414]">Sell Property (Plot / House / Shop)</option>
-                      <option value="property-rent" className="bg-[#141414]">Rent Out Property</option>
-                      <option value="product-sell" className="bg-[#141414]">Sell Second-Hand Product</option>
-                      <option value="pottery-wholesale" className="bg-[#141414]">Khurja Pottery Ceramics Inquiry</option>
+                      <option value="property-rent" className="bg-[#141414]">Rent Out Property (Flat / Shop)</option>
+                      <option value="product-sell" className="bg-[#141414]">Sell Used Bike / Car / Electric Vehicle (EV)</option>
+                      <option value="appliance-sell" className="bg-[#141414]">Sell Used Home Appliance (Fridge / AC / Washing Machine)</option>
+                      <option value="electronics-sell" className="bg-[#141414]">Sell Used Mobile / Laptop / Electronics</option>
                       <option value="general-inquiry" className="bg-[#141414]">General Support Inquiry</option>
                     </select>
                   </div>

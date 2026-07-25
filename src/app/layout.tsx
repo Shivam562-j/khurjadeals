@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "KhurjaDeals — Khurja's Local Marketplace",
   description:
-    "Khurja ka apna local directory. Verified properties, second-hand vehicles, electronics & handcrafted pottery — sab ek jagah.",
+    "Khurja ka apna local directory. Verified properties, used vehicles, EVs, mobiles, laptops & home appliances — sab ek jagah.",
   icons: {
     icon: "/logos/logo.png",
     apple: "/logos/logo.png",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "KhurjaDeals — Khurja's Local Marketplace",
     description:
-      "Buy, sell & rent in Khurja. Properties, vehicles, mobiles, laptops, pottery — all in one place.",
+      "Buy, sell & rent in Khurja. Verified properties, used bikes, cars, EVs, mobiles, laptops & appliances — all in one place.",
     images: ["/logos/logo.png"],
   },
 };

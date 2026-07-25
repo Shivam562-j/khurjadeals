@@ -20,7 +20,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="footer-about">
-              Khurja&apos;s premier local marketplace and real estate directory. Buy, sell, and rent properties, second-hand items, and world-famous Khurja pottery ceramics directly with verified local owners.
+              Khurja&apos;s premier local marketplace and real estate directory. Buy, sell, and rent properties, used bikes, cars, EVs, laptops, mobiles &amp; home appliances directly with verified local owners.
             </p>
           </div>
 

@@ -51,12 +51,12 @@ export default function ProductFilter({ filters, onFilterChange }: ProductFilter
 
   const categories = [
     { label: "All Categories", value: "" },
-    { label: "Pottery & Ceramics", value: "Pottery & Ceramics" },
+    { label: "Mobiles & Laptops", value: "Mobiles & Laptops" },
     { label: "Electronics", value: "Electronics" },
     { label: "Vehicles & Bikes", value: "Vehicles & Bikes" },
-    { label: "Furniture", value: "Furniture" },
+    { label: "Cars", value: "Cars" },
     { label: "Home Appliances", value: "Home Appliances" },
-    { label: "Bicycles & Toys", value: "Bicycles & Toys" },
+    { label: "Furniture", value: "Furniture" },
     { label: "Others", value: "Others" },
   ];
 
