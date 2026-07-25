@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../Button";
+import { FaRegFrown } from "react-icons/fa";
 
 interface EmptyStateProps {
   title?: string;
@@ -15,33 +15,20 @@ export default function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center text-center p-8 border border-dashed border-neutral-850 rounded-2xl bg-neutral-900/20 max-w-md mx-auto my-12">
-      <div className="text-[rgba(232,89,12,0.65)] mb-4">
-        <svg
-          className="h-16 w-16"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.5"
-            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
+    <div className="empty-state-box">
+      <div className="empty-state-icon-wrapper">
+        <FaRegFrown style={{ fontSize: "24px" }} />
       </div>
 
-      <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-      <p className="text-sm text-neutral-400 mb-6 leading-relaxed">
-        {description}
-      </p>
+      <h3 className="empty-state-title">{title}</h3>
+      <p className="empty-state-desc">{description}</p>
 
       {actionText && onAction && (
-        <Button onClick={onAction} variant="outline" size="sm">
+        <button type="button" onClick={onAction} className="empty-state-reset-btn">
           {actionText}
-        </Button>
+        </button>
       )}
     </div>
   );
 }
+

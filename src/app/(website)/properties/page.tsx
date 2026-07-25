@@ -411,9 +411,14 @@ function PropertiesList() {
                       </label>
                       <input
                         type="number"
+                        min="0"
                         placeholder="e.g. 500000"
                         value={localMin}
-                        onChange={(e) => setLocalMin(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val !== "" && Number(val) < 0) return;
+                          setLocalMin(val);
+                        }}
                       />
                     </div>
                     <div className="form-group-filter">
@@ -422,9 +427,14 @@ function PropertiesList() {
                       </label>
                       <input
                         type="number"
+                        min="0"
                         placeholder="e.g. 5000000"
                         value={localMax}
-                        onChange={(e) => setLocalMax(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val !== "" && Number(val) < 0) return;
+                          setLocalMax(val);
+                        }}
                       />
                     </div>
                   </div>
@@ -537,7 +547,7 @@ function PropertiesList() {
           )}
 
           {/* Results Count Bar */}
-          {!isFirstLoad && (
+          {!isFirstLoad && properties.length > 0 && (
             <div className="results-summary-row">
               <span className="summary-text">
                 Showing <strong>{properties.length}</strong> of <strong>{totalCount}</strong> properties

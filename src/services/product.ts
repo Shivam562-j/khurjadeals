@@ -19,8 +19,20 @@ export async function getProducts(filters: ProductFilter = {}) {
 
   const query: any = { status: "active" };
 
-  if (category) query.category = category;
-  if (condition) query.condition = condition;
+  if (category) {
+    const catArr = typeof category === "string" ? category.split(",").map((c) => c.trim()).filter(Boolean) : (Array.isArray(category) ? category : [category]);
+    if (catArr.length > 0) {
+      query.category = { $in: catArr.map((c) => new RegExp(c, "i")) };
+    }
+  }
+
+  if (condition) {
+    const condArr = typeof condition === "string" ? condition.split(",").map((c) => c.trim()).filter(Boolean) : (Array.isArray(condition) ? condition : [condition]);
+    if (condArr.length > 0) {
+      query.condition = { $in: condArr.map((c) => new RegExp(c, "i")) };
+    }
+  }
+
   if (location) query.location = new RegExp(location, "i");
 
   if (minPrice !== undefined || maxPrice !== undefined) {
