@@ -71,7 +71,17 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     }
   };
 
-  const waMsg = `Hello, I'm interested in the property "${title}" listed on KhurjaDeals (Price: ${formatPrice(price)}). Can we discuss?`;
+  const [pageUrl, setPageUrl] = useState("");
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPageUrl(window.location.href);
+    }
+  }, []);
+
+  const currentLink = pageUrl || (typeof window !== "undefined" ? window.location.href : "");
+  const linkText = currentLink ? `\nLink: ${currentLink}` : "";
+  const waMsg = `Hello, I'm interested in the property "${title}" listed on KhurjaDeals (Price: ${formatPrice(price)}).${linkText}\n\nCan we discuss?`;
   const waUrl = whatsappLink(contactPhone, waMsg);
 
   const specs = [
