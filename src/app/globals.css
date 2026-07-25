@@ -2877,12 +2877,19 @@ svg,
   flex: 0 0 auto;
 }
 
+.carousel-arrow-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+
 .carousel-nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background-color: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(10px);
+  background-color: #1c1c1c;
   border: 1.5px solid var(--border-color);
   color: var(--text-white);
   display: flex;
@@ -2890,20 +2897,27 @@ svg,
   justify-content: center;
   cursor: pointer;
   transition: var(--transition-smooth);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
-.carousel-nav-btn:hover {
+.carousel-nav-btn:hover:not(:disabled) {
   background-color: var(--primary);
   border-color: var(--primary);
   color: #ffffff;
   transform: scale(1.08);
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-/* ══════════════════════════════════════════════════════════════════════════
+.carousel-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ==========================================================================
    PROPERTIES / PRODUCTS SEARCH & FILTER SYSTEM
-   ══════════════════════════════════════════════════════════════════════════ */
+   ========================================================================== */
 
 /* Search Row Wrapper */
 .prop-search-wrapper {

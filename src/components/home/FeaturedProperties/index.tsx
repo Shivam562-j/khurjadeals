@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Property } from "@/types/property";
 import { FaFire, FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icons/fa";
@@ -13,6 +13,8 @@ interface FeaturedPropertiesProps {
 export default function FeaturedProperties({ properties }: FeaturedPropertiesProps) {
   const carouselContainer = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("All Listings");
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   if (!properties?.length) return null;
 
@@ -31,6 +33,29 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
 
   const displayListings = filteredProperties.length > 0 ? filteredProperties : properties;
 
+  const checkScrollState = () => {
+    const container = carouselContainer.current;
+    if (!container) return;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+
+  useEffect(() => {
+    checkScrollState();
+    const container = carouselContainer.current;
+    if (container) {
+      container.addEventListener("scroll", checkScrollState);
+      window.addEventListener("resize", checkScrollState);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", checkScrollState);
+      }
+      window.removeEventListener("resize", checkScrollState);
+    };
+  }, [displayListings]);
+
   const navigation = (dir: "left" | "right") => {
     const container = carouselContainer.current;
     if (!container) return;
@@ -45,7 +70,7 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
   return (
     <section className="section-light">
       <div className="container">
-        {/* ── Row 1: Title left, View All right ── */}
+        {/* Row 1: Title left, View All right */}
         <div className="sec-carousel-head">
           <div>
             <div className="eyebrow-sm">
@@ -65,7 +90,7 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
           Verified commercial, residential &amp; agricultural plots in Khurja City &amp; GT Road
         </p>
 
-        {/* ── Row 2: Tabs left, Arrows right ── */}
+        {/* Row 2: Tabs left, Arrow buttons strictly side-by-side in 1 row on right */}
         <div className="sec-carousel-controls">
           <div className="overflow-x-auto pb-1 no-scrollbar">
             <SwitchTabs
@@ -73,19 +98,29 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
               onTabChange={handleTabChange}
             />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => navigation("left")} className="carousel-nav-btn" aria-label="Previous">
+          <div className="carousel-arrow-row">
+            <button
+              onClick={() => navigation("left")}
+              disabled={!canScrollLeft}
+              className="carousel-nav-btn"
+              aria-label="Previous Property"
+            >
               <FaChevronLeft style={{ fontSize: "0.8rem" }} />
             </button>
-            <button onClick={() => navigation("right")} className="carousel-nav-btn" aria-label="Next">
+            <button
+              onClick={() => navigation("right")}
+              disabled={!canScrollRight}
+              className="carousel-nav-btn"
+              aria-label="Next Property"
+            >
               <FaChevronRight style={{ fontSize: "0.8rem" }} />
             </button>
           </div>
         </div>
 
-        {/* Carousel Track: 3 cards on desktop */}
+        {/* Carousel Track for 10 Properties */}
         <div className="relative">
-          <div ref={carouselContainer} className="carousel-track">
+          <div ref={carouselContainer} className="carousel-track" onScroll={checkScrollState}>
             {displayListings.map((property) => (
               <div key={property._id} className="carousel-item sec-card-item">
                 <PropertyCard property={property} />

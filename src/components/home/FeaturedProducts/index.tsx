@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Product } from "@/types/product";
 import { FaStore, FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icons/fa";
@@ -13,6 +13,8 @@ interface FeaturedProductsProps {
 export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   const carouselContainer = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("All Bazaar");
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   if (!products?.length) return null;
 
@@ -42,6 +44,29 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
 
   const displayProducts = filteredProducts.length > 0 ? filteredProducts : products;
 
+  const checkScrollState = () => {
+    const container = carouselContainer.current;
+    if (!container) return;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+  };
+
+  useEffect(() => {
+    checkScrollState();
+    const container = carouselContainer.current;
+    if (container) {
+      container.addEventListener("scroll", checkScrollState);
+      window.addEventListener("resize", checkScrollState);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", checkScrollState);
+      }
+      window.removeEventListener("resize", checkScrollState);
+    };
+  }, [displayProducts]);
+
   const navigation = (dir: "left" | "right") => {
     const container = carouselContainer.current;
     if (!container) return;
@@ -56,7 +81,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   return (
     <section className="section-alt-light">
       <div className="container">
-        {/* ── Row 1: Title left, View All right ── */}
+        {/* Row 1: Title left, View All right */}
         <div className="sec-carousel-head">
           <div>
             <div className="eyebrow-sm">
@@ -76,7 +101,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
           Second-hand electronics, vehicles &amp; world-famous Khurja ceramic handicrafts
         </p>
 
-        {/* ── Row 2: Tabs left, Arrows right ── */}
+        {/* Row 2: Tabs left, Arrow buttons strictly side-by-side in 1 row on right */}
         <div className="sec-carousel-controls">
           <div className="overflow-x-auto pb-1 no-scrollbar">
             <SwitchTabs
@@ -84,19 +109,29 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
               onTabChange={handleTabChange}
             />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => navigation("left")} className="carousel-nav-btn" aria-label="Previous">
+          <div className="carousel-arrow-row">
+            <button
+              onClick={() => navigation("left")}
+              disabled={!canScrollLeft}
+              className="carousel-nav-btn"
+              aria-label="Previous Product"
+            >
               <FaChevronLeft style={{ fontSize: "0.8rem" }} />
             </button>
-            <button onClick={() => navigation("right")} className="carousel-nav-btn" aria-label="Next">
+            <button
+              onClick={() => navigation("right")}
+              disabled={!canScrollRight}
+              className="carousel-nav-btn"
+              aria-label="Next Product"
+            >
               <FaChevronRight style={{ fontSize: "0.8rem" }} />
             </button>
           </div>
         </div>
 
-        {/* Carousel Track: 3 cards on desktop */}
+        {/* Carousel Track for 10 Products */}
         <div className="relative">
-          <div ref={carouselContainer} className="carousel-track">
+          <div ref={carouselContainer} className="carousel-track" onScroll={checkScrollState}>
             {displayProducts.map((product) => (
               <div key={product._id} className="carousel-item sec-card-item">
                 <ProductCard product={product} />

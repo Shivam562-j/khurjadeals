@@ -12,9 +12,9 @@ import { getProducts } from "@/services/product";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Fetch featured items
-  const { properties } = await getProperties({ limit: 3 }).catch(() => ({ properties: [] }));
-  const { products } = await getProducts({ limit: 4 }).catch(() => ({ products: [] }));
+  // Fetch up to 10 latest properties & 10 latest products for smooth horizontal carousel sliding
+  const { properties } = await getProperties({ limit: 10 }).catch(() => ({ properties: [] }));
+  const { products } = await getProducts({ limit: 10 }).catch(() => ({ products: [] }));
 
   return (
     <div className="space-y-0">
