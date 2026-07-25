@@ -1,81 +1,68 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { FaChevronDown, FaChevronUp, FaChevronRight, FaPhoneAlt, FaQuestionCircle } from "react-icons/fa";
+import { FaChevronDown, FaChevronRight, FaPhoneAlt } from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
+import { ALL_FAQS } from "@/constants/faq";
 
 export default function FAQPage() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openId, setOpenId] = useState<string | null>("gen-1");
 
-  const faqList = [
-    {
-      q: "Is listing a property or product on KhurjaDeals completely free?",
-      a: "Yes! Uploading residential properties, commercial shops, plots, or second-hand bazaar items on KhurjaDeals is <b>100% free</b> with zero listing fees or hidden charges."
-    },
-    {
-      q: "How do buyers contact property owners or sellers?",
-      a: "Each listing displays verified direct phone numbers and WhatsApp buttons. Buyers can directly call or message the owner without any middleman agent fees."
-    },
-    {
-      q: "How long does it take for my ad to be verified and published?",
-      a: "Our local Khurja admin team reviews every submission within <b>24 hours</b> to verify photos, details, and phone numbers before publishing it live."
-    },
-    {
-      q: "Can I list Khurja pottery and ceramic products for wholesale or retail?",
-      a: "Absolutely! We have a dedicated Pottery Bazaar category for Khurja ceramic factories, pottery artisans, and wholesale dealers to showcase their products."
-    },
-    {
-      q: "Are property titles and legal documents verified by KhurjaDeals?",
-      a: "KhurjaDeals operates strictly as an Intermediary under Section 79 of the IT Act. While we inspect listings to prevent spam, buyers must verify property titles and registry papers independently before making financial payments."
-    },
-    {
-      q: "How can I edit or remove my listing once it is sold?",
-      a: "Simply call or WhatsApp our support line at <b>" + SITE_CONFIG.phone + "</b> or email <b>" + SITE_CONFIG.email + "</b> with your listing details, and our admin team will update or mark it as SOLD immediately."
-    }
-  ];
-
-  const toggleAccordion = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+  const toggleAccordion = (id: string) => {
+    setOpenId(openId === id ? null : id);
   };
 
   return (
     <>
+      {/* Page Hero */}
       <div className="page-hero">
         <div className="container">
           <span className="eyebrow">Got Questions?</span>
           <h1 className="h1">Frequently Asked Questions</h1>
-          <p className="lead">Here is everything you need to know about our services, directory listings, and posting process in Khurja.</p>
+          <p className="lead">
+            Everything you need to know about buying, selling, renting properties, and platform safety on KhurjaDeals.
+          </p>
         </div>
       </div>
 
-      <section className="section-light">
+      <section className="section-light py-12 sm:py-16">
         <div className="container max-w-4xl">
-          <div className="space-y-4">
-            {faqList.map((item, index) => {
-              const isOpen = openIndex === index;
+          {/* Continuous List of All 10 FAQs with 20px gap between cards */}
+          <div className="space-y-5">
+            {ALL_FAQS.map((item, index) => {
+              const isOpen = openId === item.id;
+              const formattedNum = index + 1 < 10 ? `0${index + 1}` : `${index + 1}`;
               return (
                 <div
-                  key={index}
-                  className={`card transition-all cursor-pointer ${
-                    isOpen ? "border-[var(--primary)] bg-[#1c1c1c]" : ""
-                  }`}
-                  onClick={() => toggleAccordion(index)}
+                  key={item.id}
+                  className={`faq-card-item ${isOpen ? "active-item" : ""}`}
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 font-bold text-white text-base sm:text-lg">
-                      <FaQuestionCircle className="text-[var(--primary)] shrink-0" />
-                      <span>{item.q}</span>
-                    </div>
-                    <div className="text-[var(--primary)] shrink-0 text-sm">
-                      {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                  {/* Single row header containing: Number, Question, and Arrow Down icon */}
+                  <div
+                    className="faq-question-header"
+                    onClick={() => toggleAccordion(item.id)}
+                  >
+                    <span className="faq-q-number">{formattedNum}</span>
+                    <h3 className="faq-q-title">{item.question}</h3>
+                    <div className="faq-toggle-icon">
+                      <FaChevronDown />
                     </div>
                   </div>
 
                   {isOpen && (
-                    <div
-                      className="mt-4 pt-4 border-t border-[var(--border-color)] text-sm text-[var(--text-muted)] leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: item.a }}
-                    />
+                    <div className="faq-answer-body">
+                      <p>{item.answer}</p>
+                      {item.bullets && item.bullets.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {item.bullets.map((bullet, bIdx) => (
+                            <div key={bIdx} className="faq-bullet-item">
+                              <span className="faq-bullet-dot" />
+                              <span>{bullet}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               );
@@ -89,7 +76,9 @@ export default function FAQPage() {
         <div className="container">
           <div className="cta-inner">
             <h2 className="h2">Have More Questions?</h2>
-            <p>Our local Khurja support team is available 24/7. Call us directly or post your ad inquiry online.</p>
+            <p>
+              Our local Khurja support team is available 24/7. Call us directly or post your ad inquiry online.
+            </p>
             <div className="cta-actions">
               <Link className="btn btn-light btn-lg" href="/submit-query">
                 Submit Inquiry

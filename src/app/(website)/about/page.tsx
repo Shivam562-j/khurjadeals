@@ -66,8 +66,8 @@ export default function AboutPage() {
         <div className="container about-grid">
           {/* Left Main Card */}
           <div className="card space-y-4">
-            <div className="w-12 h-12 rounded-xl bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center text-xl shrink-0 border border-[var(--primary-glow)]">
-              <FaStar />
+            <div className="card-ic shadow-lg" style={{ marginBottom: "16px" }}>
+              <FaStar style={{ fontSize: "22px" }} />
             </div>
             <span className="eyebrow">Who We Are</span>
             <h2 className="h2" style={{ color: "var(--text-white)", marginBottom: "16px" }}>
