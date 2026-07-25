@@ -68,19 +68,12 @@ export default function Header() {
       <header className={`site-header ${scrolled ? "scrolled" : ""}`} id="header">
         <div className="container nav">
           <Link href="/" className="brand" aria-label="KhurjaDeals">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent-gradient)] text-white font-black text-lg flex items-center justify-center shadow-lg tracking-wider">
-                KD
-              </div>
-              <div className="flex flex-col">
-                <span className="font-black text-xl text-white tracking-tight leading-none">
-                  Khurja<span className="text-[var(--primary)]">Deals</span>
-                </span>
-                <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] font-bold mt-1">
-                  Local Marketplace
-                </span>
-              </div>
-            </div>
+            <img
+              src="/logos/white-logo.png"
+              alt="KhurjaDeals"
+              style={{ height: "50px", maxHeight: "50px", width: "auto" }}
+              className="object-contain rounded-lg bg-white px-2.5 py-1 shadow-sm transition-transform hover:scale-105"
+            />
           </Link>
 
           <nav className="nav-links" aria-label="Primary">
@@ -138,14 +131,14 @@ export default function Header() {
         </button>
 
         <div className="drawer-logo">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[var(--accent-gradient)] text-white font-black text-lg flex items-center justify-center shadow-lg">
-              KD
-            </div>
-            <span className="font-black text-xl text-white tracking-tight">
-              Khurja<span className="text-[var(--primary)]">Deals</span>
-            </span>
-          </div>
+          <Link href="/" onClick={() => setIsOpen(false)}>
+            <img
+              src="/logos/white-logo.png"
+              alt="KhurjaDeals"
+              style={{ height: "36px", maxHeight: "36px", width: "auto" }}
+              className="object-contain rounded-lg bg-white px-2 py-1 shadow-sm"
+            />
+          </Link>
         </div>
 
         {drawerItems.map((item) => (

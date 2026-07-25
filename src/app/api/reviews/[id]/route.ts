@@ -5,9 +5,10 @@ import { getSession } from "@/lib/auth";
 // PATCH /api/reviews/[id] - update status (admin only)
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -20,7 +21,7 @@ export async function PATCH(
       return NextResponse.json({ message: "Invalid status" }, { status: 400 });
     }
 
-    const review = await updateReviewStatus(params.id, status);
+    const review = await updateReviewStatus(id, status);
     return NextResponse.json({ success: true, review });
   } catch (error: any) {
     return NextResponse.json(
@@ -33,15 +34,16 @@ export async function PATCH(
 // DELETE /api/reviews/[id] - delete review (admin only)
 export async function DELETE(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    await deleteReview(params.id);
+    await deleteReview(id);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(

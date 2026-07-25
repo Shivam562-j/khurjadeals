@@ -24,7 +24,7 @@ export default function ProductsManager() {
   // Form Fields State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("Pottery & Ceramics");
+  const [category, setCategory] = useState("Bikes & Scooters");
   const [condition, setCondition] = useState("new");
   const [status, setStatus] = useState("active");
   const [price, setPrice] = useState("");
@@ -188,8 +188,6 @@ export default function ProductsManager() {
     } catch {}
     setIsSubmitLoading(false);
   };
-
-  const [category, setCategory] = useState("Bikes & Scooters");
 
   const categories = [
     { label: "Phones & Mobiles", value: "Phones & Mobiles" },

@@ -21,13 +21,13 @@ export default function Footer() {
         <div className="footer-top">
           {/* Left: Logo + Description + Social Icons */}
           <div className="footer-brand-col">
-            <Link className="brand flex items-center gap-2.5" href="/">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent-gradient)] text-white font-black text-lg flex items-center justify-center shadow-lg">
-                KD
-              </div>
-              <span className="font-black text-xl text-white tracking-tight">
-                Khurja<span className="text-[var(--primary)]">Deals</span>
-              </span>
+            <Link className="brand inline-block mb-3" href="/" aria-label="KhurjaDeals">
+              <img
+                src="/logos/logo.png"
+                alt="KhurjaDeals"
+                style={{ height: "90px", maxHeight: "90px", width: "auto" }}
+                className="object-contain rounded-lg bg-white px-2.5 py-1 shadow-sm transition-transform hover:scale-105"
+              />
             </Link>
             <p className="footer-about">
               Khurja&apos;s premier local marketplace and real estate directory. Buy, sell, and rent properties, used bikes, cars, EVs, laptops, mobiles &amp; home appliances directly with verified local owners.
