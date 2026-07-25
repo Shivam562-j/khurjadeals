@@ -364,28 +364,35 @@ function PropertiesList() {
           {filterOpen && (
             <form onSubmit={applyAdvancedFilters} className="advanced-filter-card">
               <div className="filter-card-header">
-                <div className="flex items-center gap-2">
-                  <FaFilter className="text-[var(--primary)] text-sm" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-                    Multi-Select &amp; Custom Filters
-                  </h3>
+                <div className="filter-header-title">
+                  <div className="filter-header-icon-badge">
+                    <FaFilter />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-white">
+                      Multi-Select &amp; Custom Filters
+                    </h3>
+                    <p className="text-xs text-neutral-400 font-normal m-0 mt-0.5">
+                      Select multiple types and purposes to refine property listings
+                    </p>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={clearAllFilters}
                   className="filter-reset-link"
                 >
-                  <FaUndo className="text-xs" /> Clear All Filters
+                  <FaUndo className="text-xs" /> Reset Filters
                 </button>
               </div>
 
               <div className="space-y-6">
                 {/* Multi Select Types Checkboxes */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2 flex items-center gap-1.5">
-                    <FaBuilding className="text-[var(--primary)]" /> Property Types (Select Multiple)
-                  </label>
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="filter-section-label">
+                    <FaBuilding /> Property Types (Select Multiple)
+                  </div>
+                  <div className="flex flex-wrap gap-2.5 pt-1">
                     {PROPERTY_TYPES.map((t) => {
                       const isChecked = localTypes.includes(t.value);
                       return (
@@ -399,20 +406,10 @@ function PropertiesList() {
                                 : [...prev, t.value]
                             );
                           }}
-                          className={`px-4 py-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-                            isChecked
-                              ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-md"
-                              : "bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-neutral-700"
-                          }`}
+                          className={`multi-select-chip-btn ${isChecked ? "selected" : ""}`}
                         >
-                          <span
-                            className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[10px] ${
-                              isChecked
-                                ? "bg-white text-[var(--primary)] border-white"
-                                : "border-neutral-600"
-                            }`}
-                          >
-                            {isChecked && "✓"}
+                          <span className="chip-check-icon">
+                            {isChecked ? "✓" : "+"}
                           </span>
                           {t.label}
                         </button>
@@ -423,10 +420,10 @@ function PropertiesList() {
 
                 {/* Multi Select Purpose Checkboxes */}
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2 flex items-center gap-1.5">
-                    <FaTag className="text-[var(--primary)]" /> Listing Purpose (Select Multiple)
-                  </label>
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="filter-section-label">
+                    <FaTag /> Listing Purpose (Select Multiple)
+                  </div>
+                  <div className="flex flex-wrap gap-2.5 pt-1">
                     {LISTING_TYPES.map((l) => {
                       const isChecked = localListings.includes(l.value);
                       return (
@@ -440,20 +437,10 @@ function PropertiesList() {
                                 : [...prev, l.value]
                             );
                           }}
-                          className={`px-4 py-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-                            isChecked
-                              ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-md"
-                              : "bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-neutral-700"
-                          }`}
+                          className={`multi-select-chip-btn ${isChecked ? "selected" : ""}`}
                         >
-                          <span
-                            className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[10px] ${
-                              isChecked
-                                ? "bg-white text-[var(--primary)] border-white"
-                                : "border-neutral-600"
-                            }`}
-                          >
-                            {isChecked && "✓"}
+                          <span className="chip-check-icon">
+                            {isChecked ? "✓" : "+"}
                           </span>
                           {l.label}
                         </button>
@@ -635,14 +622,14 @@ function PropertiesList() {
                 ))}
               </div>
 
-              {/* Show More Button Area */}
-              <div className="flex flex-col items-center justify-center pt-8 pb-4">
+              {/* Centered Show More Button Area */}
+              <div className="show-more-wrapper">
                 {hasMore ? (
                   <button
                     type="button"
                     onClick={handleShowMore}
                     disabled={isLoadingMore}
-                    className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 disabled:opacity-70 cursor-pointer"
+                    className="btn-show-more"
                   >
                     {isLoadingMore ? (
                       <>
@@ -651,7 +638,7 @@ function PropertiesList() {
                       </>
                     ) : (
                       <>
-                        <FaPlusCircle className="text-base group-hover:rotate-90 transition-transform duration-300" />
+                        <FaPlusCircle className="btn-show-more-icon" />
                         <span>Show More Properties</span>
                       </>
                     )}

@@ -3254,6 +3254,195 @@ svg,
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   ADVANCED MULTI-SELECT FILTER CARD DESIGN SYSTEM
+   ══════════════════════════════════════════════════════════════════════════ */
+.advanced-filter-card {
+  background: #141414;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  animation: slideDownFilter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDownFilter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.filter-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-header-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.filter-reset-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 50px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-reset-link:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: rgba(232, 89, 12, 0.08);
+}
+
+/* Section Labels & Chips inside Filter Card */
+.filter-section-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-section-label svg {
+  color: var(--primary);
+}
+
+.multi-select-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border-color);
+  background-color: #0b0b0b;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.multi-select-chip-btn:hover {
+  border-color: var(--primary);
+  color: var(--text-white);
+  transform: translateY(-1px);
+}
+
+.multi-select-chip-btn.selected {
+  background: var(--accent-gradient);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.chip-check-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #ffffff;
+}
+
+.multi-select-chip-btn.selected .chip-check-icon {
+  background-color: #ffffff;
+  color: var(--primary);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SHOW MORE BUTTON (CENTERED & ULTRA PREMIUM)
+   ══════════════════════════════════════════════════════════════════════════ */
+.show-more-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-top: 36px;
+  padding-bottom: 24px;
+}
+
+.btn-show-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 36px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--primary) 0%, #c43e00 100%);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 25px var(--primary-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-show-more:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 35px var(--primary-glow);
+  filter: brightness(1.1);
+}
+
+.btn-show-more:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-show-more:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.btn-show-more-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-show-more:hover .btn-show-more-icon {
+  transform: rotate(90deg);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    PROPERTIES GRID 3-COLUMN RESPONSIVE SYSTEM
    ══════════════════════════════════════════════════════════════════════════ */
 .property-grid-3col {
