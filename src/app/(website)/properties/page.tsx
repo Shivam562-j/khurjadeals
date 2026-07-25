@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Property } from "@/types/property";
 import PropertyCard from "@/components/property/PropertyCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
-import Search from "@/components/common/Search";
 import {
+  FaSearch,
   FaFilter,
   FaTimes,
   FaMapMarkerAlt,
@@ -14,12 +14,15 @@ import {
   FaTag,
   FaRupeeSign,
   FaChevronDown,
+  FaSlidersH,
+  FaUndo,
+  FaPlusCircle,
+  FaCheck,
 } from "react-icons/fa";
 
-const LIMIT = 9;
+const LIMIT = 12;
 
 const PROPERTY_TYPES = [
-  { label: "All Types", value: "" },
   { label: "Residential", value: "residential" },
   { label: "Commercial", value: "commercial" },
   { label: "Plot / Land", value: "plot" },
@@ -27,7 +30,6 @@ const PROPERTY_TYPES = [
 ];
 
 const LISTING_TYPES = [
-  { label: "All", value: "" },
   { label: "For Sale", value: "sell" },
   { label: "For Rent", value: "rent" },
   { label: "For Lease", value: "lease" },
@@ -40,116 +42,199 @@ function PropertiesList() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
 
-  const [filters, setFilters] = useState({
-    search: searchParams.get("search") || "",
-    location: "",
-    type: "",
-    listingType: "",
-    minPrice: "",
-    maxPrice: "",
-  });
+  // Multi-select filters state (Arrays)
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(
+    searchParams.get("type") ? searchParams.get("type")!.split(",").filter(Boolean) : []
+  );
+  const [selectedListings, setSelectedListings] = useState<string[]>(
+    searchParams.get("listingType") ? searchParams.get("listingType")!.split(",").filter(Boolean) : []
+  );
 
-  // Filter panel local state
-  const [localType, setLocalType] = useState("");
-  const [localListingType, setLocalListingType] = useState("");
-  const [localLocation, setLocalLocation] = useState("");
-  const [localMin, setLocalMin] = useState("");
-  const [localMax, setLocalMax] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
+  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+
+  // Local state for expanded filter card
+  const [localTypes, setLocalTypes] = useState<string[]>(selectedTypes);
+  const [localListings, setLocalListings] = useState<string[]>(selectedListings);
+  const [localLocation, setLocalLocation] = useState(locationInput);
+  const [localMin, setLocalMin] = useState(minPrice);
+  const [localMax, setLocalMax] = useState(maxPrice);
+
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const isFetchingRef = useRef(false);
+  // Sync with URL params
+  useEffect(() => {
+    const typeFromUrl = searchParams.get("type") ? searchParams.get("type")!.split(",").filter(Boolean) : [];
+    const listingFromUrl = searchParams.get("listingType") ? searchParams.get("listingType")!.split(",").filter(Boolean) : [];
+    const searchFromUrl = searchParams.get("search") || "";
+    const locFromUrl = searchParams.get("location") || "";
+    const minFromUrl = searchParams.get("minPrice") || "";
+    const maxFromUrl = searchParams.get("maxPrice") || "";
 
-  // Reset on filter change
-  const applyFilters = () => {
-    setFilters({ search: filters.search, location: localLocation, type: localType, listingType: localListingType, minPrice: localMin, maxPrice: localMax });
+    setSelectedTypes(typeFromUrl);
+    setLocalTypes(typeFromUrl);
+    setSelectedListings(listingFromUrl);
+    setLocalListings(listingFromUrl);
+    setSearchQuery(searchFromUrl);
+    setLocationInput(locFromUrl);
+    setLocalLocation(locFromUrl);
+    setMinPrice(minFromUrl);
+    setLocalMin(minFromUrl);
+    setMaxPrice(maxFromUrl);
+    setLocalMax(maxFromUrl);
+
     setProperties([]);
     setPage(1);
     setHasMore(true);
     setIsFirstLoad(true);
-    setFilterOpen(false);
-  };
+  }, [searchParams]);
 
-  const clearFilters = () => {
-    setLocalType(""); setLocalListingType(""); setLocalLocation("");
-    setLocalMin(""); setLocalMax("");
-    setFilters({ search: "", location: "", type: "", listingType: "", minPrice: "", maxPrice: "" });
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
-    setFilterOpen(false);
-  };
-
-  const handleSearch = (q: string) => {
-    setFilters((prev) => ({ ...prev, search: q }));
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
-  };
-
-  const fetchPage = useCallback(async (pageNum: number, currentFilters: typeof filters) => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
-    setIsLoading(true);
-    try {
-      const q = new URLSearchParams();
-      if (currentFilters.search) q.set("search", currentFilters.search);
-      if (currentFilters.location) q.set("location", currentFilters.location);
-      if (currentFilters.type) q.set("type", currentFilters.type);
-      if (currentFilters.listingType) q.set("listingType", currentFilters.listingType);
-      if (currentFilters.minPrice) q.set("minPrice", currentFilters.minPrice);
-      if (currentFilters.maxPrice) q.set("maxPrice", currentFilters.maxPrice);
-      q.set("page", String(pageNum));
-      q.set("limit", String(LIMIT));
-
-      const res = await fetch(`/api/properties?${q.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        const newItems: Property[] = data.properties || [];
-        setTotalCount(data.total || 0);
-        if (pageNum === 1) {
-          setProperties(newItems);
-        } else {
-          setProperties((prev) => [...prev, ...newItems]);
-        }
-        setHasMore(newItems.length === LIMIT);
-        setIsFirstLoad(false);
+  // Fetch properties API call
+  const fetchPropertiesPage = useCallback(
+    async (pageNum: number, isMoreCall: boolean = false) => {
+      if (isMoreCall) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, []);
 
-  // Fetch when page or filters change
-  useEffect(() => {
-    fetchPage(page, filters);
-  }, [page, filters, fetchPage]);
+      try {
+        const q = new URLSearchParams();
+        if (searchQuery) q.set("search", searchQuery);
+        if (selectedTypes.length > 0) q.set("type", selectedTypes.join(","));
+        if (selectedListings.length > 0) q.set("listingType", selectedListings.join(","));
+        if (locationInput) q.set("location", locationInput);
+        if (minPrice) q.set("minPrice", minPrice);
+        if (maxPrice) q.set("maxPrice", maxPrice);
 
-  // Infinite scroll sentinel
-  useEffect(() => {
-    if (observerRef.current) observerRef.current.disconnect();
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          setPage((p) => p + 1);
+        q.set("page", String(pageNum));
+        q.set("limit", String(LIMIT));
+
+        const res = await fetch(`/api/properties?${q.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          const newItems: Property[] = data.properties || [];
+          setTotalCount(data.total || 0);
+
+          if (pageNum === 1) {
+            setProperties(newItems);
+          } else {
+            setProperties((prev) => [...prev, ...newItems]);
+          }
+
+          setHasMore(newItems.length === LIMIT);
+          setIsFirstLoad(false);
         }
-      },
-      { threshold: 0.1 }
-    );
-    if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
-    return () => observerRef.current?.disconnect();
-  }, [hasMore, isLoading]);
+      } catch (e) {
+        console.error("Error fetching properties:", e);
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [searchQuery, selectedTypes, selectedListings, locationInput, minPrice, maxPrice]
+  );
 
-  const activeFilterCount = [filters.type, filters.listingType, filters.location, filters.minPrice, filters.maxPrice].filter(Boolean).length;
+  // Initial fetch and fetch on filter change
+  useEffect(() => {
+    fetchPropertiesPage(page, page > 1);
+  }, [page, fetchPropertiesPage]);
+
+  // Handlers for Quick Pills Multi-Select
+  const toggleTypeChip = (val: string) => {
+    let updated: string[];
+    if (val === "") {
+      updated = [];
+    } else if (selectedTypes.includes(val)) {
+      updated = selectedTypes.filter((t) => t !== val);
+    } else {
+      updated = [...selectedTypes, val];
+    }
+    setSelectedTypes(updated);
+    setLocalTypes(updated);
+    setProperties([]);
+    setPage(1);
+    setHasMore(true);
+    setIsFirstLoad(true);
+  };
+
+  const toggleListingChip = (val: string) => {
+    let updated: string[];
+    if (val === "") {
+      updated = [];
+    } else if (selectedListings.includes(val)) {
+      updated = selectedListings.filter((l) => l !== val);
+    } else {
+      updated = [...selectedListings, val];
+    }
+    setSelectedListings(updated);
+    setLocalListings(updated);
+    setProperties([]);
+    setPage(1);
+    setHasMore(true);
+    setIsFirstLoad(true);
+  };
+
+  // Search form submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProperties([]);
+    setPage(1);
+    setHasMore(true);
+    setIsFirstLoad(true);
+  };
+
+  // Advanced Filter Card Apply
+  const applyAdvancedFilters = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSelectedTypes(localTypes);
+    setSelectedListings(localListings);
+    setLocationInput(localLocation);
+    setMinPrice(localMin);
+    setMaxPrice(localMax);
+    setFilterOpen(false);
+    setProperties([]);
+    setPage(1);
+    setHasMore(true);
+    setIsFirstLoad(true);
+  };
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedTypes([]);
+    setLocalTypes([]);
+    setSelectedListings([]);
+    setLocalListings([]);
+    setLocationInput("");
+    setLocalLocation("");
+    setMinPrice("");
+    setLocalMin("");
+    setMaxPrice("");
+    setLocalMax("");
+    setProperties([]);
+    setPage(1);
+    setHasMore(true);
+    setIsFirstLoad(true);
+  };
+
+  // Show More Button Handler
+  const handleShowMore = () => {
+    if (!isLoadingMore && hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const activeFilterCount =
+    selectedTypes.length +
+    selectedListings.length +
+    (locationInput ? 1 : 0) +
+    (minPrice || maxPrice ? 1 : 0);
 
   return (
     <>
@@ -164,194 +249,419 @@ function PropertiesList() {
         </div>
       </div>
 
-      <section className="section-light">
-        <div className="container">
-          {/* Search + Filter Bar */}
-          <div className="prop-search-bar">
-            <div className="prop-search-input">
-              <Search
-                placeholder="Search by title, location, keywords..."
-                initialValue={filters.search}
-                onSearch={handleSearch}
+      <section className="section-light py-8">
+        <div className="container space-y-6">
+          {/* Main Search & Filter Action Bar */}
+          <div className="prop-search-wrapper">
+            <form onSubmit={handleSearchSubmit} className="prop-search-box">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search by title, GT Road, colony name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
               />
-            </div>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setProperties([]);
+                    setPage(1);
+                    setHasMore(true);
+                    setIsFirstLoad(true);
+                  }}
+                  className="search-clear-btn"
+                  title="Clear search"
+                >
+                  <FaTimes />
+                </button>
+              )}
+              <button type="submit" className="search-submit-btn">
+                <span>Search</span>
+              </button>
+            </form>
+
             <button
-              className={`prop-filter-toggle ${filterOpen ? "active" : ""} ${activeFilterCount > 0 ? "has-filters" : ""}`}
+              type="button"
+              className={`prop-filter-toggle-btn ${filterOpen ? "active" : ""} ${
+                activeFilterCount > 0 ? "has-active" : ""
+              }`}
               onClick={() => setFilterOpen(!filterOpen)}
             >
-              <FaFilter />
-              <span>Filters</span>
+              <FaSlidersH />
+              <span className="hidden sm:inline">Filter Panel</span>
               {activeFilterCount > 0 && (
-                <span className="filter-badge">{activeFilterCount}</span>
+                <span className="filter-count-badge">{activeFilterCount}</span>
               )}
-              <FaChevronDown className={`filter-chevron ${filterOpen ? "open" : ""}`} />
+              <FaChevronDown className={`chevron-icon ${filterOpen ? "rotate" : ""}`} />
             </button>
           </div>
 
-          {/* Collapsible Filter Panel */}
+          {/* Quick Multi-Select Filter Pills Bar */}
+          <div className="quick-filter-bar">
+            {/* Property Types Multi-Select */}
+            <div className="quick-filter-group">
+              <span className="quick-filter-label">Types (Multi):</span>
+              <div className="quick-chips-scroll">
+                <button
+                  type="button"
+                  onClick={() => toggleTypeChip("")}
+                  className={`quick-chip ${selectedTypes.length === 0 ? "selected" : ""}`}
+                >
+                  All Types
+                </button>
+                {PROPERTY_TYPES.map((t) => {
+                  const isSelected = selectedTypes.includes(t.value);
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => toggleTypeChip(t.value)}
+                      className={`quick-chip ${isSelected ? "selected" : ""}`}
+                    >
+                      {isSelected && <FaCheck className="inline text-xs mr-1" />}
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="quick-filter-divider" />
+
+            {/* Listing Purpose Multi-Select */}
+            <div className="quick-filter-group">
+              <span className="quick-filter-label">Purpose (Multi):</span>
+              <div className="quick-chips-scroll">
+                <button
+                  type="button"
+                  onClick={() => toggleListingChip("")}
+                  className={`quick-chip ${selectedListings.length === 0 ? "selected" : ""}`}
+                >
+                  All Purpose
+                </button>
+                {LISTING_TYPES.map((l) => {
+                  const isSelected = selectedListings.includes(l.value);
+                  return (
+                    <button
+                      key={l.value}
+                      type="button"
+                      onClick={() => toggleListingChip(l.value)}
+                      className={`quick-chip ${isSelected ? "selected" : ""}`}
+                    >
+                      {isSelected && <FaCheck className="inline text-xs mr-1" />}
+                      {l.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Expanded Advanced Filter Card */}
           {filterOpen && (
-            <div className="prop-filter-panel">
-              <div className="prop-filter-grid">
-                {/* Property Type */}
-                <div className="filter-field">
-                  <label className="filter-label">
-                    <FaBuilding /> Property Type
+            <form onSubmit={applyAdvancedFilters} className="advanced-filter-card">
+              <div className="filter-card-header">
+                <div className="flex items-center gap-2">
+                  <FaFilter className="text-[var(--primary)] text-sm" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-white">
+                    Multi-Select &amp; Custom Filters
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="filter-reset-link"
+                >
+                  <FaUndo className="text-xs" /> Clear All Filters
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Multi Select Types Checkboxes */}
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2 flex items-center gap-1.5">
+                    <FaBuilding className="text-[var(--primary)]" /> Property Types (Select Multiple)
                   </label>
-                  <select className="filter-select" value={localType} onChange={(e) => setLocalType(e.target.value)}>
-                    {PROPERTY_TYPES.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {PROPERTY_TYPES.map((t) => {
+                      const isChecked = localTypes.includes(t.value);
+                      return (
+                        <button
+                          key={t.value}
+                          type="button"
+                          onClick={() => {
+                            setLocalTypes((prev) =>
+                              prev.includes(t.value)
+                                ? prev.filter((item) => item !== t.value)
+                                : [...prev, t.value]
+                            );
+                          }}
+                          className={`px-4 py-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+                            isChecked
+                              ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-md"
+                              : "bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-neutral-700"
+                          }`}
+                        >
+                          <span
+                            className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[10px] ${
+                              isChecked
+                                ? "bg-white text-[var(--primary)] border-white"
+                                : "border-neutral-600"
+                            }`}
+                          >
+                            {isChecked && "✓"}
+                          </span>
+                          {t.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Purpose */}
-                <div className="filter-field">
-                  <label className="filter-label">
-                    <FaTag /> Purpose
+                {/* Multi Select Purpose Checkboxes */}
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2 flex items-center gap-1.5">
+                    <FaTag className="text-[var(--primary)]" /> Listing Purpose (Select Multiple)
                   </label>
-                  <select className="filter-select" value={localListingType} onChange={(e) => setLocalListingType(e.target.value)}>
-                    {LISTING_TYPES.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {LISTING_TYPES.map((l) => {
+                      const isChecked = localListings.includes(l.value);
+                      return (
+                        <button
+                          key={l.value}
+                          type="button"
+                          onClick={() => {
+                            setLocalListings((prev) =>
+                              prev.includes(l.value)
+                                ? prev.filter((item) => item !== l.value)
+                                : [...prev, l.value]
+                            );
+                          }}
+                          className={`px-4 py-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+                            isChecked
+                              ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-md"
+                              : "bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-neutral-700"
+                          }`}
+                        >
+                          <span
+                            className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[10px] ${
+                              isChecked
+                                ? "bg-white text-[var(--primary)] border-white"
+                                : "border-neutral-600"
+                            }`}
+                          >
+                            {isChecked && "✓"}
+                          </span>
+                          {l.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Location */}
-                <div className="filter-field">
-                  <label className="filter-label">
-                    <FaMapMarkerAlt /> Location
-                  </label>
-                  <input
-                    type="text"
-                    className="filter-input"
-                    placeholder="e.g. GT Road, Khurja"
-                    value={localLocation}
-                    onChange={(e) => setLocalLocation(e.target.value)}
-                  />
-                </div>
-
-                {/* Min Price */}
-                <div className="filter-field">
-                  <label className="filter-label">
-                    <FaRupeeSign /> Min Price
-                  </label>
-                  <input
-                    type="number"
-                    className="filter-input"
-                    placeholder="e.g. 500000"
-                    value={localMin}
-                    onChange={(e) => setLocalMin(e.target.value)}
-                  />
-                </div>
-
-                {/* Max Price */}
-                <div className="filter-field">
-                  <label className="filter-label">
-                    <FaRupeeSign /> Max Price
-                  </label>
-                  <input
-                    type="number"
-                    className="filter-input"
-                    placeholder="e.g. 5000000"
-                    value={localMax}
-                    onChange={(e) => setLocalMax(e.target.value)}
-                  />
+                {/* Location and Price Range Inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="form-group-filter">
+                    <label>
+                      <FaMapMarkerAlt /> Location
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. GT Road, Junction"
+                      value={localLocation}
+                      onChange={(e) => setLocalLocation(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group-filter">
+                    <label>
+                      <FaRupeeSign /> Min Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 500000"
+                      value={localMin}
+                      onChange={(e) => setLocalMin(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group-filter">
+                    <label>
+                      <FaRupeeSign /> Max Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 5000000"
+                      value={localMax}
+                      onChange={(e) => setLocalMax(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="filter-actions">
-                <button className="filter-clear-btn" onClick={clearFilters}>
-                  <FaTimes /> Clear All
+              <div className="filter-card-actions mt-6">
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen(false)}
+                  className="btn-filter-secondary"
+                >
+                  Close
                 </button>
-                <button className="filter-apply-btn" onClick={applyFilters}>
-                  Apply Filters
-                  {activeFilterCount > 0 && ` (${activeFilterCount})`}
+                <button type="submit" className="btn-filter-primary">
+                  Apply Selected Filters
                 </button>
               </div>
+            </form>
+          )}
+
+          {/* Active Filter Chips */}
+          {(activeFilterCount > 0 || searchQuery) && (
+            <div className="active-filter-tags">
+              <span className="tags-label">Active Filters:</span>
+
+              {searchQuery && (
+                <span className="active-tag">
+                  Search: "{searchQuery}"
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setProperties([]);
+                      setPage(1);
+                      setHasMore(true);
+                      setIsFirstLoad(true);
+                    }}
+                  >
+                    <FaTimes />
+                  </button>
+                </span>
+              )}
+
+              {selectedTypes.map((tVal) => {
+                const label = PROPERTY_TYPES.find((pt) => pt.value === tVal)?.label || tVal;
+                return (
+                  <span key={tVal} className="active-tag">
+                    Type: {label}
+                    <button onClick={() => toggleTypeChip(tVal)}>
+                      <FaTimes />
+                    </button>
+                  </span>
+                );
+              })}
+
+              {selectedListings.map((lVal) => {
+                const label = LISTING_TYPES.find((lt) => lt.value === lVal)?.label || lVal;
+                return (
+                  <span key={lVal} className="active-tag">
+                    Purpose: {label}
+                    <button onClick={() => toggleListingChip(lVal)}>
+                      <FaTimes />
+                    </button>
+                  </span>
+                );
+              })}
+
+              {locationInput && (
+                <span className="active-tag">
+                  📍 {locationInput}
+                  <button
+                    onClick={() => {
+                      setLocationInput("");
+                      setLocalLocation("");
+                      setProperties([]);
+                      setPage(1);
+                      setHasMore(true);
+                      setIsFirstLoad(true);
+                    }}
+                  >
+                    <FaTimes />
+                  </button>
+                </span>
+              )}
+
+              {(minPrice || maxPrice) && (
+                <span className="active-tag">
+                  ₹{minPrice || "0"} – {maxPrice ? `₹${maxPrice}` : "Any"}
+                  <button
+                    onClick={() => {
+                      setMinPrice("");
+                      setLocalMin("");
+                      setMaxPrice("");
+                      setLocalMax("");
+                      setProperties([]);
+                      setPage(1);
+                      setHasMore(true);
+                      setIsFirstLoad(true);
+                    }}
+                  >
+                    <FaTimes />
+                  </button>
+                </span>
+              )}
+
+              <button onClick={clearAllFilters} className="clear-all-tag-btn">
+                Clear All
+              </button>
             </div>
           )}
 
-          {/* Active filter chips */}
-          {activeFilterCount > 0 && (
-            <div className="filter-chips">
-              {filters.type && (
-                <span className="filter-chip">
-                  {PROPERTY_TYPES.find((t) => t.value === filters.type)?.label}
-                  <button onClick={() => { setFilters((p) => ({ ...p, type: "" })); setLocalType(""); setProperties([]); setPage(1); setHasMore(true); setIsFirstLoad(true); }}>
-                    <FaTimes />
-                  </button>
-                </span>
-              )}
-              {filters.listingType && (
-                <span className="filter-chip">
-                  {LISTING_TYPES.find((t) => t.value === filters.listingType)?.label}
-                  <button onClick={() => { setFilters((p) => ({ ...p, listingType: "" })); setLocalListingType(""); setProperties([]); setPage(1); setHasMore(true); setIsFirstLoad(true); }}>
-                    <FaTimes />
-                  </button>
-                </span>
-              )}
-              {filters.location && (
-                <span className="filter-chip">
-                  📍 {filters.location}
-                  <button onClick={() => { setFilters((p) => ({ ...p, location: "" })); setLocalLocation(""); setProperties([]); setPage(1); setHasMore(true); setIsFirstLoad(true); }}>
-                    <FaTimes />
-                  </button>
-                </span>
-              )}
-              {(filters.minPrice || filters.maxPrice) && (
-                <span className="filter-chip">
-                  ₹{filters.minPrice || "0"} – {filters.maxPrice || "∞"}
-                  <button onClick={() => { setFilters((p) => ({ ...p, minPrice: "", maxPrice: "" })); setLocalMin(""); setLocalMax(""); setProperties([]); setPage(1); setHasMore(true); setIsFirstLoad(true); }}>
-                    <FaTimes />
-                  </button>
-                </span>
-              )}
+          {/* Results Count Bar */}
+          {!isFirstLoad && (
+            <div className="results-summary-row">
+              <span className="summary-text">
+                Showing <strong>{properties.length}</strong> of <strong>{totalCount}</strong> properties
+              </span>
             </div>
           )}
 
-          {/* Result count */}
-          {!isFirstLoad && properties.length > 0 && (
-            <p className="result-count">
-              Showing <strong>{properties.length}</strong> of <strong>{totalCount}</strong> properties
-            </p>
-          )}
-
-          {/* Initial Loader */}
+          {/* Initial Loading */}
           {isFirstLoad && isLoading ? (
-            <Loader size="lg" />
+            <div className="py-16">
+              <Loader size="lg" />
+            </div>
           ) : properties.length === 0 && !isLoading ? (
             <EmptyState
               title="No properties found"
-              description="We couldn't find any properties matching your criteria. Try removing or changing filters."
+              description="We couldn't find any properties matching your criteria. Try clearing some filters."
               actionText="Reset All Filters"
-              onAction={clearFilters}
+              onAction={clearAllFilters}
             />
           ) : (
             <>
-              {/* 3-column Grid */}
-              <div className="listing-grid">
+              {/* Properties Grid: Desktop = 3 per row, Tablet = 2 per row, Mobile = 1 per row */}
+              <div className="property-grid-3col pt-2">
                 {properties.map((property) => (
                   <PropertyCard key={property._id} property={property} />
                 ))}
               </div>
 
-              {/* Infinite Scroll Sentinel */}
-              <div ref={sentinelRef} className="scroll-sentinel" />
-
-              {/* Loading more indicator */}
-              {isLoading && !isFirstLoad && (
-                <div className="load-more-spinner">
-                  <div className="spinner" />
-                  <span>Loading more properties...</span>
-                </div>
-              )}
-
-              {/* End of results */}
-              {!hasMore && properties.length > 0 && (
-                <div className="scroll-end-msg">
-                  ✓ All {properties.length} properties loaded
-                </div>
-              )}
+              {/* Show More Button Area */}
+              <div className="flex flex-col items-center justify-center pt-8 pb-4">
+                {hasMore ? (
+                  <button
+                    type="button"
+                    onClick={handleShowMore}
+                    disabled={isLoadingMore}
+                    className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 disabled:opacity-70 cursor-pointer"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Loading 12 More Properties...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaPlusCircle className="text-base group-hover:rotate-90 transition-transform duration-300" />
+                        <span>Show More Properties</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="text-center py-4 text-xs text-neutral-400 font-semibold border-t border-neutral-800/60 w-full mt-4">
+                    ✓ All {properties.length} properties loaded
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>

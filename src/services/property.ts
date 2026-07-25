@@ -19,8 +19,20 @@ export async function getProperties(filters: PropertyFilter = {}) {
 
   const query: any = { status: "active" };
 
-  if (type) query.type = type;
-  if (listingType) query.listingType = listingType;
+  if (type) {
+    const typesArr = typeof type === "string" ? type.split(",").map((t) => t.trim()).filter(Boolean) : (Array.isArray(type) ? type : [type]);
+    if (typesArr.length > 0) {
+      query.type = { $in: typesArr };
+    }
+  }
+
+  if (listingType) {
+    const listingArr = typeof listingType === "string" ? listingType.split(",").map((l) => l.trim()).filter(Boolean) : (Array.isArray(listingType) ? listingType : [listingType]);
+    if (listingArr.length > 0) {
+      query.listingType = { $in: listingArr };
+    }
+  }
+
   if (location) query.location = new RegExp(location, "i");
 
   if (minPrice !== undefined || maxPrice !== undefined) {
