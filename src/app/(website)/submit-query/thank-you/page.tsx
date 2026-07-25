@@ -48,7 +48,7 @@ export default function ThankYouPage() {
               Ad Inquiry Received Successfully
             </h2>
             <p className="thankyou-desc">
-              Thank you! Our Khurja admin team will review your submitted details, verify your phone number, and contact you directly via Call or WhatsApp within <strong className="text-white">24 hours</strong>.
+              Thank you! Our Khurja admin team will review your submitted details, verify your phone number, and contact you directly via Call or WhatsApp within <strong className="text-[var(--text-white)]">24 hours</strong>.
             </p>
 
             {/* What Happens Next - 3 Step Progress Timeline */}
@@ -59,8 +59,8 @@ export default function ThankYouPage() {
                   1
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Form Received</h4>
-                  <p className="text-[11px] text-neutral-400 leading-normal mt-0.5">
+                  <h4 className="text-xs font-bold text-[var(--text-white)]">Form Received</h4>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-normal mt-0.5">
                     Your query is logged in our local database.
                   </p>
                 </div>
@@ -72,8 +72,8 @@ export default function ThankYouPage() {
                   2
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Admin Verification</h4>
-                  <p className="text-[11px] text-neutral-400 leading-normal mt-0.5">
+                  <h4 className="text-xs font-bold text-[var(--text-white)]">Admin Verification</h4>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-normal mt-0.5">
                     Phone &amp; details review within 24h.
                   </p>
                 </div>
@@ -85,8 +85,8 @@ export default function ThankYouPage() {
                   3
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Direct Connect</h4>
-                  <p className="text-[11px] text-neutral-400 leading-normal mt-0.5">
+                  <h4 className="text-xs font-bold text-[var(--text-white)]">Direct Connect</h4>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-normal mt-0.5">
                     Connect directly with local buyers/sellers.
                   </p>
                 </div>
@@ -116,8 +116,8 @@ export default function ThankYouPage() {
                   <FaWhatsapp />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Need Urgent Help?</h4>
-                  <p className="text-xs text-neutral-400">
+                  <h4 className="text-sm font-bold text-[var(--text-white)]">Need Urgent Help?</h4>
+                  <p className="text-xs text-[var(--text-muted)]">
                     Call or WhatsApp our Khurja admin directly anytime.
                   </p>
                 </div>

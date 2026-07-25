@@ -105,7 +105,7 @@ export default function SubmitQueryPage() {
             {/* Header */}
             <div className="book-head">
               <div>
-                <h2 className="text-xl font-bold text-white">Ad Submission &amp; Inquiry Form</h2>
+                <h2 className="text-xl font-bold text-[var(--text-white)]">Ad Submission &amp; Inquiry Form</h2>
                 <p className="text-xs text-[var(--text-muted)] mt-1">
                   Connect directly with real buyers &amp; residents in Khurja with zero brokerage
                 </p>
@@ -191,12 +191,12 @@ export default function SubmitQueryPage() {
                       value={formData.type}
                       onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     >
-                      <option value="property-sell" className="bg-[#141414]">Sell Property (Plot / House / Shop)</option>
-                      <option value="property-rent" className="bg-[#141414]">Rent Out Property (Flat / Shop)</option>
-                      <option value="product-sell" className="bg-[#141414]">Sell Used Bike / Car / Electric Vehicle (EV)</option>
-                      <option value="appliance-sell" className="bg-[#141414]">Sell Used Home Appliance (Fridge / AC / Washing Machine)</option>
-                      <option value="electronics-sell" className="bg-[#141414]">Sell Used Mobile / Laptop / Electronics</option>
-                      <option value="general-inquiry" className="bg-[#141414]">General Support Inquiry</option>
+                      <option value="property-sell">Sell Property (Plot / House / Shop)</option>
+                      <option value="property-rent">Rent Out Property (Flat / Shop)</option>
+                      <option value="product-sell">Sell Used Bike / Car / Electric Vehicle (EV)</option>
+                      <option value="appliance-sell">Sell Used Home Appliance (Fridge / AC / Washing Machine)</option>
+                      <option value="electronics-sell">Sell Used Mobile / Laptop / Electronics</option>
+                      <option value="general-inquiry">General Support Inquiry</option>
                     </select>
                   </div>
 

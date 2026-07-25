@@ -17,8 +17,8 @@ export default function HomeFaq() {
         {/* Section Header */}
         <div className="sec-head center max-w-xl mx-auto text-center space-y-3">
           <span className="eyebrow">General Platform Help</span>
-          <h2 className="h2 text-white">Frequently Asked Questions</h2>
-          <p className="text-sm text-neutral-400">
+          <h2 className="h2">Frequently Asked Questions</h2>
+          <p className="text-sm text-[var(--text-muted)]">
             Got questions about KhurjaDeals? Here are answers to the top questions regarding our platform.
           </p>
         </div>

@@ -2,13 +2,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaPhoneAlt, FaPlus, FaTimes } from "react-icons/fa";
+import { FaPhoneAlt, FaPlus, FaTimes, FaSun, FaMoon } from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   // Close drawer on path change
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function Header() {
         <div className="container nav">
           <Link href="/" className="brand" aria-label="KhurjaDeals">
             <img
-              src="/logos/white-logo.webp"
+              src={theme === "light" ? "/logos/logo.webp" : "/logos/white-logo.webp"}
               alt="KhurjaDeals"
               style={{ height: "50px", maxHeight: "50px", width: "auto" }}
               className="object-contain rounded-lg bg-white px-2.5 py-1 shadow-sm transition-transform hover:scale-105"
@@ -92,6 +94,13 @@ export default function Header() {
           </nav>
 
           <div className="nav-actions">
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle-btn"
+              aria-label="Toggle Theme"
+            >
+              {theme === "light" ? <FaMoon size={18} /> : <FaSun size={18} />}
+            </button>
             <a className="nav-phone" href={`tel:${SITE_CONFIG.phone}`}>
               <FaPhoneAlt />
               <span>{SITE_CONFIG.phone}</span>
@@ -130,15 +139,22 @@ export default function Header() {
           <FaTimes size={20} />
         </button>
 
-        <div className="drawer-logo">
+        <div className="drawer-logo" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Link href="/" onClick={() => setIsOpen(false)}>
             <img
-              src="/logos/white-logo.webp"
+              src={theme === "light" ? "/logos/logo.webp" : "/logos/white-logo.webp"}
               alt="KhurjaDeals"
               style={{ height: "36px", maxHeight: "36px", width: "auto" }}
               className="object-contain rounded-lg bg-white px-2 py-1 shadow-sm"
             />
           </Link>
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            aria-label="Toggle Theme"
+          >
+            {theme === "light" ? <FaMoon size={18} /> : <FaSun size={18} />}
+          </button>
         </div>
 
         {drawerItems.map((item) => (
