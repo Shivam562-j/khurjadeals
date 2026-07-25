@@ -1,6 +1,15 @@
+"use client";
 import React from "react";
 import Link from "next/link";
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaEnvelope,
+  FaFacebookF,
+  FaInstagram,
+  FaYoutube,
+  FaWhatsapp,
+} from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
 
 export default function Footer() {
@@ -10,7 +19,8 @@ export default function Footer() {
     <footer className="footer">
       <div className="container">
         <div className="footer-top">
-          <div>
+          {/* Left: Logo + Description + Social Icons */}
+          <div className="footer-brand-col">
             <Link className="brand flex items-center gap-2.5" href="/">
               <div className="w-10 h-10 rounded-xl bg-[var(--accent-gradient)] text-white font-black text-lg flex items-center justify-center shadow-lg">
                 KD
@@ -22,6 +32,37 @@ export default function Footer() {
             <p className="footer-about">
               Khurja&apos;s premier local marketplace and real estate directory. Buy, sell, and rent properties, used bikes, cars, EVs, laptops, mobiles &amp; home appliances directly with verified local owners.
             </p>
+
+            {/* Social Icons Row - YouTube, Instagram, Facebook only */}
+            <div className="footer-socials">
+              <a
+                href={SITE_CONFIG.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="footer-social-icon facebook"
+              >
+                <FaFacebookF />
+              </a>
+              <a
+                href={SITE_CONFIG.social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="footer-social-icon instagram"
+              >
+                <FaInstagram />
+              </a>
+              <a
+                href={SITE_CONFIG.social.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="footer-social-icon youtube"
+              >
+                <FaYoutube />
+              </a>
+            </div>
           </div>
 
           <div>
