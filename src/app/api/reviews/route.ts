@@ -49,12 +49,12 @@ export async function POST(request: Request) {
     }
 
     const review = await createReview({
-      name:     String(body.name).trim(),
+      name: String(body.name).trim(),
       location: body.location ? String(body.location).trim() : "Khurja",
       rating,
       category: body.category || "general",
-      message:  String(body.message).trim(),
-      status:   "pending",
+      message: String(body.message).trim(),
+      status: "pending",
     });
 
     return NextResponse.json({ success: true, review }, { status: 201 });

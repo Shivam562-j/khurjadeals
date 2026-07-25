@@ -47,7 +47,17 @@ export default function Header() {
     { name: "Properties", path: "/properties" },
     { name: "Products", path: "/products" },
     { name: "Services", path: "/services" },
-    { name: "How it works", path: "/how-it-works" },
+    { name: "About", path: "/about" },
+    { name: "Reviews", path: "/reviews" },
+  ];
+
+  // Mobile drawer shows all links
+  const drawerItems = [
+    { name: "Home", path: "/" },
+    { name: "Properties", path: "/properties" },
+    { name: "Products", path: "/products" },
+    { name: "Services", path: "/services" },
+    { name: "How it Works", path: "/how-it-works" },
     { name: "About", path: "/about" },
     { name: "Reviews", path: "/reviews" },
     { name: "FAQ", path: "/faq" },
@@ -138,7 +148,7 @@ export default function Header() {
           </div>
         </div>
 
-        {navItems.map((item) => (
+        {drawerItems.map((item) => (
           <Link
             key={item.name}
             href={item.path}

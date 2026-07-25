@@ -65,30 +65,31 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Col 2 — Quick Links */}
           <div>
-            <h4>Navigation</h4>
+            <h4>Quick Links</h4>
             <ul>
               <li><Link href="/">Home</Link></li>
               <li><Link href="/about">About Us</Link></li>
               <li><Link href="/services">Services</Link></li>
               <li><Link href="/how-it-works">How It Works</Link></li>
-              <li><Link href="/properties">Properties</Link></li>
-              <li><Link href="/products">Products Bazaar</Link></li>
               <li><Link href="/reviews">Reviews</Link></li>
               <li><Link href="/faq">FAQ</Link></li>
             </ul>
           </div>
 
+          {/* Col 3 — Explore & Transact */}
           <div>
-            <h4>Quick Links &amp; Legal</h4>
+            <h4>Explore</h4>
             <ul>
-              <li><Link href="/terms-and-conditions">Terms &amp; Conditions</Link></li>
-              <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link href="/properties">Properties</Link></li>
+              <li><Link href="/products">Products Bazaar</Link></li>
               <li><Link href="/submit-query">Submit Ad Query</Link></li>
-              <li><Link href="/about">Contact Support</Link></li>
+              <li><Link href="/contact">Contact Support</Link></li>
             </ul>
           </div>
 
+          {/* Col 4 — Contact Info */}
           <div>
             <h4>Contact Info</h4>
             <ul className="contact">
