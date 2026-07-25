@@ -12,6 +12,7 @@ import {
   FaPlusCircle,
 } from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
+import "./thankyou.css";
 
 export default function ThankYouPage() {
   return (
@@ -19,7 +20,7 @@ export default function ThankYouPage() {
       {/* Page Hero */}
       <div className="page-hero">
         <div className="container text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="thankyou-badge-eyebrow">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             Submission Confirmed
           </div>
@@ -32,7 +33,7 @@ export default function ThankYouPage() {
 
       <section className="section-light py-12 sm:py-16">
         <div className="container max-w-3xl">
-          {/* Main Success Card using dedicated .thankyou-card CSS */}
+          {/* Main Success Card using dedicated thankyou.css */}
           <div className="thankyou-card">
             {/* Top Radial Ambient Glow */}
             <div className="thankyou-glow-bg" />
@@ -54,7 +55,7 @@ export default function ThankYouPage() {
             <div className="thankyou-steps-grid">
               {/* Step 1 */}
               <div className="thankyou-step-box">
-                <div className="thankyou-step-num bg-emerald-500/20 text-emerald-400">
+                <div className="thankyou-step-num green">
                   1
                 </div>
                 <div>
@@ -67,7 +68,7 @@ export default function ThankYouPage() {
 
               {/* Step 2 */}
               <div className="thankyou-step-box">
-                <div className="thankyou-step-num bg-[rgba(232,89,12,0.2)] text-[var(--primary)]">
+                <div className="thankyou-step-num orange">
                   2
                 </div>
                 <div>
@@ -80,7 +81,7 @@ export default function ThankYouPage() {
 
               {/* Step 3 */}
               <div className="thankyou-step-box">
-                <div className="thankyou-step-num bg-neutral-800 text-neutral-400">
+                <div className="thankyou-step-num gray">
                   3
                 </div>
                 <div>
@@ -108,47 +109,47 @@ export default function ThankYouPage() {
               </div>
             </div>
 
-            {/* Direct Support Callout */}
+            {/* Direct Support Callout Banner (Image 2 UI Enhanced) */}
             <div className="thankyou-whatsapp-banner">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#25D366]/20 border border-[#25D366]/40 text-[#25D366] flex items-center justify-center text-lg shrink-0">
+                <div className="thankyou-whatsapp-badge">
                   <FaWhatsapp />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Need Urgent Help?</h4>
-                  <p className="text-[11px] text-neutral-400">
+                  <h4 className="text-sm font-bold text-white">Need Urgent Help?</h4>
+                  <p className="text-xs text-neutral-400">
                     Call or WhatsApp our Khurja admin directly anytime.
                   </p>
                 </div>
               </div>
               <a
                 href={`tel:${SITE_CONFIG.phone}`}
-                className="px-4 py-2 rounded-xl bg-[#25D366] hover:bg-[#1eb956] text-white font-bold text-xs flex items-center gap-2 transition-all shadow-md shrink-0"
+                className="thankyou-whatsapp-btn"
               >
-                <FaPhoneAlt className="text-[10px]" />
+                <FaPhoneAlt className="text-xs" />
                 <span>{SITE_CONFIG.phone}</span>
               </a>
             </div>
 
-            {/* Action Buttons */}
+            {/* Enhanced 3 Action Buttons */}
             <div className="thankyou-actions">
               <Link
                 href="/properties"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[var(--primary)] text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                className="btn-thankyou-primary"
               >
                 <FaBuilding className="text-xs" />
                 <span>Browse Properties</span>
               </Link>
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#1c1c1c] border border-neutral-700 text-white font-bold text-xs sm:text-sm hover:border-[var(--primary)] transition-all"
+                className="btn-thankyou-dark"
               >
                 <FaShoppingBag className="text-xs" />
                 <span>Explore Bazaar</span>
               </Link>
               <Link
                 href="/submit-query"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#141414] border border-neutral-800 text-neutral-300 hover:text-white font-bold text-xs sm:text-sm transition-all"
+                className="btn-thankyou-outline"
               >
                 <FaPlusCircle className="text-xs text-[var(--primary)]" />
                 <span>Post Another Ad</span>

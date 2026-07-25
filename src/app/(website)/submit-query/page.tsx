@@ -11,6 +11,7 @@ import {
   FaShieldAlt,
   FaClock,
   FaFileAlt,
+  FaExclamationCircle,
 } from "react-icons/fa";
 
 export default function SubmitQueryPage() {
@@ -22,30 +23,64 @@ export default function SubmitQueryPage() {
     location: "Khurja City",
     message: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    phone?: string;
+    location?: string;
+  }>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [generalError, setGeneralError] = useState("");
+
+  const validateForm = (): boolean => {
+    const errors: { name?: string; phone?: string; location?: string } = {};
+
+    if (!formData.name || formData.name.trim().length < 2) {
+      errors.name = "Full name is required (minimum 2 characters).";
+    }
+
+    const cleanPhone = formData.phone.trim();
+    if (!cleanPhone || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      errors.phone = "Please enter a valid 10-digit mobile number (e.g. 9876543210).";
+    }
+
+    if (!formData.location || formData.location.trim().length < 2) {
+      errors.location = "Location/area in Khurja is required.";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setGeneralError("");
+
+    if (!validateForm()) return;
+
     setLoading(true);
-    setError("");
 
     try {
       const res = await fetch("/api/queries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          phone: formData.phone.trim(),
+          type: formData.type,
+          location: formData.location.trim(),
+          message: formData.message.trim(),
+        }),
       });
 
       if (res.ok) {
-        // Redirect directly to Thank You page
+        // Redirect directly to Thank You page upon successful submission
         router.push("/submit-query/thank-you");
       } else {
         const data = await res.json();
-        setError(data.message || data.error || "Failed to submit query. Please try again.");
+        setGeneralError(data.message || data.error || "Failed to submit query. Please check fields and try again.");
       }
     } catch {
-      setError("An unexpected error occurred. Please try again or call support.");
+      setGeneralError("An unexpected network error occurred. Please call support directly.");
     } finally {
       setLoading(false);
     }
@@ -83,17 +118,18 @@ export default function SubmitQueryPage() {
 
             {/* Body */}
             <div className="book-body">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {error && (
-                  <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">
-                    {error}
+              <form onSubmit={handleSubmit} noValidate>
+                {generalError && (
+                  <div className="p-4 mb-6 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold flex items-center gap-3">
+                    <FaExclamationCircle className="text-base shrink-0" />
+                    <span>{generalError}</span>
                   </div>
                 )}
 
                 {/* Field Row 1: Full Name & Phone Number */}
-                <div className="form-grid gap-8">
+                <div className="form-grid">
                   <div className="book-field">
-                    <label htmlFor="name" style={{ gap: "8px", marginBottom: "8px" }}>
+                    <label htmlFor="name">
                       <FaUser /> Full Name *
                     </label>
                     <input
@@ -101,14 +137,24 @@ export default function SubmitQueryPage() {
                       type="text"
                       required
                       placeholder="e.g. Ramesh Kumar"
-                      className="book-control"
+                      className={`book-control ${fieldErrors.name ? "!border-red-500" : ""}`}
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, name: e.target.value });
+                        if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: undefined });
+                      }}
                     />
+                    {/* Red Inline Validation Error directly under Name field */}
+                    {fieldErrors.name && (
+                      <span className="field-error-text">
+                        <FaExclamationCircle className="text-xs shrink-0" />
+                        <span>{fieldErrors.name}</span>
+                      </span>
+                    )}
                   </div>
 
                   <div className="book-field">
-                    <label htmlFor="phone" style={{ gap: "8px", marginBottom: "8px" }}>
+                    <label htmlFor="phone">
                       <FaPhoneAlt /> Mobile Number *
                     </label>
                     <input
@@ -116,17 +162,27 @@ export default function SubmitQueryPage() {
                       type="tel"
                       required
                       placeholder="e.g. 9876543210"
-                      className="book-control"
+                      className={`book-control ${fieldErrors.phone ? "!border-red-500" : ""}`}
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, phone: e.target.value });
+                        if (fieldErrors.phone) setFieldErrors({ ...fieldErrors, phone: undefined });
+                      }}
                     />
+                    {/* Red Inline Validation Error directly under Phone field */}
+                    {fieldErrors.phone && (
+                      <span className="field-error-text">
+                        <FaExclamationCircle className="text-xs shrink-0" />
+                        <span>{fieldErrors.phone}</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Field Row 2: Category & Location */}
-                <div className="form-grid gap-8">
+                <div className="form-grid">
                   <div className="book-field">
-                    <label htmlFor="type" style={{ gap: "8px", marginBottom: "8px" }}>
+                    <label htmlFor="type">
                       <FaTag /> Category / Requirement *
                     </label>
                     <select
@@ -144,71 +200,70 @@ export default function SubmitQueryPage() {
                   </div>
 
                   <div className="book-field">
-                    <label htmlFor="location" style={{ gap: "8px", marginBottom: "8px" }}>
+                    <label htmlFor="location">
                       <FaMapMarkerAlt /> Location / Area in Khurja *
                     </label>
                     <input
                       id="location"
                       type="text"
                       placeholder="e.g. Near GT Road, City Center, Junction"
-                      className="book-control"
+                      className={`book-control ${fieldErrors.location ? "!border-red-500" : ""}`}
                       value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, location: e.target.value });
+                        if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: undefined });
+                      }}
                     />
+                    {/* Red Inline Validation Error directly under Location field */}
+                    {fieldErrors.location && (
+                      <span className="field-error-text">
+                        <FaExclamationCircle className="text-xs shrink-0" />
+                        <span>{fieldErrors.location}</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Field Row 3: Description with Height Increased (min-h-[220px]) */}
+                {/* Field Row 3: Description with 150px Height as Requested */}
                 <div className="book-field">
-                  <label htmlFor="message" style={{ gap: "8px", marginBottom: "8px" }}>
+                  <label htmlFor="message">
                     <FaFileAlt /> Listing Description &amp; Details
                   </label>
                   <textarea
                     id="message"
-                    rows={8}
-                    placeholder="Specify price expected, plot area, product condition, address details, or special instructions for admin..."
-                    className="book-control !h-auto py-4 min-h-[220px] resize-y"
+                    rows={5}
+                    placeholder="Specify price expected, plot area, product condition, address details..."
+                    className="book-control-textarea"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   />
                 </div>
 
                 {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="book-submit"
-                >
-                  <FaPaperPlane />
-                  <span>{loading ? "Submitting Inquiry..." : "Submit Free Listing / Inquiry"}</span>
-                </button>
+                <div style={{ paddingTop: "8px" }}>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="book-submit"
+                  >
+                    <FaPaperPlane />
+                    <span>{loading ? "Submitting Inquiry..." : "Submit Free Listing / Inquiry"}</span>
+                  </button>
+                </div>
 
-                {/* 3 Trust Badges in EXACTLY 1 SINGLE ROW */}
-                <div className="pt-6 border-t border-neutral-800/80">
-                  <div className="flex flex-row items-center justify-between gap-2 sm:gap-3 w-full">
-                    {/* Badge 1 */}
-                    <div className="flex-1 py-3 px-2 sm:px-4 rounded-xl bg-[#1c1c1c] border border-neutral-800/90 flex items-center justify-center gap-1.5 text-center shadow-sm">
-                      <FaCheckCircle className="text-emerald-500 text-xs sm:text-sm shrink-0" />
-                      <span className="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap">
-                        Zero Agent Commission
-                      </span>
-                    </div>
-
-                    {/* Badge 2 */}
-                    <div className="flex-1 py-3 px-2 sm:px-4 rounded-xl bg-[#1c1c1c] border border-neutral-800/90 flex items-center justify-center gap-1.5 text-center shadow-sm">
-                      <FaClock className="text-[var(--primary)] text-xs sm:text-sm shrink-0" />
-                      <span className="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap">
-                        Verified Within 24 Hours
-                      </span>
-                    </div>
-
-                    {/* Badge 3 */}
-                    <div className="flex-1 py-3 px-2 sm:px-4 rounded-xl bg-[#1c1c1c] border border-neutral-800/90 flex items-center justify-center gap-1.5 text-center shadow-sm">
-                      <FaShieldAlt className="text-amber-500 text-xs sm:text-sm shrink-0" />
-                      <span className="text-[10px] sm:text-xs font-bold text-white whitespace-nowrap">
-                        Direct Owner Contacts
-                      </span>
-                    </div>
+                {/* 3 Trust Badges in EXACTLY 1 SINGLE ROW (.form-trust-row) */}
+                <div className="form-trust-row">
+                  <div className="form-trust-chip">
+                    <FaCheckCircle className="text-emerald-500 text-xs sm:text-sm shrink-0" />
+                    <span>Zero Agent Commission</span>
+                  </div>
+                  <div className="form-trust-chip">
+                    <FaClock className="text-[var(--primary)] text-xs sm:text-sm shrink-0" />
+                    <span>Verified Within 24 Hours</span>
+                  </div>
+                  <div className="form-trust-chip">
+                    <FaShieldAlt className="text-amber-500 text-xs sm:text-sm shrink-0" />
+                    <span>Direct Owner Contacts</span>
                   </div>
                 </div>
               </form>
