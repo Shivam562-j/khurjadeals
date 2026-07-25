@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   FaShieldAlt,
@@ -23,30 +23,52 @@ import {
 import { SITE_CONFIG } from "@/constants/site";
 
 const SECTIONS = [
-  { id: "info-collect", label: "1. Information We Collect", icon: FaDatabase },
-  { id: "how-use", label: "2. How We Use Information", icon: FaUserCheck },
-  { id: "publicly-visible", label: "3. Publicly Visible Info", icon: FaEye },
-  { id: "data-sharing", label: "4. Data Sharing & Disclosure", icon: FaGlobe },
+  { id: "info-collect", label: "1. Info We Collect", icon: FaDatabase },
+  { id: "how-use", label: "2. How We Use Data", icon: FaUserCheck },
+  { id: "publicly-visible", label: "3. Public Information", icon: FaEye },
+  { id: "data-sharing", label: "4. Direct Communication", icon: FaGlobe },
   { id: "cookies", label: "5. Cookies & Tracking", icon: FaCookieBite },
-  { id: "your-rights", label: "6. Your Rights (DPDP 2023)", icon: FaShieldAlt },
-  { id: "retention", label: "7. Data Retention & Security", icon: FaLock },
+  { id: "your-rights", label: "6. Your Rights", icon: FaShieldAlt },
+  { id: "retention", label: "7. Data Security", icon: FaLock },
   { id: "children", label: "8. Children's Privacy", icon: FaChild },
   { id: "third-party", label: "9. Third-Party Links", icon: FaLink },
-  { id: "changes", label: "10. Policy Changes", icon: FaSyncAlt },
-  { id: "grievance", label: "11. Grievance Officer & Contact", icon: FaEnvelope },
+  { id: "changes", label: "10. Policy Updates", icon: FaSyncAlt },
+  { id: "data-transfers", label: "11. Data Transfers", icon: FaGlobe },
+  { id: "security-incidents", label: "12. Security Incidents", icon: FaShieldAlt },
+  { id: "limitation-liability", label: "13. Liability Limits", icon: FaExclamationTriangle },
+  { id: "user-obligations", label: "14. User Obligations", icon: FaUserCheck },
+  { id: "force-majeure", label: "15. Force Majeure", icon: FaGlobe },
+  { id: "account-suspension", label: "16. Account Removal", icon: FaExclamationTriangle },
+  { id: "consent-withdrawal", label: "17. Consent Opt-Out", icon: FaLock },
+  { id: "governing-law", label: "18. Governing Law", icon: FaGlobe },
+  { id: "grievance", label: "19. Grievance & Contact", icon: FaEnvelope },
 ] as const;
 
 export default function PrivacyContent() {
   const [activeSection, setActiveSection] = useState<string>("");
+  const sidebarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            setActiveSection(id);
+
+            // Auto scroll sidebar button into view inside sidebar container
+            const activeBtn = document.getElementById(`toc-btn-${id}`);
+            if (activeBtn && sidebarRef.current) {
+              activeBtn.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "nearest",
+              });
+            }
+          }
         });
       },
-      { rootMargin: "-20% 0px -60% 0px" }
+      { rootMargin: "-20% 0px -55% 0px" }
     );
     SECTIONS.forEach((s) => {
       const el = document.getElementById(s.id);
@@ -87,13 +109,14 @@ export default function PrivacyContent() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div className="terms-layout">
 
-            {/* ── Sticky Sidebar TOC (Hidden on Phone/Mobile) ── */}
-            <aside className="terms-sidebar">
+            {/* ── Sticky Sidebar TOC ── */}
+            <aside className="terms-sidebar" ref={sidebarRef}>
               <p className="terms-toc-label">Sections</p>
               <nav>
                 {SECTIONS.map((s) => (
                   <button
                     key={s.id}
+                    id={`toc-btn-${s.id}`}
                     onClick={() => scrollTo(s.id)}
                     className={`terms-toc-btn${activeSection === s.id ? " active" : ""}`}
                   >
@@ -221,8 +244,11 @@ export default function PrivacyContent() {
               <section id="data-sharing" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaGlobe /></div>
-                  <h2>4. Data Sharing &amp; Disclosure</h2>
+                  <h2>4. Third-Party Interactions &amp; Direct User Communication</h2>
                 </div>
+                <p className="terms-sec-lead" style={{ marginBottom: 12 }}>
+                  Communication and information shared directly between a buyer and a seller (via phone, WhatsApp, or offline) happen independently of KhurjaDeals. We do not monitor, store, or take responsibility for private agreements, financial transactions, or disputes arising from direct contact between users.
+                </p>
                 <p className="terms-sec-lead">
                   We do <strong style={{ color: "var(--text-white)" }}>not sell, rent, or trade</strong> your personal information
                   to third parties for marketing purposes. We may disclose your information only in the following circumstances:
@@ -397,11 +423,99 @@ export default function PrivacyContent() {
                 </p>
               </section>
 
-              {/* Section 11 — Grievance */}
+              {/* Section 11 */}
+              <section id="data-transfers" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaGlobe /></div>
+                  <h2>11. International Data Transfers</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  KhurjaDeals primarily stores and processes user data on secure servers located within India. In the event of using cloud services with global infrastructure, we ensure appropriate data protection standards in compliance with the DPDP Act 2023.
+                </p>
+              </section>
+
+              {/* Section 12 */}
+              <section id="security-incidents" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaShieldAlt /></div>
+                  <h2>12. Data Breaches &amp; Security Incidents</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  In the unlikely event of a personal data breach or unauthorized access incident, KhurjaDeals will notify affected users and regulatory authorities promptly in accordance with statutory guidelines under Indian law.
+                </p>
+              </section>
+
+              {/* Section 13 */}
+              <section id="limitation-liability" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaExclamationTriangle /></div>
+                  <h2>13. Limitation of Privacy Liability</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  While we implement robust security practices, KhurjaDeals shall not be liable for unauthorized access, data loss, or privacy breaches arising from user negligence, compromised passwords, third-party cyberattacks, or force majeure events.
+                </p>
+              </section>
+
+              {/* Section 14 */}
+              <section id="user-obligations" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaUserCheck /></div>
+                  <h2>14. User Obligations &amp; Data Accuracy</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  Users are responsible for ensuring that all personal details, contact numbers, and listing information provided to KhurjaDeals are accurate, current, and non-misleading.
+                </p>
+              </section>
+
+              {/* Section 15 */}
+              <section id="force-majeure" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaGlobe /></div>
+                  <h2>15. Force Majeure &amp; System Outages</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  We are not responsible for temporary inability to access, modify, or delete your personal data due to technical maintenance, server outages, internet disruptions, or events beyond our reasonable control.
+                </p>
+              </section>
+
+              {/* Section 16 */}
+              <section id="account-suspension" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaExclamationTriangle /></div>
+                  <h2>16. Account Suspension &amp; Data Removal</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  If an account is suspended or terminated for violating platform policies, KhurjaDeals reserves the right to retain necessary audit logs and transaction records as required under Indian cybersecurity regulations.
+                </p>
+              </section>
+
+              {/* Section 17 */}
+              <section id="consent-withdrawal" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaLock /></div>
+                  <h2>17. Consent Withdrawal &amp; Opt-Out</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  You have the right to withdraw your consent for data processing at any time by requesting account deletion or contacting our support team at {SITE_CONFIG.email}. Upon withdrawal, we will cease processing your personal data.
+                </p>
+              </section>
+
+              {/* Section 18 */}
+              <section id="governing-law" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaGlobe /></div>
+                  <h2>18. Governing Law &amp; Jurisdiction</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  This Privacy Policy is governed by the laws of India, including the Information Technology Act 2000 and DPDP Act 2023. Any disputes regarding data privacy shall be subject to the exclusive jurisdiction of competent courts in Uttar Pradesh, India.
+                </p>
+              </section>
+
+              {/* Section 19 — Grievance */}
               <section id="grievance" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaEnvelope /></div>
-                  <h2>11. Grievance Officer &amp; Contact Us</h2>
+                  <h2>19. Grievance Officer &amp; Contact Us</h2>
                 </div>
                 <p className="terms-sec-lead">
                   In accordance with the <strong style={{ color: "var(--text-white)" }}>Information Technology Act, 2000</strong> and

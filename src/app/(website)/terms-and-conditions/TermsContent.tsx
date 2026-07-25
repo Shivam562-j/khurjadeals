@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   FaShieldAlt,
@@ -21,37 +21,52 @@ import {
 import { SITE_CONFIG } from "@/constants/site";
 
 const SECTIONS = [
-  { id: "intermediary", label: "1. About & Intermediary Status", icon: FaInfoCircle },
+  { id: "intermediary", label: "1. About & Status", icon: FaInfoCircle },
   { id: "eligibility", label: "2. Eligibility", icon: FaCheckCircle },
-  { id: "accounts", label: "3. User Accounts & Security", icon: FaLock },
-  { id: "listing-guidelines", label: "4. General Listing Guidelines", icon: FaFileAlt },
-  { id: "real-estate-second-hand", label: "5. Real Estate & Second-Hand Listings", icon: FaHome },
-  { id: "community-rules", label: "6. Community Section Rules", icon: FaShieldAlt },
-  { id: "no-payments-delivery", label: "7. No Payments & No Delivery", icon: FaExclamationTriangle },
+  { id: "accounts", label: "3. User Accounts", icon: FaLock },
+  { id: "listing-guidelines", label: "4. Listing Rules", icon: FaFileAlt },
+  { id: "real-estate-second-hand", label: "5. Real Estate & Goods", icon: FaHome },
+  { id: "community-rules", label: "6. Community Rules", icon: FaShieldAlt },
+  { id: "no-payments-delivery", label: "7. No Delivery / Escrow", icon: FaExclamationTriangle },
   { id: "prohibited-items", label: "8. Prohibited Items", icon: FaExclamationCircle },
-  { id: "fraud-safety", label: "9. Fraud Prevention & Safety", icon: FaShieldAlt },
-  { id: "platform-changes", label: "10. Future Services & Changes", icon: FaGlobe },
-  { id: "intellectual-property", label: "11. Intellectual Property", icon: FaBook },
-  { id: "privacy-policy", label: "12. Privacy Policy Reference", icon: FaEye },
-  { id: "limitation-of-liability", label: "13. Limitation of Liability", icon: FaExclamationCircle },
-  { id: "indemnity", label: "14. Indemnity", icon: FaShieldAlt },
-  { id: "force-majeure", label: "15. Force Majeure", icon: FaGlobe },
-  { id: "suspension-termination", label: "16. Account Suspension & Termination", icon: FaExclamationTriangle },
-  { id: "governing-law", label: "17. Governing Law & Jurisdiction", icon: FaBook },
-  { id: "grievance-officer", label: "18. Grievance Officer & Contact", icon: FaEnvelope },
+  { id: "fraud-safety", label: "9. Fraud & Safety", icon: FaShieldAlt },
+  { id: "sole-responsibility", label: "10. Buyer/Seller Duty", icon: FaShieldAlt },
+  { id: "platform-changes", label: "11. Future Features", icon: FaGlobe },
+  { id: "intellectual-property", label: "12. Intellectual Property", icon: FaBook },
+  { id: "privacy-policy", label: "13. Privacy Reference", icon: FaEye },
+  { id: "limitation-of-liability", label: "14. Liability Limits", icon: FaExclamationCircle },
+  { id: "indemnity", label: "15. Indemnity", icon: FaShieldAlt },
+  { id: "force-majeure", label: "16. Force Majeure", icon: FaGlobe },
+  { id: "suspension-termination", label: "17. Account Removal", icon: FaExclamationTriangle },
+  { id: "governing-law", label: "18. Governing Law", icon: FaBook },
+  { id: "grievance-officer", label: "19. Grievance & Contact", icon: FaEnvelope },
 ] as const;
 
 export default function TermsContent() {
   const [activeSection, setActiveSection] = useState<string>("");
+  const sidebarRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            setActiveSection(id);
+
+            // Auto scroll sidebar button into view inside sidebar container
+            const activeBtn = document.getElementById(`toc-terms-btn-${id}`);
+            if (activeBtn && sidebarRef.current) {
+              activeBtn.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "nearest",
+              });
+            }
+          }
         });
       },
-      { rootMargin: "-20% 0px -60% 0px" }
+      { rootMargin: "-20% 0px -55% 0px" }
     );
     SECTIONS.forEach((s) => {
       const el = document.getElementById(s.id);
@@ -92,12 +107,13 @@ export default function TermsContent() {
           <div className="terms-layout">
 
             {/* ── Sticky Sidebar TOC ── */}
-            <aside className="terms-sidebar">
+            <aside className="terms-sidebar" ref={sidebarRef}>
               <p className="terms-toc-label">Table of Contents</p>
               <nav>
                 {SECTIONS.map((s) => (
                   <button
                     key={s.id}
+                    id={`toc-terms-btn-${s.id}`}
                     onClick={() => scrollTo(s.id)}
                     className={`terms-toc-btn${activeSection === s.id ? " active" : ""}`}
                   >
@@ -300,10 +316,29 @@ export default function TermsContent() {
               </section>
 
               {/* Section 10 */}
+              <section id="sole-responsibility" className="terms-section scroll-mt-24">
+                <div className="terms-sec-head">
+                  <div className="terms-sec-icon"><FaShieldAlt /></div>
+                  <h2>10. Sole Responsibility of Buyer and Seller</h2>
+                </div>
+                <p className="terms-sec-lead">
+                  All negotiations, product condition checks, quality verification, payments, and handovers are strictly between the buyer and the seller. KhurjaDeals is not a party to any contract or agreement made between users.
+                </p>
+                <div className="terms-alert red" style={{ marginTop: 16 }}>
+                  <div className="terms-alert-title">
+                    <FaExclamationCircle /> No Liability for Defects or Disputes
+                  </div>
+                  <p style={{ lineHeight: 1.7, fontSize: "0.88rem" }}>
+                    KhurjaDeals shall not be drawn into, held responsible for, or liable for any defective products, wrong property descriptions, non-payment, fraud, or post-purchase disputes between users. Any dispute arising from a transaction must be resolved directly between the buyer and the seller without involving KhurjaDeals.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 11 */}
               <section id="platform-changes" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaGlobe /></div>
-                  <h2>10. Future-Ready Services &amp; Platform Changes</h2>
+                  <h2>11. Future-Ready Services &amp; Platform Changes</h2>
                 </div>
                 <p className="terms-sec-lead">KhurjaDeals reserves the right to introduce new features, including but not limited to:</p>
                 <div className="terms-chip-grid">
@@ -319,11 +354,11 @@ export default function TermsContent() {
                 </p>
               </section>
 
-              {/* Section 11 */}
+              {/* Section 12 */}
               <section id="intellectual-property" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaBook /></div>
-                  <h2>11. Intellectual Property &amp; Content License</h2>
+                  <h2>12. Intellectual Property &amp; Content License</h2>
                 </div>
                 <div className="terms-two-col">
                   <div className="terms-box">
@@ -337,11 +372,11 @@ export default function TermsContent() {
                 </div>
               </section>
 
-              {/* Section 12 */}
+              {/* Section 13 */}
               <section id="privacy-policy" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaEye /></div>
-                  <h2>12. Privacy Policy Reference</h2>
+                  <h2>13. Privacy Policy Reference</h2>
                 </div>
                 <div className="terms-box" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
                   <div>
@@ -354,11 +389,11 @@ export default function TermsContent() {
                 </div>
               </section>
 
-              {/* Section 13 */}
+              {/* Section 14 */}
               <section id="limitation-of-liability" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaExclamationCircle /></div>
-                  <h2>13. Limitation of Liability</h2>
+                  <h2>14. Limitation of Liability</h2>
                 </div>
                 <div className="terms-alert red">
                   <p style={{ marginBottom: 12 }}>To the maximum extent permitted by Indian law, KhurjaDeals shall <strong>NOT</strong> be liable for:</p>
@@ -373,55 +408,55 @@ export default function TermsContent() {
                 </div>
               </section>
 
-              {/* Section 14 */}
+              {/* Section 15 */}
               <section id="indemnity" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaShieldAlt /></div>
-                  <h2>14. Indemnity</h2>
+                  <h2>15. Indemnity</h2>
                 </div>
                 <p className="terms-sec-lead">
                   You agree to indemnify, defend, and hold harmless KhurjaDeals and its administrators from any claims, liabilities, losses, damages, or legal fees arising out of your misuse of the platform, violation of these Terms, or infringement of any third-party rights.
                 </p>
               </section>
 
-              {/* Section 15 */}
+              {/* Section 16 */}
               <section id="force-majeure" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaGlobe /></div>
-                  <h2>15. Force Majeure</h2>
+                  <h2>16. Force Majeure</h2>
                 </div>
                 <p className="terms-sec-lead">
                   KhurjaDeals shall not be held liable for failure or delay in performance caused by events beyond reasonable control, including acts of God, internet outages, cyberattacks, governmental actions, or natural disasters.
                 </p>
               </section>
 
-              {/* Section 16 */}
+              {/* Section 17 */}
               <section id="suspension-termination" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaExclamationTriangle /></div>
-                  <h2>16. Account Suspension &amp; Termination</h2>
+                  <h2>17. Account Suspension &amp; Termination</h2>
                 </div>
                 <p className="terms-sec-lead">
                   We reserve the right to warn, temporarily suspend, or permanently terminate any user account or delete listings immediately if you violate these Terms, engage in fraud, or harm the safety or integrity of the KhurjaDeals community.
                 </p>
               </section>
 
-              {/* Section 17 */}
+              {/* Section 18 */}
               <section id="governing-law" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaBook /></div>
-                  <h2>17. Governing Law &amp; Jurisdiction</h2>
+                  <h2>18. Governing Law &amp; Jurisdiction</h2>
                 </div>
                 <p className="terms-sec-lead">
                   These Terms shall be governed by and construed in accordance with the laws of India. Any legal proceedings arising out of or related to KhurjaDeals shall be subject to the exclusive jurisdiction of the competent courts located in Uttar Pradesh, India.
                 </p>
               </section>
 
-              {/* Section 18 */}
+              {/* Section 19 */}
               <section id="grievance-officer" className="terms-section scroll-mt-24">
                 <div className="terms-sec-head">
                   <div className="terms-sec-icon"><FaEnvelope /></div>
-                  <h2>18. Grievance Officer &amp; Contact Information</h2>
+                  <h2>19. Grievance Officer &amp; Contact Information</h2>
                 </div>
                 <p className="terms-sec-lead">
                   In accordance with the Information Technology Act, 2000, and rules thereunder, the name and contact details of the Grievance Officer are provided below:
