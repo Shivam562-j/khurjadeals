@@ -1910,8 +1910,7 @@ textarea {
   }
 
   .terms-sidebar {
-    position: static;
-    max-height: none;
+    display: none !important;
   }
 
   .terms-two-col {
