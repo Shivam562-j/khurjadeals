@@ -15,7 +15,7 @@ export default function InstallBanner() {
     <aside className="install-app-banner" aria-label="Install Khurja Deals App">
       <div className="install-banner-content">
         <div className="install-banner-icon">
-          <img src="/logos/logo.png" alt="KD App" className="w-full h-full object-contain" />
+          <img src="/logos/logo.webp" alt="KD App" className="w-full h-full object-contain" />
         </div>
         <div className="install-banner-text">
           <h6>Khurja Deals App</h6>

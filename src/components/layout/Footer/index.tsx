@@ -23,7 +23,7 @@ export default function Footer() {
           <div className="footer-brand-col">
             <Link className="brand inline-block mb-3" href="/" aria-label="KhurjaDeals">
               <img
-                src="/logos/logo.png"
+                src="/logos/logo.webp"
                 alt="KhurjaDeals"
                 style={{ height: "90px", maxHeight: "90px", width: "auto" }}
                 className="object-contain rounded-lg bg-white px-2.5 py-1 shadow-sm transition-transform hover:scale-105"

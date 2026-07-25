@@ -69,7 +69,7 @@ export default function Header() {
         <div className="container nav">
           <Link href="/" className="brand" aria-label="KhurjaDeals">
             <img
-              src="/logos/white-logo.png"
+              src="/logos/white-logo.webp"
               alt="KhurjaDeals"
               style={{ height: "50px", maxHeight: "50px", width: "auto" }}
               className="object-contain rounded-lg bg-white px-2.5 py-1 shadow-sm transition-transform hover:scale-105"
@@ -133,7 +133,7 @@ export default function Header() {
         <div className="drawer-logo">
           <Link href="/" onClick={() => setIsOpen(false)}>
             <img
-              src="/logos/white-logo.png"
+              src="/logos/white-logo.webp"
               alt="KhurjaDeals"
               style={{ height: "36px", maxHeight: "36px", width: "auto" }}
               className="object-contain rounded-lg bg-white px-2 py-1 shadow-sm"

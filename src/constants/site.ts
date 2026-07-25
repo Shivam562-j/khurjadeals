@@ -8,8 +8,8 @@ export const SITE_CONFIG = {
   whatsapp: "917906896546",
   email: "info@khurjadeals.com",
   address: "Khurja, Bulandshahr, Uttar Pradesh, India",
-  logo: "/logos/logo.png",
-  whiteLogo: "/logos/white-logo.png",
+  logo: "/logos/logo.webp",
+  whiteLogo: "/logos/white-logo.webp",
   favicon: "/favicon.ico",
   social: {
     instagram: "",

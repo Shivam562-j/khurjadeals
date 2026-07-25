@@ -17,7 +17,7 @@ export const DEFAULT_METADATA: Metadata = {
     card: "summary_large_image",
   },
   icons: {
-    icon: "/logos/logo.png",
-    apple: "/logos/logo.png",
+    icon: "/logos/logo.webp",
+    apple: "/logos/logo.webp",
   },
 };

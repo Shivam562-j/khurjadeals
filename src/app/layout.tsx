@@ -6,14 +6,14 @@ export const metadata: Metadata = {
   description:
     "Khurja ka apna local directory. Verified properties, used vehicles, EVs, mobiles, laptops & home appliances — sab ek jagah.",
   icons: {
-    icon: "/logos/logo.png",
-    apple: "/logos/logo.png",
+    icon: "/logos/logo.webp",
+    apple: "/logos/logo.webp",
   },
   openGraph: {
     title: "KhurjaDeals — Khurja's Local Marketplace",
     description:
       "Buy, sell & rent in Khurja. Verified properties, used bikes, cars, EVs, mobiles, laptops & appliances — all in one place.",
-    images: ["/logos/logo.png"],
+    images: ["/logos/logo.webp"],
   },
 };
 
