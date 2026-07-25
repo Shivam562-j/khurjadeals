@@ -7,6 +7,7 @@ import {
   FaCommentAlt,
   FaBolt,
   FaClipboardList,
+  FaArrowRight,
 } from "react-icons/fa";
 import { SERVICES } from "@/constants/services";
 
@@ -47,11 +48,9 @@ export default function Services() {
                 </div>
                 <h3>{srv.title}</h3>
                 <p>{srv.description}</p>
-                <Link href="/submit-query" className="linkarrow">
-                  Get Started
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/>
-                  </svg>
+                <Link href="/submit-query" className="linkarrow" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <span>Get Started</span>
+                  <FaArrowRight style={{ fontSize: "0.75rem" }} />
                 </Link>
               </div>
             ))}
@@ -73,7 +72,7 @@ export default function Services() {
           <div className="steps">
             {steps.map((step) => (
               <div key={step.num} className="step">
-                <div className="num" />
+                <div className="num">{step.num}</div>
                 <h3>{step.title}</h3>
                 <p>{step.desc}</p>
               </div>

@@ -2,7 +2,6 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Product } from "@/types/product";
-import Container from "@/components/layout/Container";
 import ProductFilter from "@/components/product/ProductFilter";
 import ProductCard from "@/components/product/ProductCard";
 import Loader from "@/components/common/Loader";
@@ -15,7 +14,6 @@ function ProductsList() {
 
   // State
   const [products, setProducts] = useState<Product[]>([]);
-  const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +28,7 @@ function ProductsList() {
     maxPrice: searchParams.get("maxPrice") || "",
   });
 
-  // Sync state with URL parameter changes (e.g., clicking quick categories)
+  // Sync state with URL parameter changes
   useEffect(() => {
     setFilters({
       search: searchParams.get("search") || "",
@@ -60,7 +58,6 @@ function ProductsList() {
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || []);
-        setTotal(data.total || 0);
         setTotalPages(data.totalPages || 1);
       }
     } catch (error) {
@@ -79,7 +76,7 @@ function ProductsList() {
       ...prev,
       ...newFilters,
     }));
-    setCurrentPage(1); // reset to page 1
+    setCurrentPage(1);
   };
 
   const handleSearch = (query: string) => {
@@ -91,67 +88,69 @@ function ProductsList() {
   };
 
   return (
-    <div className="py-12 space-y-10">
-      <Container className="space-y-6 max-w-6xl mx-auto pt-12 pb-12">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <h1 className="text-3xl sm:text-4xl font-black text-white">
-            Marketplace & Khurja Pottery
-          </h1>
-          <p className="text-sm text-neutral-400">
-            Discover local products, used vehicles, household appliances, and the famous Khurja ceramic pottery directly from local sellers.
+    <>
+      {/* Page Hero */}
+      <div className="page-hero">
+        <div className="container">
+          <span className="eyebrow">Local Bazaar</span>
+          <h1 className="h1">Marketplace &amp; Khurja Pottery</h1>
+          <p className="lead">
+            Discover local products, used vehicles, household appliances, and famous Khurja ceramic pottery directly from local sellers.
           </p>
         </div>
+      </div>
 
-        {/* Search and Filters */}
-        <div className="flex flex-col gap-6">
-          <div className="flex justify-center">
-            <Search
-              placeholder="Search products, pottery, categories..."
-              initialValue={filters.search}
-              onSearch={handleSearch}
-            />
-          </div>
-          <ProductFilter filters={filters} onFilterChange={handleFilterChange} />
-        </div>
-      </Container>
-
-      {/* Grid List */}
-      <Container>
-        {isLoading ? (
-          <Loader size="lg" />
-        ) : products.length === 0 ? (
-          <EmptyState
-            title="No products found"
-            description="We couldn't find any products matching your current search criteria. Try removing filters."
-            actionText="Reset All Filters"
-            onAction={() => {
-              setFilters({
-                search: "",
-                location: "",
-                category: "",
-                condition: "",
-                minPrice: "",
-                maxPrice: "",
-              });
-              setCurrentPage(1);
-            }}
-          />
-        ) : (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+      <section className="section-light">
+        <div className="container space-y-8">
+          {/* Search and Filters */}
+          <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+            <div className="flex justify-center">
+              <Search
+                placeholder="Search products, pottery, categories..."
+                initialValue={filters.search}
+                onSearch={handleSearch}
+              />
             </div>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
+            <ProductFilter filters={filters} onFilterChange={handleFilterChange} />
           </div>
-        )}
-      </Container>
-    </div>
+
+          {/* Grid List */}
+          {isLoading ? (
+            <Loader size="lg" />
+          ) : products.length === 0 ? (
+            <EmptyState
+              title="No products found"
+              description="We couldn't find any products matching your current search criteria. Try removing filters."
+              actionText="Reset All Filters"
+              onAction={() => {
+                setFilters({
+                  search: "",
+                  location: "",
+                  category: "",
+                  condition: "",
+                  minPrice: "",
+                  maxPrice: "",
+                });
+                setCurrentPage(1);
+              }}
+            />
+          ) : (
+            <div className="space-y-8 pt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          )}
+        </div>
+      </section>
+    </>
   );
 }
 

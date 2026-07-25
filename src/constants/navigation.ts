@@ -20,6 +20,6 @@ export const FOOTER_LINKS = {
   ],
   legal: [
     { label: "Privacy Policy", href: "/privacy-policy" },
-    { label: "Terms of Use",   href: "/terms" },
+    { label: "Terms of Use",   href: "/terms-and-conditions" },
   ],
 } as const;

@@ -1,265 +1,161 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { NAV_LINKS } from "@/constants/navigation";
+import { usePathname } from "next/navigation";
+import { FaPhoneAlt, FaPlus, FaTimes } from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
 
 export default function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const router   = useRouter();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [scrolled,   setScrolled]   = useState(false);
-  const [query,      setQuery]      = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
 
-  useEffect(() => { setDrawerOpen(false); setSearchOpen(false); }, [pathname]);
+  // Close drawer on path change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* Lock body scroll when drawer is open */
-  useEffect(() => {
-    document.body.style.overflow = drawerOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [drawerOpen]);
+  const toggleDrawer = () => setIsOpen(!isOpen);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    router.push(`/properties?search=${encodeURIComponent(query.trim())}`);
-    setQuery(""); setSearchOpen(false);
-  };
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Properties", path: "/properties" },
+    { name: "Products", path: "/products" },
+    { name: "Services", path: "/services" },
+    { name: "How it works", path: "/how-it-works" },
+    { name: "About", path: "/about" },
+    { name: "FAQ", path: "/faq" },
+  ];
 
   return (
     <>
-      <header className={`site-header${scrolled ? " scrolled" : ""}`}>
-        <div className="container">
-          <nav className="nav">
-            {/* Brand */}
-            <Link href="/" className="brand" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-              <div style={{
-                background: "var(--primary)",
-                color: "#ffffff",
-                fontWeight: 900,
-                fontSize: "1.1rem",
-                padding: "6px 10px",
-                borderRadius: 8,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                letterSpacing: "-0.05em",
-                lineHeight: 1,
-              }}>
+      <header className={`site-header ${scrolled ? "scrolled" : ""}`} id="header">
+        <div className="container nav">
+          <Link href="/" className="brand" aria-label="KhurjaDeals">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-gradient)] text-white font-black text-lg flex items-center justify-center shadow-lg tracking-wider">
                 KD
               </div>
-              <span style={{
-                fontWeight: 800,
-                fontSize: "1.25rem",
-                color: "var(--text-white)",
-                letterSpacing: "-0.02em",
-              }}>
-                Khurja<span style={{ color: "var(--primary)" }}>Deals</span>
-              </span>
-            </Link>
+              <div className="flex flex-col">
+                <span className="font-black text-xl text-white tracking-tight leading-none">
+                  Khurja<span className="text-[var(--primary)]">Deals</span>
+                </span>
+                <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] font-bold mt-1">
+                  Local Marketplace
+                </span>
+              </div>
+            </div>
+          </Link>
 
-            {/* Desktop nav links */}
-            <div className="nav-links">
-              {NAV_LINKS.map((link) => (
+          <nav className="nav-links" aria-label="Primary">
+            {navItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  className={pathname === link.href ? "active" : ""}
+                  key={item.name}
+                  href={item.path}
+                  className={isActive ? "active" : ""}
                 >
-                  {link.label}
+                  {item.name}
                 </Link>
-              ))}
-            </div>
-
-            {/* Right actions */}
-            <div className="nav-actions">
-              {/* Search toggle */}
-              <button
-                onClick={() => setSearchOpen(!searchOpen)}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 36, height: 36, borderRadius: 8,
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid var(--border-color)",
-                  color: "var(--text-muted)", cursor: "pointer",
-                  transition: "var(--transition-smooth)",
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--primary)";
-                  (e.currentTarget as HTMLElement).style.color = "var(--primary)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)";
-                  (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
-                }}
-                aria-label="Search"
-              >
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="8" strokeWidth="2.5"/>
-                  <path d="M21 21l-4.35-4.35" strokeWidth="2.5" strokeLinecap="round"/>
-                </svg>
-              </button>
-
-              {/* Phone */}
-              <a href={`tel:${SITE_CONFIG.phone}`} className="nav-phone">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                {SITE_CONFIG.phone}
-              </a>
-
-              {/* CTA */}
-              <Link href="/submit-query" className="btn btn-primary" style={{ padding: "9px 22px", fontSize: "0.88rem" }}>
-                Post Ad Free
-              </Link>
-
-              {/* Burger */}
-              <button
-                className={`burger${drawerOpen ? " open" : ""}`}
-                onClick={() => setDrawerOpen(!drawerOpen)}
-                aria-label="Menu"
-              >
-                <span /><span /><span />
-              </button>
-            </div>
+              );
+            })}
           </nav>
 
-          {/* Inline search bar */}
-          {searchOpen && (
-            <div style={{ paddingBottom: 16 }}>
-              <form
-                onSubmit={handleSearch}
-                style={{
-                  display: "flex", gap: 10, alignItems: "center",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1.5px solid var(--border-color)",
-                  borderRadius: 10, padding: "8px 14px",
-                }}
-              >
-                <svg width="16" height="16" fill="none" stroke="var(--text-muted)" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                  <circle cx="11" cy="11" r="8" strokeWidth="2.5"/>
-                  <path d="M21 21l-4.35-4.35" strokeWidth="2.5" strokeLinecap="round"/>
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Khurja mein property ya product dhundho..."
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  autoFocus
-                  style={{
-                    flex: 1, background: "transparent",
-                    color: "var(--text-white)", fontSize: "0.9rem",
-                    fontFamily: "var(--sans)",
-                  }}
-                />
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ padding: "7px 18px", fontSize: "0.82rem", flexShrink: 0 }}
-                >
-                  Search
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setSearchOpen(false); setQuery(""); }}
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    color: "var(--text-muted)", display: "flex",
-                    alignItems: "center", justifyContent: "center",
-                    padding: 4, flexShrink: 0,
-                  }}
-                >
-                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </form>
-            </div>
-          )}
+          <div className="nav-actions">
+            <a className="nav-phone" href={`tel:${SITE_CONFIG.phone}`}>
+              <FaPhoneAlt />
+              <span>{SITE_CONFIG.phone}</span>
+            </a>
+            <Link className="btn btn-primary" href="/submit-query">
+              <FaPlus className="text-xs" />
+              Post Free Ad
+            </Link>
+            <button
+              className={`burger ${isOpen ? "open" : ""}`}
+              onClick={toggleDrawer}
+              aria-label="Menu"
+              aria-expanded={isOpen}
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Scrim */}
-      <div className={`scrim${drawerOpen ? " open" : ""}`} onClick={() => setDrawerOpen(false)} />
+      {/* Backdrop Scrim */}
+      <div
+        className={`scrim ${isOpen ? "open" : ""}`}
+        onClick={toggleDrawer}
+      ></div>
 
-      {/* Drawer */}
-      <aside className={`drawer${drawerOpen ? " open" : ""}`}>
-        <div className="drawer-logo" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-          <div style={{
-            background: "var(--primary)",
-            color: "#ffffff",
-            fontWeight: 900,
-            fontSize: "1.1rem",
-            padding: "6px 10px",
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            letterSpacing: "-0.05em",
-            lineHeight: 1,
-          }}>
-            KD
-          </div>
-          <span style={{
-            fontWeight: 800,
-            fontSize: "1.25rem",
-            color: "var(--text-white)",
-            letterSpacing: "-0.02em",
-          }}>
-            Khurja<span style={{ color: "var(--primary)" }}>Deals</span>
-          </span>
-        </div>
-        <button className="drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close">
-          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+      {/* Side Navigation Drawer for Mobile/Tablet */}
+      <aside className={`drawer ${isOpen ? "open" : ""}`} aria-hidden={!isOpen}>
+        <button
+          className="drawer-close"
+          onClick={toggleDrawer}
+          aria-label="Close menu"
+        >
+          <FaTimes size={20} />
         </button>
 
-        {NAV_LINKS.map((link) => (
+        <div className="drawer-logo">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-[var(--accent-gradient)] text-white font-black text-lg flex items-center justify-center shadow-lg">
+              KD
+            </div>
+            <span className="font-black text-xl text-white tracking-tight">
+              Khurja<span className="text-[var(--primary)]">Deals</span>
+            </span>
+          </div>
+        </div>
+
+        {navItems.map((item) => (
           <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => setDrawerOpen(false)}
-            style={pathname === link.href ? { color: "var(--primary)" } : {}}
+            key={item.name}
+            href={item.path}
+            onClick={() => setIsOpen(false)}
           >
-            {link.label}
+            {item.name}
           </Link>
         ))}
 
-        <a href={`tel:${SITE_CONFIG.phone}`} onClick={() => setDrawerOpen(false)}>
-          {SITE_CONFIG.phone}
+        <a className="btn btn-outline" href={`tel:${SITE_CONFIG.phone}`}>
+          <FaPhoneAlt />
+          Call {SITE_CONFIG.phone}
         </a>
-
-        <Link
-          href="/submit-query"
-          className="btn btn-primary"
-          style={{ width: "100%", marginTop: 8, textAlign: "center" }}
-          onClick={() => setDrawerOpen(false)}
-        >
-          Post Ad Free
+        <Link className="btn btn-primary" href="/submit-query" onClick={() => setIsOpen(false)}>
+          <FaPlus className="text-xs" />
+          Post Free Ad
         </Link>
       </aside>
-
-      {/* WhatsApp FAB */}
-      <a
-        href={`https://wa.me/${SITE_CONFIG.whatsapp}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fab"
-        aria-label="Chat on WhatsApp"
-      >
-        <svg fill="currentColor" viewBox="0 0 24 24">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-      </a>
     </>
   );
 }

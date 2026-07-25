@@ -25,7 +25,7 @@ export default function Search({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-full max-w-xl flex items-center">
+    <form onSubmit={handleSubmit} className="relative w-full flex items-center">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500">
         <svg
           className="h-5 w-5"

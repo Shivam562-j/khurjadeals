@@ -1,59 +1,79 @@
 "use client";
 import React, { useState } from "react";
+import { FaCamera } from "react-icons/fa";
 
 interface PropertyGalleryProps {
   images: string[];
+  title?: string;
 }
 
-export default function PropertyGallery({ images }: PropertyGalleryProps) {
+export default function PropertyGallery({ images, title }: PropertyGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const displayImages = images && images.length > 0
-    ? images
-    : ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80"];
+  const displayImages =
+    images && images.length > 0
+      ? images
+      : ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80"];
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Featured Big Image */}
-      <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-neutral-950 border border-neutral-850 shadow-md">
+    <div className="det-card" style={{ padding: 0, overflow: "hidden" }}>
+      {/* Featured Main Image */}
+      <div className="det-gallery-main" style={{ maxHeight: 480 }}>
         <img
           src={displayImages[activeIndex]}
-          alt={`Property image ${activeIndex + 1}`}
-          className="w-full h-full object-cover transition-all duration-300"
+          alt={title || `Property photo ${activeIndex + 1}`}
+          className="det-gallery-img"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80";
           }}
         />
+
+        {/* Counter Pill */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+            backgroundColor: "rgba(10, 10, 10, 0.75)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: 50,
+            padding: "6px 14px",
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            color: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <FaCamera style={{ color: "var(--primary)" }} />
+          {activeIndex + 1} / {displayImages.length} Photos
+        </div>
       </div>
 
       {/* Thumbnails Row */}
       {displayImages.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {displayImages.map((img, idx) => {
-            const isActive = idx === activeIndex;
-            return (
-              <button
-                key={idx}
-                onClick={() => setActiveIndex(idx)}
-                className={`relative shrink-0 w-24 aspect-video rounded-lg overflow-hidden bg-neutral-950 border-2 transition-all cursor-pointer ${
-                  isActive
-                    ? "border-[var(--primary)] scale-95 shadow-md"
-                    : "border-neutral-800 hover:border-neutral-600"
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`Thumbnail ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=300&q=80";
-                  }}
-                />
-              </button>
-            );
-          })}
+        <div className="det-gallery-thumbs">
+          {displayImages.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              className={`det-thumb${idx === activeIndex ? " active" : ""}`}
+              aria-label={`View photo ${idx + 1}`}
+            >
+              <img
+                src={img}
+                alt={`Thumbnail ${idx + 1}`}
+                className="det-thumb-img"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=300&q=80";
+                }}
+              />
+            </button>
+          ))}
         </div>
       )}
     </div>

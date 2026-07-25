@@ -3,9 +3,20 @@ import React, { useState } from "react";
 import { Property } from "@/types/property";
 import { formatPrice } from "@/utils/formatter";
 import { whatsappLink } from "@/utils/helper";
-import Button from "@/components/common/Button";
-import Input from "@/components/common/Input";
-import TextArea from "@/components/common/TextArea";
+import {
+  FaPhoneAlt,
+  FaWhatsapp,
+  FaMapMarkerAlt,
+  FaRulerCombined,
+  FaTag,
+  FaCheckCircle,
+  FaUser,
+  FaMobileAlt,
+  FaEnvelope,
+  FaCommentAlt,
+  FaPaperPlane,
+  FaShieldAlt,
+} from "react-icons/fa";
 
 interface PropertyDetailsProps {
   property: Property;
@@ -28,11 +39,12 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     contactPhone,
   } = property;
 
-  // Form State
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState(`Hi ${contactName}, I am interested in your property "${title}" listed on Khurja Deals. Please contact me.`);
+  const [message, setMessage] = useState(
+    `Hi ${contactName}, I am interested in your property "${title}" listed on KhurjaDeals. Please contact me.`
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -42,30 +54,16 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     setIsSubmitting(true);
     setSubmitError("");
     setSubmitSuccess(false);
-
     try {
       const res = await fetch("/api/queries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          phone,
-          email,
-          message,
-          type: "property",
-          referenceId: _id,
-        }),
+        body: JSON.stringify({ name, phone, email, message, type: "property", referenceId: _id }),
       });
-
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to submit inquiry");
-      }
-
+      if (!res.ok) throw new Error(data.message || "Failed to submit inquiry");
       setSubmitSuccess(true);
-      setName("");
-      setPhone("");
-      setEmail("");
+      setName(""); setPhone(""); setEmail("");
     } catch (err: any) {
       setSubmitError(err.message || "An error occurred");
     } finally {
@@ -73,86 +71,70 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     }
   };
 
-  const whatsappMessage = `Hello, I'm interested in the property "${title}" listed on Khurja Deals (Price: ${formatPrice(price)}). Can we discuss?`;
-  const waUrl = whatsappLink(contactPhone, whatsappMessage);
+  const waMsg = `Hello, I'm interested in the property "${title}" listed on KhurjaDeals (Price: ${formatPrice(price)}). Can we discuss?`;
+  const waUrl = whatsappLink(contactPhone, waMsg);
+
+  const specs = [
+    { label: "Type", value: type, icon: <FaTag /> },
+    { label: "Area", value: `${area} ${areaUnit}`, icon: <FaRulerCombined /> },
+    { label: "Location", value: location, icon: <FaMapMarkerAlt /> },
+  ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Description & Features (Left 2 columns) */}
-      <div className="lg:col-span-2 space-y-6">
-        <div className="bg-neutral-900 border border-neutral-850 p-6 rounded-2xl space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="det-layout">
+      {/* ── Left Column: Info ── */}
+      <div className="det-main">
+        {/* Title Card */}
+        <div className="det-card">
+          <div className="det-badge">
+            For {listingType}
+          </div>
+          <div className="det-title-row">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--primary)] bg-[var(--primary)]/10 px-3 py-1 rounded-full">
-                For {listingType}
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-white mt-3">
-                {title}
-              </h1>
-              <p className="text-sm text-neutral-450 mt-1 flex items-center gap-1">
-                📍 {location}
+              <h1 className="det-title">{title}</h1>
+              <p className="det-location">
+                <FaMapMarkerAlt /> {location}
               </p>
             </div>
-            <div className="text-right">
-              <span className="text-xs text-neutral-500 uppercase font-semibold">
-                Asking Price
-              </span>
-              <p className="text-2xl sm:text-3xl font-black text-[var(--primary)]">
-                {formatPrice(price)}
-              </p>
+            <div className="det-price-box">
+              <span className="det-price-label">Asking Price</span>
+              <span className="det-price">{formatPrice(price)}</span>
             </div>
           </div>
 
-          <hr className="border-neutral-850" />
-
           {/* Quick Specs */}
-          <div className="grid grid-cols-3 gap-4 py-2 text-center bg-neutral-950/40 rounded-xl">
-            <div>
-              <span className="text-xs text-neutral-500 block">Type</span>
-              <span className="font-bold text-white text-sm sm:text-base capitalize">
-                {type}
-              </span>
-            </div>
-            <div>
-              <span className="text-xs text-neutral-500 block">Area</span>
-              <span className="font-bold text-white text-sm sm:text-base">
-                {area} {areaUnit}
-              </span>
-            </div>
-            <div>
-              <span className="text-xs text-neutral-500 block">Location</span>
-              <span className="font-bold text-white text-sm sm:text-base truncate block max-w-full px-2">
-                {location}
-              </span>
-            </div>
+          <div className="det-specs">
+            {specs.map((s) => (
+              <div key={s.label} className="det-spec">
+                <div className="det-spec-icon">{s.icon}</div>
+                <span className="det-spec-label">{s.label}</span>
+                <span className="det-spec-val">{s.value}</span>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Description */}
-        <div className="bg-neutral-900 border border-neutral-850 p-6 rounded-2xl space-y-4">
-          <h3 className="text-lg font-bold text-white">Description</h3>
-          <p className="text-neutral-350 leading-relaxed text-sm whitespace-pre-line">
-            {description}
-          </p>
+        <div className="det-card">
+          <h3 className="det-section-title">Description</h3>
+          <p className="det-desc">{description}</p>
           {address && (
-            <p className="text-sm text-neutral-450 italic mt-3">
-              Address details: {address}
+            <p className="det-address">
+              <FaMapMarkerAlt style={{ color: "var(--primary)", flexShrink: 0 }} />
+              {address}
             </p>
           )}
         </div>
 
         {/* Features */}
         {features && features.length > 0 && (
-          <div className="bg-neutral-900 border border-neutral-850 p-6 rounded-2xl space-y-4">
-            <h3 className="text-lg font-bold text-white">Features & Amenities</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="det-card">
+            <h3 className="det-section-title">Features &amp; Amenities</h3>
+            <div className="det-features">
               {features.map((feat, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 text-sm text-neutral-300 bg-neutral-950/30 px-3 py-2 rounded-lg border border-neutral-850/50"
-                >
-                  <span className="text-[var(--primary)] text-xs">✦</span>
-                  <span className="truncate">{feat}</span>
+                <div key={idx} className="det-feature-chip">
+                  <FaCheckCircle style={{ color: "var(--primary)", fontSize: "0.7rem", flexShrink: 0 }} />
+                  {feat}
                 </div>
               ))}
             </div>
@@ -160,94 +142,94 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         )}
       </div>
 
-      {/* Inquiry Form & Direct Contact (Right 1 column) */}
-      <div className="lg:col-span-1 space-y-6">
-        {/* Direct Contact Cards */}
-        <div className="bg-neutral-900 border border-neutral-850 p-6 rounded-2xl space-y-5">
-          <h3 className="text-base font-bold text-white uppercase tracking-wider">
-            Contact Owner / Agent
-          </h3>
+      {/* ── Right Column: Contact + Form ── */}
+      <div className="det-sidebar">
+        {/* Contact Card */}
+        <div className="det-card">
+          <h3 className="det-section-title">Contact Owner / Agent</h3>
 
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center font-bold text-white text-lg">
+          {/* Owner Avatar */}
+          <div className="det-owner-row">
+            <div className="det-avatar">
               {contactName.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h4 className="font-bold text-white text-base">{contactName}</h4>
-              <span className="text-xs text-neutral-500">Local Dealer</span>
+              <div className="det-owner-name">{contactName}</div>
+              <div className="det-owner-role">
+                <FaShieldAlt style={{ color: "var(--primary)", fontSize: "0.7rem" }} />
+                Verified Owner / Agent
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 pt-2">
-            {/* Phone */}
-            <a
-              href={`tel:${contactPhone}`}
-              className="flex items-center justify-center gap-2 py-3 rounded-lg bg-neutral-800 hover:bg-neutral-750 text-white font-semibold transition-all text-sm"
-            >
-              📞 Call Owner
+          {/* Call & WhatsApp Buttons */}
+          <div className="det-cta-btns">
+            <a href={`tel:${contactPhone}`} className="det-btn-call">
+              <FaPhoneAlt /> Call Owner
             </a>
-            {/* WhatsApp */}
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 py-3 rounded-lg bg-[var(--whatsapp)] hover:bg-[var(--whatsapp-dark)] text-white font-semibold transition-all text-sm"
-            >
-              💬 WhatsApp
+            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="det-btn-wa">
+              <FaWhatsapp /> WhatsApp
             </a>
           </div>
+
+          <p className="det-contact-note">
+            <FaShieldAlt style={{ color: "#22c55e", flexShrink: 0 }} />
+            Admin verified listing — contact directly
+          </p>
         </div>
 
-        {/* Message Form */}
-        <div className="bg-neutral-900 border border-neutral-850 p-6 rounded-2xl">
-          <h3 className="text-base font-bold text-white uppercase tracking-wider mb-4">
-            Send Inquiry
-          </h3>
+        {/* Inquiry Form */}
+        <div className="det-card">
+          <h3 className="det-section-title">Send Inquiry</h3>
 
           {submitSuccess ? (
-            <div className="p-4 rounded-lg bg-green-950/40 border border-green-800 text-green-400 text-sm text-center">
-              🎉 Thank you! Your inquiry has been submitted. We will contact you soon.
+            <div className="det-success">
+              <div className="det-success-icon"><FaCheckCircle /></div>
+              <p>Inquiry submitted! We&apos;ll contact you within 24 hours.</p>
+              <button onClick={() => setSubmitSuccess(false)} className="btn btn-outline" style={{ marginTop: 12 }}>
+                Send Another
+              </button>
             </div>
           ) : (
-            <form onSubmit={handleInquirySubmit} className="space-y-4">
-              <Input
-                label="Your Name *"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              <Input
-                label="Your Phone Number *"
-                placeholder="10 digit mobile"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-              <Input
-                label="Your Email"
-                placeholder="email@example.com"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <TextArea
-                label="Message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-              />
-
+            <form onSubmit={handleInquirySubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {submitError && (
-                <div className="text-xs text-red-500 font-medium">
-                  ⚠️ {submitError}
-                </div>
+                <div className="det-error">{submitError}</div>
               )}
 
-              <Button type="submit" fullWidth isLoading={isSubmitting}>
-                Submit Inquiry
-              </Button>
+              <div className="book-field">
+                <label htmlFor="prop-name"><FaUser /> Full Name</label>
+                <input id="prop-name" type="text" required placeholder="e.g. Ramesh Kumar"
+                  className="book-control" value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+
+              <div className="book-field">
+                <label htmlFor="prop-phone"><FaMobileAlt /> Phone Number</label>
+                <input id="prop-phone" type="tel" required placeholder="10-digit mobile"
+                  className="book-control" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              </div>
+
+              <div className="book-field">
+                <label htmlFor="prop-email"><FaEnvelope /> Email (optional)</label>
+                <input id="prop-email" type="email" placeholder="email@example.com"
+                  className="book-control" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+
+              <div className="book-field">
+                <label htmlFor="prop-msg"><FaCommentAlt /> Message</label>
+                <textarea id="prop-msg" rows={3} required
+                  className="book-control" style={{ height: "auto", paddingTop: 12, paddingBottom: 12, resize: "vertical" }}
+                  value={message} onChange={(e) => setMessage(e.target.value)} />
+              </div>
+
+              <button type="submit" disabled={isSubmitting} className="book-submit">
+                <FaPaperPlane />
+                <span>{isSubmitting ? "Sending..." : "Send Inquiry"}</span>
+              </button>
+
+              <div className="book-note">
+                <FaCheckCircle />
+                <span>Admin responds within 24 hours &bull; Free service</span>
+              </div>
             </form>
           )}
         </div>
