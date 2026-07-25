@@ -299,67 +299,6 @@ function PropertiesList() {
             </button>
           </div>
 
-          {/* Quick Multi-Select Filter Pills Bar */}
-          <div className="quick-filter-bar">
-            {/* Property Types Multi-Select */}
-            <div className="quick-filter-group">
-              <span className="quick-filter-label">Types (Multi):</span>
-              <div className="quick-chips-scroll">
-                <button
-                  type="button"
-                  onClick={() => toggleTypeChip("")}
-                  className={`quick-chip ${selectedTypes.length === 0 ? "selected" : ""}`}
-                >
-                  All Types
-                </button>
-                {PROPERTY_TYPES.map((t) => {
-                  const isSelected = selectedTypes.includes(t.value);
-                  return (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => toggleTypeChip(t.value)}
-                      className={`quick-chip ${isSelected ? "selected" : ""}`}
-                    >
-                      {isSelected && <FaCheck className="inline text-xs mr-1" />}
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="quick-filter-divider" />
-
-            {/* Listing Purpose Multi-Select */}
-            <div className="quick-filter-group">
-              <span className="quick-filter-label">Purpose (Multi):</span>
-              <div className="quick-chips-scroll">
-                <button
-                  type="button"
-                  onClick={() => toggleListingChip("")}
-                  className={`quick-chip ${selectedListings.length === 0 ? "selected" : ""}`}
-                >
-                  All Purpose
-                </button>
-                {LISTING_TYPES.map((l) => {
-                  const isSelected = selectedListings.includes(l.value);
-                  return (
-                    <button
-                      key={l.value}
-                      type="button"
-                      onClick={() => toggleListingChip(l.value)}
-                      className={`quick-chip ${isSelected ? "selected" : ""}`}
-                    >
-                      {isSelected && <FaCheck className="inline text-xs mr-1" />}
-                      {l.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
           {/* Expanded Advanced Filter Card */}
           {filterOpen && (
             <form onSubmit={applyAdvancedFilters} className="advanced-filter-card">
@@ -386,13 +325,13 @@ function PropertiesList() {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 my-4">
                 {/* Multi Select Types Checkboxes */}
-                <div>
+                <div className="filter-subcard">
                   <div className="filter-section-label">
                     <FaBuilding /> Property Types (Select Multiple)
                   </div>
-                  <div className="flex flex-wrap gap-2.5 pt-1">
+                  <div className="flex flex-wrap pt-1">
                     {PROPERTY_TYPES.map((t) => {
                       const isChecked = localTypes.includes(t.value);
                       return (
@@ -419,11 +358,11 @@ function PropertiesList() {
                 </div>
 
                 {/* Multi Select Purpose Checkboxes */}
-                <div>
+                <div className="filter-subcard">
                   <div className="filter-section-label">
                     <FaTag /> Listing Purpose (Select Multiple)
                   </div>
-                  <div className="flex flex-wrap gap-2.5 pt-1">
+                  <div className="flex flex-wrap pt-1">
                     {LISTING_TYPES.map((l) => {
                       const isChecked = localListings.includes(l.value);
                       return (
@@ -450,39 +389,44 @@ function PropertiesList() {
                 </div>
 
                 {/* Location and Price Range Inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                  <div className="form-group-filter">
-                    <label>
-                      <FaMapMarkerAlt /> Location
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. GT Road, Junction"
-                      value={localLocation}
-                      onChange={(e) => setLocalLocation(e.target.value)}
-                    />
+                <div className="filter-subcard">
+                  <div className="filter-section-label">
+                    <FaMapMarkerAlt /> Location &amp; Price Range
                   </div>
-                  <div className="form-group-filter">
-                    <label>
-                      <FaRupeeSign /> Min Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 500000"
-                      value={localMin}
-                      onChange={(e) => setLocalMin(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group-filter">
-                    <label>
-                      <FaRupeeSign /> Max Price (₹)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 5000000"
-                      value={localMax}
-                      onChange={(e) => setLocalMax(e.target.value)}
-                    />
+                  <div className="filter-input-grid pt-1">
+                    <div className="form-group-filter">
+                      <label>
+                        <FaMapMarkerAlt /> Location
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. GT Road, Junction"
+                        value={localLocation}
+                        onChange={(e) => setLocalLocation(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group-filter">
+                      <label>
+                        <FaRupeeSign /> Min Price (₹)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 500000"
+                        value={localMin}
+                        onChange={(e) => setLocalMin(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group-filter">
+                      <label>
+                        <FaRupeeSign /> Max Price (₹)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 5000000"
+                        value={localMax}
+                        onChange={(e) => setLocalMax(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
