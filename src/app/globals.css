@@ -1,34 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════
    KhurjaDeals — Design System
-   Font : Plus Jakarta Sans
-   Theme: Dark, Orange-Gold accent
+   Font : Outfit
+   Theme: Light (Warm Stone), Orange-Gold accent
 ══════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-dark:        #0a0a0a;
-  --bg-card:        #141414;
-  --bg-card-hover:  #1c1c1c;
-  --bg-alt:         #111111;
+  --bg-dark:        #F5F5F0;  /* Surface BG (Warm stone light grey) */
+  --bg-card:        #ffffff;  /* Card BG (Pure White) */
+  --bg-card-hover:  #fafafa;
+  --bg-alt:         #ffffff;  /* Alt BG */
 
   /* Brand: warm orange → amber */
   --primary:        #E8590C;
   --primary-hover:  #C2410C;
-  --primary-light:  rgba(232, 89, 12, 0.10);
-  --primary-glow:   rgba(232, 89, 12, 0.35);
-  --accent-gradient: linear-gradient(135deg, #E8590C 0%, #ff9a44 100%);
+  --primary-light:  rgba(232, 89, 12, 0.06);
+  --primary-glow:   rgba(232, 89, 12, 0.12);
+  --accent-gradient: linear-gradient(135deg, #E8590C 0%, #ff7a2b 100%);
 
-  --text-main:      #f3f4f6;
-  --text-muted:     #9ca3af;
-  --text-white:     #ffffff;
-  --border-color:   #222222;
-  --border-hover:   #333333;
+  --text-main:      #1B1B1B;  /* Solid dark text */
+  --text-muted:     #6B7280;  /* Muted dark grey text */
+  --text-white:     #1B1B1B;  /* Heading text - mapped to dark for light theme titles */
+  --border-color:   #E5E7EB;  /* Light border */
+  --border-hover:   #D1D5DB;
 
-  --card-shadow:    0 10px 30px rgba(0,0,0,0.6);
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --card-shadow:    0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --sans: 'Outfit', system-ui, -apple-system, sans-serif;
 
   /* WhatsApp */
   --whatsapp:       #25D366;
@@ -177,7 +177,7 @@ button, input, select, textarea {
   justify-content: center;
   gap: 8px;
   padding: 12px 28px;
-  border-radius: 8px;
+  border-radius: 9999px;
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -241,20 +241,20 @@ button, input, select, textarea {
 ══════════════════════════════════════════════════════════════ */
 
 .site-header {
-  position: fixed;
+  position: sticky;
   top: 0; left: 0;
   width: 100%;
   z-index: 100;
-  background: rgba(10,10,10,0.80);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1.5px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
   transition: var(--transition-smooth);
 }
 
 .site-header.scrolled {
-  background: rgba(10,10,10,0.96);
-  box-shadow: 0 4px 40px rgba(0,0,0,0.7);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 .nav {
@@ -505,9 +505,38 @@ button, input, select, textarea {
 
 .hero {
   position: relative;
-  padding: 140px 0 80px 0;
+  padding: 60px 0 80px 0;
   overflow: hidden;
-  background: #050505;
+  background: linear-gradient(135deg, #1B1B1B 0%, #2D1810 50%, #1B1B1B 100%);
+  background-attachment: fixed;
+  border-bottom: 1px solid var(--border-color);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(232, 89, 12, 0.07) 35px, rgba(232, 89, 12, 0.07) 70px);
+  pointer-events: none;
+  z-index: 1;
+}
+.hero .h1 {
+  color: #ffffff !important;
+}
+.hero-copy .accent {
+  color: var(--primary) !important;
+  background: none !important;
+  -webkit-text-fill-color: var(--primary) !important;
+}
+.hero-copy .lead {
+  color: #d1d5db !important;
+}
+.hero .hpoint .hp-label {
+  color: #ffffff !important;
+}
+.hero .eyebrow {
+  color: var(--primary) !important;
+  background: rgba(232, 89, 12, 0.15) !important;
+  border-color: rgba(232, 89, 12, 0.3) !important;
 }
 
 .hero-inner {
@@ -726,7 +755,7 @@ button, input, select, textarea {
 .listing-card {
   background: var(--bg-card);
   border: 1.5px solid var(--border-color);
-  border-radius: 14px;
+  border-radius: 20px;
   overflow: hidden;
   display: flex; flex-direction: column;
   transition: var(--transition-smooth);
@@ -735,13 +764,13 @@ button, input, select, textarea {
 .listing-card:hover {
   transform: translateY(-5px);
   border-color: var(--border-hover);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.06);
 }
 
 .listing-card-media {
   position: relative;
   overflow: hidden;
-  background: #0c0c0c;
+  background: #f3f4f6;
 }
 .listing-card-media img {
   width: 100%; height: 100%;
@@ -760,10 +789,10 @@ button, input, select, textarea {
 }
 .listing-type-badge {
   position: absolute; top: 12px; right: 12px;
-  background: rgba(10,10,10,0.85);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
-  color: var(--text-muted);
+  color: var(--text-main);
   font-size: 0.72rem; font-weight: 700;
   text-transform: capitalize;
   padding: 4px 10px; border-radius: 999px;
@@ -779,7 +808,7 @@ button, input, select, textarea {
   font-size: 0.65rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--text-muted);
-  background: rgba(255,255,255,0.04);
+  background: rgba(0,0,0,0.03);
   border: 1px solid var(--border-color);
   padding: 3px 8px; border-radius: 6px;
 }
@@ -885,13 +914,13 @@ button, input, select, textarea {
 
 .bg-grid {
   background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
   background-size: 56px 56px;
 }
 
 .bg-dots {
-  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
   background-size: 30px 30px;
 }
 
@@ -964,7 +993,7 @@ button, input, select, textarea {
 }
 
 @media (max-width: 480px) {
-  .hero { padding: 120px 0 60px 0; }
+  .hero { padding: 40px 0 60px 0; }
   .hero-cta { flex-direction: column; width: 100%; align-items: center; }
   .hero-cta .btn { width: 100%; }
   .card { padding: 24px 20px; }

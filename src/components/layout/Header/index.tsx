@@ -40,12 +40,30 @@ export default function Header() {
         <div className="container">
           <nav className="nav">
             {/* Brand */}
-            <Link href="/" className="brand">
-              <img
-                src="/logos/white-logo.png"
-                alt={SITE_CONFIG.name}
-                onError={(e) => { (e.target as HTMLImageElement).src = "/logos/logo.png"; }}
-              />
+            <Link href="/" className="brand" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+              <div style={{
+                background: "var(--primary)",
+                color: "#ffffff",
+                fontWeight: 900,
+                fontSize: "1.1rem",
+                padding: "6px 10px",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                letterSpacing: "-0.05em",
+                lineHeight: 1,
+              }}>
+                KD
+              </div>
+              <span style={{
+                fontWeight: 800,
+                fontSize: "1.25rem",
+                color: "var(--text-white)",
+                letterSpacing: "-0.02em",
+              }}>
+                Khurja<span style={{ color: "var(--primary)" }}>Deals</span>
+              </span>
             </Link>
 
             {/* Desktop nav links */}
@@ -174,8 +192,30 @@ export default function Header() {
 
       {/* Drawer */}
       <aside className={`drawer${drawerOpen ? " open" : ""}`}>
-        <div className="drawer-logo">
-          <img src="/logos/white-logo.png" alt={SITE_CONFIG.name} style={{ height: 44 }} />
+        <div className="drawer-logo" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+          <div style={{
+            background: "var(--primary)",
+            color: "#ffffff",
+            fontWeight: 900,
+            fontSize: "1.1rem",
+            padding: "6px 10px",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            letterSpacing: "-0.05em",
+            lineHeight: 1,
+          }}>
+            KD
+          </div>
+          <span style={{
+            fontWeight: 800,
+            fontSize: "1.25rem",
+            color: "var(--text-white)",
+            letterSpacing: "-0.02em",
+          }}>
+            Khurja<span style={{ color: "var(--primary)" }}>Deals</span>
+          </span>
         </div>
         <button className="drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close">
           <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">

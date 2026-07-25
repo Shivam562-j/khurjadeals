@@ -1,6 +1,19 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import {
+  FaBuilding,
+  FaKey,
+  FaMotorcycle,
+  FaMobileAlt,
+  FaLaptop,
+  FaStore,
+  FaHome,
+  FaBox,
+  FaCheckCircle,
+  FaSearch,
+  FaPhoneAlt,
+} from "react-icons/fa";
 
 const stats = [
   { value: "500+",  label: "Active Listings" },
@@ -10,18 +23,18 @@ const stats = [
 ];
 
 const hpoints = [
-  { icon: "🏠", label: "Properties", sub: "200+ listings" },
-  { icon: "📦", label: "Products",   sub: "300+ items" },
-  { icon: "🏺", label: "Pottery",    sub: "Khurja Special" },
+  { icon: <FaHome />, label: "Properties", sub: "200+ listings" },
+  { icon: <FaBox />, label: "Products",   sub: "300+ items" },
+  { icon: <FaStore />, label: "Pottery",    sub: "Khurja Special" },
 ];
 
 const quickLinks = [
-  { label: "Buy Property",  href: "/properties?listingType=sell",   icon: "🏢" },
-  { label: "Rent Property", href: "/properties?listingType=rent",   icon: "🔑" },
-  { label: "Used Bikes",    href: "/products?search=bike",          icon: "🚲" },
-  { label: "Mobiles",       href: "/products?search=phone",         icon: "📱" },
-  { label: "Laptops",       href: "/products?search=laptop",        icon: "💻" },
-  { label: "Pottery",       href: "/products?category=Pottery",     icon: "🏺" },
+  { label: "Buy Property",  href: "/properties?listingType=sell",   icon: <FaBuilding /> },
+  { label: "Rent Property", href: "/properties?listingType=rent",   icon: <FaKey /> },
+  { label: "Used Bikes",    href: "/products?search=bike",          icon: <FaMotorcycle /> },
+  { label: "Mobiles",       href: "/products?search=phone",         icon: <FaMobileAlt /> },
+  { label: "Laptops",       href: "/products?search=laptop",        icon: <FaLaptop /> },
+  { label: "Pottery",       href: "/products?category=Pottery",     icon: <FaStore /> },
 ];
 
 export default function Hero() {
@@ -82,8 +95,8 @@ export default function Hero() {
               <div className="hero-points animate-fade-up delay-400">
                 {hpoints.map((p) => (
                   <div key={p.label} className="hpoint">
-                    <div className="hp-ic">
-                      <span style={{ fontSize: "1.25rem" }}>{p.icon}</span>
+                    <div className="hp-ic" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span className="flex items-center justify-center text-sm">{p.icon}</span>
                     </div>
                     <div className="hp-label">
                       {p.label}
@@ -160,7 +173,7 @@ export default function Hero() {
                     el.style.color = "var(--text-muted)";
                   }}
                 >
-                  <span>{cat.icon}</span>
+                  <span className="flex items-center justify-center text-xs">{cat.icon}</span>
                   {cat.label}
                 </Link>
               ))}
@@ -174,14 +187,14 @@ export default function Hero() {
         <div className="container">
           <div className="trust-row">
             {[
-              { icon: "✅", big: "100% Free", text: "To list your property or product" },
-              { icon: "🔍", big: "Admin Verified", text: "Every listing is manually checked" },
-              { icon: "📞", big: "Direct Call", text: "Admin contacts you within 24 hours" },
-              { icon: "🏺", big: "Khurja Pottery", text: "Authentic local ceramics marketplace" },
+              { icon: <FaCheckCircle />, big: "100% Free", text: "To list your property or product" },
+              { icon: <FaSearch />, big: "Admin Verified", text: "Every listing is manually checked" },
+              { icon: <FaPhoneAlt />, big: "Direct Call", text: "Admin contacts you within 24 hours" },
+              { icon: <FaStore />, big: "Khurja Pottery", text: "Authentic local ceramics marketplace" },
             ].map((item) => (
               <div key={item.big} className="trust-cell">
-                <div className="tc-icon">
-                  <span style={{ fontSize: "1rem" }}>{item.icon}</span>
+                <div className="tc-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span className="flex items-center justify-center text-sm text-[var(--primary)]">{item.icon}</span>
                 </div>
                 <div>
                   <div className="tc-big">{item.big}</div>

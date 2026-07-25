@@ -2,6 +2,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  FaChartBar,
+  FaHome,
+  FaBox,
+  FaEnvelope,
+  FaUsers,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { AuthUser } from "@/types/user";
 
 export default function Sidebar() {
@@ -32,15 +40,15 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { label: "Dashboard", href: "/admin/dashboard", icon: "📊" },
-    { label: "Properties", href: "/admin/properties", icon: "🏠" },
-    { label: "Products", href: "/admin/products", icon: "📦" },
-    { label: "Queries", href: "/admin/queries", icon: "✉️" },
+    { label: "Dashboard", href: "/admin/dashboard", icon: <FaChartBar /> },
+    { label: "Properties", href: "/admin/properties", icon: <FaHome /> },
+    { label: "Products", href: "/admin/products", icon: <FaBox /> },
+    { label: "Queries", href: "/admin/queries", icon: <FaEnvelope /> },
   ];
 
   // Only admin role can see Users manager
   if (user?.role === "admin") {
-    navItems.push({ label: "Administrators", href: "/admin/users", icon: "👥" });
+    navItems.push({ label: "Administrators", href: "/admin/users", icon: <FaUsers /> });
   }
 
   return (
@@ -91,7 +99,7 @@ export default function Sidebar() {
                   : "hover:bg-neutral-900/40 hover:text-white"
               }`}
             >
-              <span className="text-base select-none">{item.icon}</span>
+              <span className="text-sm flex items-center justify-center text-[var(--primary)] shrink-0">{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           );
@@ -104,7 +112,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-950/20 transition-all cursor-pointer"
         >
-          <span className="text-base select-none">🚪</span>
+          <span className="text-sm flex items-center justify-center text-red-500 shrink-0"><FaSignOutAlt /></span>
           <span>Log out</span>
         </button>
       </div>

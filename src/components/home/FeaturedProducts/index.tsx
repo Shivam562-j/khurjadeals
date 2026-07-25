@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import { Product } from "@/types/product";
+import { FaStore } from "react-icons/fa";
 import ProductCard from "@/components/product/ProductCard";
 
 interface FeaturedProductsProps { products: Product[]; }
@@ -23,7 +24,9 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
         {/* Head */}
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 48 }}>
           <div className="sec-head" style={{ marginBottom: 0 }}>
-            <div className="eyebrow">🏺 Khurja Specials</div>
+            <div className="eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <FaStore style={{ fontSize: "0.85rem", color: "var(--primary)" }} /> Khurja Specials
+            </div>
             <h2 className="h2">Featured Products &amp; Pottery</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: 12 }}>
               Second-hand mobiles, laptops, bikes &amp; world-famous Khurja pottery ceramics

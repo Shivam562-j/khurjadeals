@@ -1,5 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import {
+  FaHome,
+  FaKey,
+  FaBox,
+  FaCommentAlt,
+  FaBolt,
+  FaClipboardList,
+} from "react-icons/fa";
 import { SERVICES } from "@/constants/services";
 
 const steps = [
@@ -8,6 +16,13 @@ const steps = [
   { num: "03", title: "Close the Deal", desc: "Discuss, verify, and finalize your deal directly with the seller. Zero commission." },
 ];
 
+const iconMap: Record<string, React.ReactNode> = {
+  "property-buy-sell": <FaHome />,
+  "property-rent": <FaKey />,
+  "products": <FaBox />,
+  "consultation": <FaCommentAlt />,
+};
+
 export default function Services() {
   return (
     <>
@@ -15,7 +30,9 @@ export default function Services() {
       <section className="section-light">
         <div className="container">
           <div className="sec-head center">
-            <div className="eyebrow">⚡ What We Offer</div>
+            <div className="eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <FaBolt style={{ fontSize: "0.85rem", color: "var(--primary)" }} /> What We Offer
+            </div>
             <h2 className="h2">Our Services</h2>
             <p>Everything you need to buy, sell, or rent in Khurja — all in one trusted platform.</p>
           </div>
@@ -23,8 +40,10 @@ export default function Services() {
           <div className="cards">
             {SERVICES.map((srv) => (
               <div key={srv.id} className="card">
-                <div className="card-ic">
-                  <span style={{ fontSize: "1.5rem" }}>{srv.icon}</span>
+                <div className="card-ic" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span className="flex items-center justify-center text-[var(--primary)] text-xl">
+                    {iconMap[srv.id]}
+                  </span>
                 </div>
                 <h3>{srv.title}</h3>
                 <p>{srv.description}</p>
@@ -44,7 +63,9 @@ export default function Services() {
       <section className="section-alt">
         <div className="container">
           <div className="sec-head center">
-            <div className="eyebrow">📋 Process</div>
+            <div className="eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <FaClipboardList style={{ fontSize: "0.85rem", color: "var(--primary)" }} /> Process
+            </div>
             <h2 className="h2">How It Works</h2>
             <p>Getting started is easy. Three simple steps to your next deal.</p>
           </div>

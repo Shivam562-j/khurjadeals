@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import { Property } from "@/types/property";
+import { FaFire } from "react-icons/fa";
 import PropertyCard from "@/components/property/PropertyCard";
 
 interface FeaturedPropertiesProps { properties: Property[]; }
@@ -23,7 +24,9 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
         {/* Head */}
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, marginBottom: 48 }}>
           <div className="sec-head" style={{ marginBottom: 0 }}>
-            <div className="eyebrow">🔥 Latest Listings</div>
+            <div className="eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <FaFire style={{ fontSize: "0.85rem", color: "var(--primary)" }} /> Latest Listings
+            </div>
             <h2 className="h2">Featured Properties</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: 12 }}>
               Verified commercial, residential &amp; agricultural listings in Khurja

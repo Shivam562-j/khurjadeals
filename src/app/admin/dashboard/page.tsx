@@ -1,5 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import {
+  FaHome,
+  FaBox,
+  FaEnvelope,
+  FaUsers,
+  FaPlus,
+  FaFileAlt,
+} from "react-icons/fa";
 import Property from "@/models/Property";
 import Product from "@/models/Product";
 import Query from "@/models/Query";
@@ -23,10 +31,10 @@ export default async function DashboardPage() {
     ]);
 
   const stats = [
-    { label: "Active Properties", count: propertyCount, icon: "🏠", color: "text-blue-500" },
-    { label: "Bazaar Products", count: productCount, icon: "📦", color: "text-amber-500" },
-    { label: "Pending Inquiries", count: queryCount, icon: "✉️", color: "text-rose-500" },
-    { label: "Platform Admins", count: userCount, icon: "👥", color: "text-emerald-500" },
+    { label: "Active Properties", count: propertyCount, icon: <FaHome />, color: "text-blue-500" },
+    { label: "Bazaar Products", count: productCount, icon: <FaBox />, color: "text-amber-500" },
+    { label: "Pending Inquiries", count: queryCount, icon: <FaEnvelope />, color: "text-rose-500" },
+    { label: "Platform Admins", count: userCount, icon: <FaUsers />, color: "text-emerald-500" },
   ];
 
   return (
@@ -52,7 +60,9 @@ export default async function DashboardPage() {
               </span>
               <p className="text-3xl font-black text-white">{stat.count}</p>
             </div>
-            <div className={`text-3xl ${stat.color} select-none`}>{stat.icon}</div>
+            <div className={`text-2xl ${stat.color} flex items-center justify-center shrink-0`}>
+              {stat.icon}
+            </div>
           </div>
         ))}
       </div>
@@ -128,7 +138,9 @@ export default async function DashboardPage() {
               href="/admin/properties?add=true"
               className="flex items-center justify-between p-4 rounded-xl bg-neutral-950 border border-neutral-850 hover:border-neutral-700 transition-all text-sm font-semibold group"
             >
-              <span>➕ Add Property</span>
+              <span className="flex items-center gap-2">
+                <FaPlus className="text-xs text-[var(--primary)]" /> Add Property
+              </span>
               <span className="text-neutral-500 group-hover:text-white transition-colors">
                 ➔
               </span>
@@ -138,7 +150,9 @@ export default async function DashboardPage() {
               href="/admin/products?add=true"
               className="flex items-center justify-between p-4 rounded-xl bg-neutral-950 border border-neutral-850 hover:border-neutral-700 transition-all text-sm font-semibold group"
             >
-              <span>➕ Add Bazaar Product</span>
+              <span className="flex items-center gap-2">
+                <FaPlus className="text-xs text-[var(--primary)]" /> Add Bazaar Product
+              </span>
               <span className="text-neutral-500 group-hover:text-white transition-colors">
                 ➔
               </span>
@@ -149,7 +163,9 @@ export default async function DashboardPage() {
               target="_blank"
               className="flex items-center justify-between p-4 rounded-xl bg-neutral-950 border border-neutral-850 hover:border-neutral-700 transition-all text-sm font-semibold group"
             >
-              <span>📝 Submit Query (Form)</span>
+              <span className="flex items-center gap-2">
+                <FaFileAlt className="text-xs text-[var(--primary)]" /> Submit Query (Form)
+              </span>
               <span className="text-neutral-500 group-hover:text-white transition-colors">
                 ➔
               </span>

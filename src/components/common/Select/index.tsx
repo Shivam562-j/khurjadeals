@@ -22,20 +22,20 @@ export default function Select({
   return (
     <div className={`flex flex-col gap-1.5 w-full ${className}`}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-neutral-350">
+        <label htmlFor={id} className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] pl-1">
           {label}
         </label>
       )}
       <div className="relative">
         <select
           id={id}
-          className={`w-full bg-neutral-900 border border-neutral-800 text-white rounded-lg px-4 py-2.5 outline-none transition-colors duration-250 appearance-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] ${
+          className={`w-full bg-white border border-[var(--border-color)] text-[var(--text-main)] rounded-xl px-4 py-3 h-12 outline-none transition-all duration-200 appearance-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] ${
             error ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
           }`}
           {...props}
         >
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-neutral-950">
+            <option key={opt.value} value={opt.value} className="bg-white text-[var(--text-main)]">
               {opt.label}
             </option>
           ))}

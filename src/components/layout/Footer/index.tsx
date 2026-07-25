@@ -12,12 +12,31 @@ export default function Footer() {
         <div className="footer-top">
           {/* Brand */}
           <div>
-            <img
-              src="/logos/white-logo.png"
-              alt={SITE_CONFIG.name}
-              style={{ height: 44, width: "auto", display: "block", marginBottom: 20 }}
-              onError={undefined}
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+              <div style={{
+                background: "var(--primary)",
+                color: "#ffffff",
+                fontWeight: 950,
+                fontSize: "1.1rem",
+                padding: "6px 10px",
+                borderRadius: 8,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                letterSpacing: "-0.05em",
+                lineHeight: 1,
+              }}>
+                KD
+              </div>
+              <span style={{
+                fontWeight: 800,
+                fontSize: "1.25rem",
+                color: "#ffffff",
+                letterSpacing: "-0.02em",
+              }}>
+                Khurja<span style={{ color: "var(--primary)" }}>Deals</span>
+              </span>
+            </div>
             <p className="footer-about">{SITE_CONFIG.description}</p>
             <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
               <a
