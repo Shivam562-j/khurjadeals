@@ -205,6 +205,24 @@ function ProductsList() {
     (locationInput ? 1 : 0) +
     (minPrice || maxPrice ? 1 : 0);
 
+  const hasSearch = searchQuery.trim().length > 0;
+
+  const hasLocalFilters =
+    localCategories.length > 0 ||
+    localConditions.length > 0 ||
+    localLocation.trim().length > 0 ||
+    localMin.trim().length > 0 ||
+    localMax.trim().length > 0;
+
+  const hasAnyFilters =
+    hasSearch ||
+    hasLocalFilters ||
+    selectedCategories.length > 0 ||
+    selectedConditions.length > 0 ||
+    locationInput.trim().length > 0 ||
+    minPrice.trim().length > 0 ||
+    maxPrice.trim().length > 0;
+
   return (
     <>
       {/* Page Hero */}
@@ -247,7 +265,7 @@ function ProductsList() {
                   <FaTimes />
                 </button>
               )}
-              <button type="submit" className="search-submit-btn">
+              <button type="submit" className="search-submit-btn" disabled={!hasSearch}>
                 <span>Search</span>
               </button>
             </form>
@@ -289,6 +307,7 @@ function ProductsList() {
                   type="button"
                   onClick={clearAllFilters}
                   className="filter-reset-link"
+                  disabled={!hasAnyFilters}
                 >
                   <FaUndo className="text-xs" /> Reset Filters
                 </button>
@@ -418,7 +437,7 @@ function ProductsList() {
                 >
                   Close
                 </button>
-                <button type="submit" className="btn-filter-primary">
+                <button type="submit" className="btn-filter-primary" disabled={!hasLocalFilters}>
                   Apply Selected Filters
                 </button>
               </div>

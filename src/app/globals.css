@@ -3300,6 +3300,15 @@ svg,
   filter: brightness(1.1);
 }
 
+.search-submit-btn:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  pointer-events: none;
+}
+
 /* Filter Toggle Button */
 .prop-filter-toggle-btn {
   display: inline-flex;
@@ -3470,6 +3479,15 @@ svg,
   color: var(--primary);
 }
 
+.filter-reset-link:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  border-color: rgba(200, 200, 200, 0.2) !important;
+  color: var(--text-muted) !important;
+  background-color: transparent !important;
+  pointer-events: none;
+}
+
 .advanced-filter-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -3576,6 +3594,16 @@ svg,
 
 .btn-filter-primary:hover {
   transform: translateY(-1px);
+}
+
+.btn-filter-primary:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  background: #94a3b8 !important;
+  color: #ffffff !important;
+  pointer-events: none;
 }
 
 /* Active Filter Badges */

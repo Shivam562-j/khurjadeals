@@ -237,6 +237,24 @@ function PropertiesList() {
     (locationInput ? 1 : 0) +
     (minPrice || maxPrice ? 1 : 0);
 
+  const hasSearch = searchQuery.trim().length > 0;
+
+  const hasLocalFilters =
+    localTypes.length > 0 ||
+    localListings.length > 0 ||
+    localLocation.trim().length > 0 ||
+    localMin.trim().length > 0 ||
+    localMax.trim().length > 0;
+
+  const hasAnyFilters =
+    hasSearch ||
+    hasLocalFilters ||
+    selectedTypes.length > 0 ||
+    selectedListings.length > 0 ||
+    locationInput.trim().length > 0 ||
+    minPrice.trim().length > 0 ||
+    maxPrice.trim().length > 0;
+
   return (
     <>
       {/* Page Hero */}
@@ -279,7 +297,7 @@ function PropertiesList() {
                   <FaTimes />
                 </button>
               )}
-              <button type="submit" className="search-submit-btn">
+              <button type="submit" className="search-submit-btn" disabled={!hasSearch}>
                 <span>Search</span>
               </button>
             </form>
@@ -321,6 +339,7 @@ function PropertiesList() {
                   type="button"
                   onClick={clearAllFilters}
                   className="filter-reset-link"
+                  disabled={!hasAnyFilters}
                 >
                   <FaUndo className="text-xs" /> Reset Filters
                 </button>
@@ -450,7 +469,7 @@ function PropertiesList() {
                 >
                   Close
                 </button>
-                <button type="submit" className="btn-filter-primary">
+                <button type="submit" className="btn-filter-primary" disabled={!hasLocalFilters}>
                   Apply Selected Filters
                 </button>
               </div>
