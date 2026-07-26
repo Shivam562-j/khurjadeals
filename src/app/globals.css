@@ -3714,6 +3714,16 @@ svg,
   gap: 12px;
 }
 
+.filter-header-title h3 {
+  color: var(--text-white);
+  margin: 0;
+}
+
+.filter-header-title p {
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+}
+
 .filter-header-icon-badge {
   width: 36px;
   height: 36px;
@@ -3919,15 +3929,21 @@ svg,
 }
 
 .chip-check-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.25);
-  display: flex;
+  background-color: rgba(232, 89, 12, 0.15);
+  color: var(--primary);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
-  color: #ffffff;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 0;
+  flex-shrink: 0;
 }
 
 .multi-select-chip-btn.selected .chip-check-icon {
@@ -5185,6 +5201,27 @@ body,
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05) !important;
+  }
+  .advanced-filter-card {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .filter-header-title h3 {
+    color: #0f172a !important;
+  }
+  .filter-header-title p {
+    color: #475569 !important;
+  }
+
+  .chip-check-icon {
+    background-color: rgba(232, 89, 12, 0.12) !important;
+    color: var(--primary) !important;
+  }
+  .multi-select-chip-btn.selected .chip-check-icon {
+    background-color: #ffffff !important;
+    color: var(--primary) !important;
   }
   .book-head {
     background-color: #f8fafc !important;

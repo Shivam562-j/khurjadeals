@@ -17,6 +17,8 @@ import {
   FaSlidersH,
   FaUndo,
   FaPlusCircle,
+  FaCheck,
+  FaPlus,
 } from "react-icons/fa";
 
 const LIMIT = 12;
@@ -275,10 +277,10 @@ function ProductsList() {
                     <FaFilter />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-white">
+                    <h3 className="text-sm font-bold uppercase tracking-wider">
                       Multi-Select &amp; Custom Filters
                     </h3>
-                    <p className="text-xs text-neutral-400 font-normal m-0 mt-0.5">
+                    <p className="text-xs font-normal m-0 mt-0.5">
                       Select multiple categories and item conditions to refine product listings
                     </p>
                   </div>
@@ -315,7 +317,7 @@ function ProductsList() {
                           className={`multi-select-chip-btn ${isChecked ? "selected" : ""}`}
                         >
                           <span className="chip-check-icon">
-                            {isChecked ? "✓" : "+"}
+                            {isChecked ? <FaCheck className="text-[9px]" /> : <FaPlus className="text-[9px]" />}
                           </span>
                           {c.label}
                         </button>
@@ -346,7 +348,7 @@ function ProductsList() {
                           className={`multi-select-chip-btn ${isChecked ? "selected" : ""}`}
                         >
                           <span className="chip-check-icon">
-                            {isChecked ? "✓" : "+"}
+                            {isChecked ? <FaCheck className="text-[9px]" /> : <FaPlus className="text-[9px]" />}
                           </span>
                           {cond.label}
                         </button>
