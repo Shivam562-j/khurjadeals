@@ -1,0 +1,160 @@
+import React from "react";
+import Link from "next/link";
+import {
+  FaShieldAlt,
+  FaStar,
+  FaUserCheck,
+  FaClock,
+  FaCheckCircle,
+  FaChevronRight,
+  FaPhoneAlt,
+  FaBuilding,
+  FaTv,
+  FaRocket,
+  FaEye,
+} from "react-icons/fa";
+import { SITE_CONFIG } from "@/constants/site";
+
+export default function AboutPage() {
+  const differentiators = [
+    {
+      title: "Direct Owner Contact",
+      desc: "Connect directly with property owners, sellers, and landlords on Call or WhatsApp. Zero middle-man agent commissions.",
+      icon: <FaUserCheck />,
+    },
+    {
+      title: "Verified Local Listings",
+      desc: "Every plot, house, commercial shop, and second-hand item is manually inspected and verified by our Khurja admin team.",
+      icon: <FaShieldAlt />,
+    },
+    {
+      title: "Used Vehicles, EVs & Tech",
+      desc: "Find used bikes, cars, electric vehicles (EV), laptops, smartphones, refrigerators, ACs, coolers & washing machines at affordable local prices.",
+      icon: <FaTv />,
+    },
+    {
+      title: "24/7 Local Support",
+      desc: "Our dedicated Khurja support team is available round the clock to answer your queries and assist with listings.",
+      icon: <FaClock />,
+    },
+    {
+      title: "Transparent & Free Listings",
+      desc: "Post your residential property, commercial shop, or second-hand products 100% free with no hidden charges.",
+      icon: <FaCheckCircle />,
+    },
+    {
+      title: "Hyper-Local Directory",
+      desc: "Designed specifically for Khurja, GT Road, Junction, and surrounding sectors in Bulandshahr.",
+      icon: <FaBuilding />,
+    },
+  ];
+
+  return (
+    <>
+      {/* Page Hero */}
+      <div className="page-hero">
+        <div className="container">
+          <span className="eyebrow">About Us</span>
+          <h1 className="h1">Khurja&apos;s Trusted Local Marketplace</h1>
+          <p className="lead">
+            Your dependable directory partner across Khurja — for real estate properties, used vehicles, EVs &amp; home appliances.
+          </p>
+        </div>
+      </div>
+
+      <section className="section-light">
+        <div className="container about-grid">
+          {/* Left Main Card */}
+          <div className="card space-y-4">
+            <div className="card-ic shadow-lg" style={{ marginBottom: "16px" }}>
+              <FaStar style={{ fontSize: "22px" }} />
+            </div>
+            <span className="eyebrow">Who We Are</span>
+            <h2 className="h2" style={{ color: "var(--text-white)", marginBottom: "16px" }}>
+              Empowering Khurja&apos;s Local Deals
+            </h2>
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+              At <strong>{SITE_CONFIG.name}</strong>, we&apos;re more than just a listing website — we&apos;re your dependable local marketplace partner across Khurja, Bulandshahr, Uttar Pradesh.
+            </p>
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+              Finding verified property listings (plots, houses, shops for buy/sell/rent) or used items (bikes, cars, EVs, laptops, mobiles, fridge, AC, cooler, washing machines) historically required dealing with high agent fees or unverified brokers.
+            </p>
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+              We built <strong>{SITE_CONFIG.name}</strong> to digitize Khurja&apos;s real estate directory and used items bazaar, allowing buyers to connect directly with owners on call or WhatsApp.
+            </p>
+          </div>
+
+          {/* Right Side: Our Mission & Our Vision Cards */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "36px" }}>
+            {/* Our Mission Card */}
+            <div className="card space-y-4" style={{ marginBottom: "0px" }}>
+              <div className="flex items-center gap-3">
+                <div className="card-ic" style={{ marginBottom: 0 }}>
+                  <FaRocket />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-0">Our Mission</h3>
+              </div>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-0">
+                To create a clean, scam-free, transparent digital directory where every resident of Khurja can buy, sell, or rent properties and second-hand items with zero middleman commissions.
+              </p>
+            </div>
+
+            {/* Our Vision Card */}
+            <div className="card space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="card-ic" style={{ marginBottom: 0 }}>
+                  <FaEye />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-0">Our Vision</h3>
+              </div>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-0">
+                To build the most reliable, free hyper-local marketplace in Western Uttar Pradesh for verified real estate and pre-owned goods.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-alt-light">
+        <div className="container">
+          <div className="sec-head center">
+            <span className="eyebrow">Why Choose Us</span>
+            <h2 className="h2">What Sets Us Apart</h2>
+          </div>
+
+          <div className="about-features">
+            {differentiators.map((diff, index) => (
+              <div className="about-feat-card" key={index}>
+                <div className="about-feat-icon">{diff.icon}</div>
+                <h3>{diff.title}</h3>
+                <p>{diff.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA section banner */}
+      <section className="cta">
+        <div className="container">
+          <div className="cta-inner">
+            <h2 className="h2">Ready to Post Your Ad?</h2>
+            <p>
+              Post your property or second-hand product for free today. Our admin team verifies and activates your listing within 24 hours.
+            </p>
+            <div className="cta-actions">
+              <Link className="btn btn-light btn-lg" href="/submit-query">
+                Post Free Ad
+                <FaChevronRight className="text-xs" />
+              </Link>
+              <a className="btn btn-ghost btn-lg" href={`tel:${SITE_CONFIG.phone}`}>
+                <FaPhoneAlt style={{ color: "var(--primary)" }} />
+                {SITE_CONFIG.phone}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
