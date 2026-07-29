@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 import { seedDatabase } from "./seed";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable in .env.local");
-}
-
 /** Cached connection to avoid re-connecting on every hot-reload in dev */
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -22,6 +16,11 @@ const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null };
 global.mongoose = cached;
 
 async function connectDB(): Promise<typeof mongoose> {
+  const MONGODB_URI = process.env.MONGODB_URI;
+
+  if (!MONGODB_URI) {
+    throw new Error("Please define the MONGODB_URI environment variable in Vercel project settings or .env.local");
+  }
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
