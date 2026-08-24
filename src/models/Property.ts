@@ -45,7 +45,8 @@ const PropertySchema = new Schema<IProperty>(
   { timestamps: true }
 );
 
-PropertySchema.index({ slug: 1 });
+PropertySchema.index({ type: 1, listingType: 1, status: 1, createdAt: -1 });
+PropertySchema.index({ _id: -1, createdAt: -1 });
 PropertySchema.index({ status: 1, isFeatured: -1, createdAt: -1 });
 
 const Property: Model<IProperty> =

@@ -37,7 +37,8 @@ const ProductSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
-ProductSchema.index({ slug: 1 });
+ProductSchema.index({ category: 1, condition: 1, status: 1, createdAt: -1 });
+ProductSchema.index({ _id: -1, createdAt: -1 });
 ProductSchema.index({ status: 1, isFeatured: -1, createdAt: -1 });
 
 const Product: Model<IProduct> =

@@ -9,7 +9,7 @@ try {
   if (match && match[1]) {
     MONGODB_URI = match[1].trim();
   }
-} catch (e) {}
+} catch (e) { }
 
 const ReviewSchema = new mongoose.Schema(
   {

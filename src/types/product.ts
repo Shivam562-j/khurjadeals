@@ -21,12 +21,24 @@ export interface Product {
 }
 
 export interface ProductFilter {
-  category?:  string;
-  condition?: ProductCondition;
+  category?:  string | string[];
+  condition?: ProductCondition | ProductCondition[];
   minPrice?:  number;
   maxPrice?:  number;
   location?:  string;
   search?:    string;
   page?:      number;
   limit?:     number;
+  cursor?:    string;
+}
+
+export interface PaginatedProductResponse {
+  products: Product[];
+  total?: number;
+  page?: number;
+  limit: number;
+  totalPages?: number;
+  nextCursor?: string | null;
+  nextPage?: number | null;
+  hasMore: boolean;
 }

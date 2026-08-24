@@ -16,6 +16,8 @@ import {
   FaCar,
 } from "react-icons/fa";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 const stats = [
   { value: "500+",  label: "Active Listings" },
   { value: "200+",  label: "Properties" },
@@ -39,6 +41,31 @@ const quickLinks = [
 ];
 
 export default function Hero() {
+  const queryClient = useQueryClient();
+
+  const prefetchProperties = () => {
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ["properties", "", [], [], "", "", ""],
+      queryFn: async () => {
+        const res = await fetch("/api/properties?page=1&limit=15");
+        return res.json();
+      },
+      initialPageParam: 1,
+      staleTime: 1000 * 60 * 3,
+    });
+  };
+
+  const prefetchProducts = () => {
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ["products", "", [], [], "", "", ""],
+      queryFn: async () => {
+        const res = await fetch("/api/products?page=1&limit=15");
+        return res.json();
+      },
+      initialPageParam: 1,
+      staleTime: 1000 * 60 * 3,
+    });
+  };
   return (
     <>
       <section className="hero bg-grid">
@@ -78,13 +105,25 @@ export default function Hero() {
               </p>
 
               <div className="hero-cta animate-fade-up delay-300">
-                <Link href="/properties" className="btn btn-primary btn-lg">
+                <Link
+                  href="/properties"
+                  className="btn btn-primary btn-lg"
+                  onMouseEnter={prefetchProperties}
+                  onTouchStart={prefetchProperties}
+                  onFocus={prefetchProperties}
+                >
                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                   </svg>
                   Explore Properties
                 </Link>
-                <Link href="/products" className="btn btn-outline btn-lg">
+                <Link
+                  href="/products"
+                  className="btn btn-outline btn-lg"
+                  onMouseEnter={prefetchProducts}
+                  onTouchStart={prefetchProducts}
+                  onFocus={prefetchProducts}
+                >
                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                   </svg>

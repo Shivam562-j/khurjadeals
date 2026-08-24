@@ -1,10 +1,13 @@
 "use client";
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Property } from "@/types/property";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Property, PaginatedPropertyResponse } from "@/types/property";
 import PropertyCard from "@/components/property/PropertyCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   FaSearch,
   FaFilter,
@@ -21,7 +24,7 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
-const LIMIT = 12;
+const LIMIT = 15;
 
 const PROPERTY_TYPES = [
   { label: "Residential", value: "residential" },
@@ -36,16 +39,8 @@ const LISTING_TYPES = [
   { label: "For Lease", value: "lease" },
 ];
 
-function PropertiesList() {
+function PropertiesList({ initialData }: { initialData?: PaginatedPropertyResponse }) {
   const searchParams = useSearchParams();
-
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
 
   // Multi-select filters state (Arrays)
   const [selectedTypes, setSelectedTypes] = useState<string[]>(
@@ -60,6 +55,9 @@ function PropertiesList() {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
 
+  // Debounce search query to prevent excessive API requests
+  const debouncedSearch = useDebounce(searchQuery, 350);
+
   // Local state for expanded filter card
   const [localTypes, setLocalTypes] = useState<string[]>(selectedTypes);
   const [localListings, setLocalListings] = useState<string[]>(selectedListings);
@@ -68,6 +66,7 @@ function PropertiesList() {
   const [localMax, setLocalMax] = useState(maxPrice);
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // Sync with URL params
   useEffect(() => {
@@ -89,63 +88,72 @@ function PropertiesList() {
     setLocalMin(minFromUrl);
     setMaxPrice(maxFromUrl);
     setLocalMax(maxFromUrl);
-
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   }, [searchParams]);
 
-  // Fetch properties API call
-  const fetchPropertiesPage = useCallback(
-    async (pageNum: number, isMoreCall: boolean = false) => {
-      if (isMoreCall) {
-        setIsLoadingMore(true);
-      } else {
-        setIsLoading(true);
-      }
+  // TanStack Query useInfiniteQuery with initialData pre-hydrated from server
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: [
+      "properties",
+      debouncedSearch,
+      selectedTypes,
+      selectedListings,
+      locationInput,
+      minPrice,
+      maxPrice,
+    ],
+    queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
+      const q = new URLSearchParams();
+      if (debouncedSearch) q.set("search", debouncedSearch);
+      if (selectedTypes.length > 0) q.set("type", selectedTypes.join(","));
+      if (selectedListings.length > 0) q.set("listingType", selectedListings.join(","));
+      if (locationInput) q.set("location", locationInput);
+      if (minPrice) q.set("minPrice", minPrice);
+      if (maxPrice) q.set("maxPrice", maxPrice);
+      q.set("page", String(pageParam));
+      q.set("limit", String(LIMIT));
 
-      try {
-        const q = new URLSearchParams();
-        if (searchQuery) q.set("search", searchQuery);
-        if (selectedTypes.length > 0) q.set("type", selectedTypes.join(","));
-        if (selectedListings.length > 0) q.set("listingType", selectedListings.join(","));
-        if (locationInput) q.set("location", locationInput);
-        if (minPrice) q.set("minPrice", minPrice);
-        if (maxPrice) q.set("maxPrice", maxPrice);
-
-        q.set("page", String(pageNum));
-        q.set("limit", String(LIMIT));
-
-        const res = await fetch(`/api/properties?${q.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          const newItems: Property[] = data.properties || [];
-          setTotalCount(data.total || 0);
-
-          if (pageNum === 1) {
-            setProperties(newItems);
-          } else {
-            setProperties((prev) => [...prev, ...newItems]);
-          }
-
-          setHasMore(newItems.length === LIMIT);
-          setIsFirstLoad(false);
-        }
-      } catch (e) {
-        console.error("Error fetching properties:", e);
-      } finally {
-        setIsLoading(false);
-        setIsLoadingMore(false);
-      }
+      const res = await fetch(`/api/properties?${q.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch properties");
+      return res.json();
     },
-    [searchQuery, selectedTypes, selectedListings, locationInput, minPrice, maxPrice]
-  );
+    initialPageParam: 1,
+    initialData:
+      initialData && !debouncedSearch && selectedTypes.length === 0 && selectedListings.length === 0 && !locationInput && !minPrice && !maxPrice
+        ? {
+            pages: [initialData],
+            pageParams: [1],
+          }
+        : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
+    staleTime: 1000 * 60 * 3, // 3 minutes cache stale time
+  });
 
-  // Initial fetch and fetch on filter change
+  // Flattened properties list across all pages
+  const properties: Property[] = data?.pages.flatMap((page) => page.properties) ?? [];
+
+  // IntersectionObserver for seamless infinite scrolling trigger
   useEffect(() => {
-    fetchPropertiesPage(page, page > 1);
-  }, [page, fetchPropertiesPage]);
+    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Handlers for Quick Pills Multi-Select
   const toggleTypeChip = (val: string) => {
@@ -159,10 +167,6 @@ function PropertiesList() {
     }
     setSelectedTypes(updated);
     setLocalTypes(updated);
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   };
 
   const toggleListingChip = (val: string) => {
@@ -176,19 +180,11 @@ function PropertiesList() {
     }
     setSelectedListings(updated);
     setLocalListings(updated);
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   };
 
   // Search form submit
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   };
 
   // Advanced Filter Card Apply
@@ -200,10 +196,6 @@ function PropertiesList() {
     setMinPrice(localMin);
     setMaxPrice(localMax);
     setFilterOpen(false);
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   };
 
   const clearAllFilters = () => {
@@ -218,17 +210,6 @@ function PropertiesList() {
     setLocalMin("");
     setMaxPrice("");
     setLocalMax("");
-    setProperties([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
-  };
-
-  // Show More Button Handler
-  const handleShowMore = () => {
-    if (!isLoadingMore && hasMore) {
-      setPage((prev) => prev + 1);
-    }
   };
 
   const activeFilterCount =
@@ -284,13 +265,7 @@ function PropertiesList() {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setProperties([]);
-                    setPage(1);
-                    setHasMore(true);
-                    setIsFirstLoad(true);
-                  }}
+                  onClick={() => setSearchQuery("")}
                   className="search-clear-btn"
                   title="Clear search"
                 >
@@ -484,15 +459,7 @@ function PropertiesList() {
               {searchQuery && (
                 <span className="active-tag">
                   Search: "{searchQuery}"
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setProperties([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
-                    }}
-                  >
+                  <button onClick={() => setSearchQuery("")}>
                     <FaTimes />
                   </button>
                 </span>
@@ -529,10 +496,6 @@ function PropertiesList() {
                     onClick={() => {
                       setLocationInput("");
                       setLocalLocation("");
-                      setProperties([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
                     }}
                   >
                     <FaTimes />
@@ -549,10 +512,6 @@ function PropertiesList() {
                       setLocalMin("");
                       setMaxPrice("");
                       setLocalMax("");
-                      setProperties([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
                     }}
                   >
                     <FaTimes />
@@ -567,20 +526,24 @@ function PropertiesList() {
           )}
 
           {/* Results Count Bar */}
-          {!isFirstLoad && properties.length > 0 && (
+          {!isLoading && properties.length > 0 && (
             <div className="results-summary-row">
               <span className="summary-text">
-                Showing <strong>{properties.length}</strong> of <strong>{totalCount}</strong> properties
+                Loaded <strong>{properties.length}</strong> properties
               </span>
             </div>
           )}
 
           {/* Initial Loading */}
-          {isFirstLoad && isLoading ? (
+          {isLoading && properties.length === 0 ? (
             <div className="py-16">
               <Loader size="lg" />
             </div>
-          ) : properties.length === 0 && !isLoading ? (
+          ) : isError ? (
+            <div className="text-center py-12 text-red-400">
+              Failed to load properties. Please check your connection and try again.
+            </div>
+          ) : properties.length === 0 ? (
             <EmptyState
               title="No properties found"
               description="We couldn't find any properties matching your criteria. Try clearing some filters."
@@ -596,19 +559,22 @@ function PropertiesList() {
                 ))}
               </div>
 
+              {/* Infinite Scroll Load Trigger Sentinel */}
+              <div ref={loadMoreRef} className="h-6 w-full opacity-0 pointer-events-none" />
+
               {/* Centered Show More Button Area */}
               <div className="show-more-wrapper">
-                {hasMore ? (
+                {hasNextPage ? (
                   <button
                     type="button"
-                    onClick={handleShowMore}
-                    disabled={isLoadingMore}
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
                     className="btn-show-more"
                   >
-                    {isLoadingMore ? (
+                    {isFetchingNextPage ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Loading 12 More Properties...</span>
+                        <span>Loading Next 15 Properties...</span>
                       </>
                     ) : (
                       <>

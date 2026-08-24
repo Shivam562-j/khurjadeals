@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   },
 };
 
+import QueryProvider from "@/components/providers/QueryProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -49,8 +51,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        {children}
-        <InstallBanner />
+        <QueryProvider>
+          {children}
+          <InstallBanner />
+        </QueryProvider>
       </body>
     </html>
   );

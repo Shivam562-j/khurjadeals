@@ -1,5 +1,7 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   FaStar,
   FaUser,
@@ -101,8 +103,6 @@ function ReviewStats({ reviews }: { reviews: Review[] }) {
 }
 
 export default function ReviewsPage() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "property" | "product" | "general">("all");
 
   // Form state
@@ -116,14 +116,18 @@ export default function ReviewsPage() {
   const [submitError, setSubmitError] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetch("/api/reviews")
-      .then((r) => r.json())
-      .then((data) => setReviews(Array.isArray(data) ? data : []))
-      .catch(() => setReviews([]))
-      .finally(() => setIsLoading(false));
-  }, []);
+  // TanStack Query with prefetching cache support
+  const { data: reviewsData, isLoading } = useQuery<Review[]>({
+    queryKey: ["reviews"],
+    queryFn: async () => {
+      const res = await fetch("/api/reviews");
+      if (!res.ok) throw new Error("Failed to fetch reviews");
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 3, // 3 minutes cache
+  });
 
+  const reviews: Review[] = Array.isArray(reviewsData) ? reviewsData : [];
   const filtered = filter === "all" ? reviews : reviews.filter((r) => r.category === filter);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -305,7 +309,7 @@ export default function ReviewsPage() {
               ))}
             </div>
 
-            {isLoading ? (
+            {isLoading && reviews.length === 0 ? (
               <div className="reviews-loading">
                 {[1, 2, 3].map((n) => (
                   <div key={n} className="review-card-skeleton" />

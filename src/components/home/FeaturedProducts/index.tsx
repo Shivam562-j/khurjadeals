@@ -6,6 +6,8 @@ import { FaStore, FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icon
 import ProductCard from "@/components/product/ProductCard";
 import SwitchTabs from "@/components/common/SwitchTabs";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 interface FeaturedProductsProps {
   products: Product[];
 }
@@ -15,6 +17,19 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   const [activeTab, setActiveTab] = useState("All Used Items");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const queryClient = useQueryClient();
+
+  const prefetchProducts = () => {
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ["products", "", [], [], "", "", ""],
+      queryFn: async () => {
+        const res = await fetch("/api/products?page=1&limit=15");
+        return res.json();
+      },
+      initialPageParam: 1,
+      staleTime: 1000 * 60 * 3,
+    });
+  };
 
   if (!products?.length) return null;
 
@@ -109,7 +124,13 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
             </div>
             <h2 className="h2" style={{ margin: 0, marginTop: 6 }}>Used Products &amp; Vehicles</h2>
           </div>
-          <Link href="/products" className="btn btn-outline sec-viewall-btn">
+          <Link
+            href="/products"
+            className="btn btn-outline sec-viewall-btn"
+            onMouseEnter={prefetchProducts}
+            onTouchStart={prefetchProducts}
+            onFocus={prefetchProducts}
+          >
             <span>View All</span>
             <FaArrowRight style={{ fontSize: "0.7rem" }} />
           </Link>

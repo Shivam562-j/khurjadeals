@@ -1,10 +1,13 @@
 "use client";
-import React, { useState, useEffect, useCallback, Suspense } from "react";
+
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Product } from "@/types/product";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Product, PaginatedProductResponse } from "@/types/product";
 import ProductCard from "@/components/product/ProductCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   FaSearch,
   FaFilter,
@@ -21,7 +24,7 @@ import {
   FaPlus,
 } from "react-icons/fa";
 
-const LIMIT = 12;
+const LIMIT = 15;
 
 const CATEGORY_OPTIONS = [
   { label: "Bikes & Cars", value: "Bikes & Cars" },
@@ -39,16 +42,8 @@ const CONDITION_OPTIONS = [
   { label: "Refurbished", value: "refurbished" },
 ];
 
-function ProductsList() {
+function ProductsList({ initialData }: { initialData?: PaginatedProductResponse }) {
   const searchParams = useSearchParams();
-
-  const [products, setProducts] = useState<Product[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
 
   // Multi-select filters state (Arrays)
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -63,6 +58,9 @@ function ProductsList() {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
 
+  // Debounce search query to prevent excessive API requests
+  const debouncedSearch = useDebounce(searchQuery, 350);
+
   // Local state for expanded filter card
   const [localCategories, setLocalCategories] = useState<string[]>(selectedCategories);
   const [localConditions, setLocalConditions] = useState<string[]>(selectedConditions);
@@ -71,6 +69,7 @@ function ProductsList() {
   const [localMax, setLocalMax] = useState(maxPrice);
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // Sync with URL params
   useEffect(() => {
@@ -92,71 +91,76 @@ function ProductsList() {
     setLocalMin(minFromUrl);
     setMaxPrice(maxFromUrl);
     setLocalMax(maxFromUrl);
-
-    setProducts([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   }, [searchParams]);
 
-  // Fetch products API call
-  const fetchProductsPage = useCallback(
-    async (pageNum: number, isMoreCall: boolean = false) => {
-      if (isMoreCall) {
-        setIsLoadingMore(true);
-      } else {
-        setIsLoading(true);
-      }
+  // TanStack Query useInfiniteQuery with initialData pre-hydrated from server
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useInfiniteQuery({
+    queryKey: [
+      "products",
+      debouncedSearch,
+      selectedCategories,
+      selectedConditions,
+      locationInput,
+      minPrice,
+      maxPrice,
+    ],
+    queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
+      const q = new URLSearchParams();
+      if (debouncedSearch) q.set("search", debouncedSearch);
+      if (selectedCategories.length > 0) q.set("category", selectedCategories.join(","));
+      if (selectedConditions.length > 0) q.set("condition", selectedConditions.join(","));
+      if (locationInput) q.set("location", locationInput);
+      if (minPrice) q.set("minPrice", minPrice);
+      if (maxPrice) q.set("maxPrice", maxPrice);
+      q.set("page", String(pageParam));
+      q.set("limit", String(LIMIT));
 
-      try {
-        const q = new URLSearchParams();
-        if (searchQuery) q.set("search", searchQuery);
-        if (selectedCategories.length > 0) q.set("category", selectedCategories.join(","));
-        if (selectedConditions.length > 0) q.set("condition", selectedConditions.join(","));
-        if (locationInput) q.set("location", locationInput);
-        if (minPrice) q.set("minPrice", minPrice);
-        if (maxPrice) q.set("maxPrice", maxPrice);
-
-        q.set("page", String(pageNum));
-        q.set("limit", String(LIMIT));
-
-        const res = await fetch(`/api/products?${q.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          const newItems: Product[] = data.products || [];
-          setTotalCount(data.total || 0);
-
-          if (pageNum === 1) {
-            setProducts(newItems);
-          } else {
-            setProducts((prev) => [...prev, ...newItems]);
-          }
-
-          setHasMore(newItems.length === LIMIT);
-          setIsFirstLoad(false);
-        }
-      } catch (e) {
-        console.error("Error fetching products:", e);
-      } finally {
-        setIsLoading(false);
-        setIsLoadingMore(false);
-      }
+      const res = await fetch(`/api/products?${q.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch products");
+      return res.json();
     },
-    [searchQuery, selectedCategories, selectedConditions, locationInput, minPrice, maxPrice]
-  );
+    initialPageParam: 1,
+    initialData:
+      initialData && !debouncedSearch && selectedCategories.length === 0 && selectedConditions.length === 0 && !locationInput && !minPrice && !maxPrice
+        ? {
+            pages: [initialData],
+            pageParams: [1],
+          }
+        : undefined,
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
+    staleTime: 1000 * 60 * 3, // 3 minutes cache stale time
+  });
 
-  // Initial fetch and fetch on page change
+  // Flattened products list across all pages
+  const products: Product[] = data?.pages.flatMap((page) => page.products) ?? [];
+
+  // IntersectionObserver for seamless infinite scrolling trigger
   useEffect(() => {
-    fetchProductsPage(page, page > 1);
-  }, [page, fetchProductsPage]);
+    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Search form submit
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setProducts([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   };
 
   // Advanced Filter Card Apply
@@ -168,10 +172,6 @@ function ProductsList() {
     setMinPrice(localMin);
     setMaxPrice(localMax);
     setFilterOpen(false);
-    setProducts([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
   };
 
   const clearAllFilters = () => {
@@ -186,17 +186,6 @@ function ProductsList() {
     setLocalMin("");
     setMaxPrice("");
     setLocalMax("");
-    setProducts([]);
-    setPage(1);
-    setHasMore(true);
-    setIsFirstLoad(true);
-  };
-
-  // Show More Button Handler
-  const handleShowMore = () => {
-    if (!isLoadingMore && hasMore) {
-      setPage((prev) => prev + 1);
-    }
   };
 
   const activeFilterCount =
@@ -252,13 +241,7 @@ function ProductsList() {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setProducts([]);
-                    setPage(1);
-                    setHasMore(true);
-                    setIsFirstLoad(true);
-                  }}
+                  onClick={() => setSearchQuery("")}
                   className="search-clear-btn"
                   title="Clear search"
                 >
@@ -452,15 +435,7 @@ function ProductsList() {
               {searchQuery && (
                 <span className="active-tag">
                   Search: "{searchQuery}"
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setProducts([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
-                    }}
-                  >
+                  <button onClick={() => setSearchQuery("")}>
                     <FaTimes />
                   </button>
                 </span>
@@ -473,10 +448,6 @@ function ProductsList() {
                     onClick={() => {
                       setSelectedCategories((prev) => prev.filter((item) => item !== cVal));
                       setLocalCategories((prev) => prev.filter((item) => item !== cVal));
-                      setProducts([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
                     }}
                   >
                     <FaTimes />
@@ -493,10 +464,6 @@ function ProductsList() {
                       onClick={() => {
                         setSelectedConditions((prev) => prev.filter((item) => item !== condVal));
                         setLocalConditions((prev) => prev.filter((item) => item !== condVal));
-                        setProducts([]);
-                        setPage(1);
-                        setHasMore(true);
-                        setIsFirstLoad(true);
                       }}
                     >
                       <FaTimes />
@@ -512,10 +479,6 @@ function ProductsList() {
                     onClick={() => {
                       setLocationInput("");
                       setLocalLocation("");
-                      setProducts([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
                     }}
                   >
                     <FaTimes />
@@ -532,10 +495,6 @@ function ProductsList() {
                       setLocalMin("");
                       setMaxPrice("");
                       setLocalMax("");
-                      setProducts([]);
-                      setPage(1);
-                      setHasMore(true);
-                      setIsFirstLoad(true);
                     }}
                   >
                     <FaTimes />
@@ -550,20 +509,24 @@ function ProductsList() {
           )}
 
           {/* Results Count Bar */}
-          {!isFirstLoad && products.length > 0 && (
+          {!isLoading && products.length > 0 && (
             <div className="results-summary-row">
               <span className="summary-text">
-                Showing <strong>{products.length}</strong> of <strong>{totalCount}</strong> products
+                Loaded <strong>{products.length}</strong> products
               </span>
             </div>
           )}
 
           {/* Initial Loading */}
-          {isFirstLoad && isLoading ? (
+          {isLoading && products.length === 0 ? (
             <div className="py-16">
               <Loader size="lg" />
             </div>
-          ) : products.length === 0 && !isLoading ? (
+          ) : isError ? (
+            <div className="text-center py-12 text-red-400">
+              Failed to load products. Please check your connection and try again.
+            </div>
+          ) : products.length === 0 ? (
             <EmptyState
               title="No products found"
               description="We couldn't find any products matching your criteria. Try clearing some filters."
@@ -579,19 +542,22 @@ function ProductsList() {
                 ))}
               </div>
 
+              {/* Infinite Scroll Load Trigger Sentinel */}
+              <div ref={loadMoreRef} className="h-6 w-full opacity-0 pointer-events-none" />
+
               {/* Centered Show More Button Area */}
               <div className="show-more-wrapper">
-                {hasMore ? (
+                {hasNextPage ? (
                   <button
                     type="button"
-                    onClick={handleShowMore}
-                    disabled={isLoadingMore}
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
                     className="btn-show-more"
                   >
-                    {isLoadingMore ? (
+                    {isFetchingNextPage ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Loading 12 More Products...</span>
+                        <span>Loading Next 15 Products...</span>
                       </>
                     ) : (
                       <>
