@@ -5,6 +5,270 @@ import Review from "@/models/Review";
 
 let isSeeded = false;
 
+function generate100Properties() {
+  const locations = [
+    "GT Road", "Junction Road", "Subhash Road", "Aligarh Road", "Mandi Road",
+    "Industrial Area", "Shubham Vihar", "Anand Vihar", "Green Park Enclave",
+    "Tariyan Colony", "Pahasu Road", "Bulandshahr Road", "Navalpur", "Dharpa Bypass",
+    "Pottery Market Road", "Railway Station Road"
+  ];
+
+  const images = [
+    "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
+  ];
+
+  const sellerNames = [
+    "Ramesh Sharma", "Shubham Gupta", "Devender Singh", "Chaudhary Dharamvir",
+    "Sanjay Pottery Works", "Sunil Kumar", "Vikas Agarwal", "Rajeshwar Prasad",
+    "Satish Chand", "Deepak Industrial Corp", "Mohit Jain", "Dr. Alok Sharma",
+    "Manish Verma", "Amit Tyagi", "Praveen Yadav", "Rakesh Singhal"
+  ];
+
+  const types: Array<"residential" | "commercial" | "plot" | "agricultural"> = [
+    "residential", "commercial", "plot", "agricultural"
+  ];
+  
+  const listingTypes: Array<"sell" | "rent" | "lease"> = ["sell", "rent", "lease"];
+
+  const properties = [];
+
+  for (let i = 1; i <= 100; i++) {
+    const type = types[(i - 1) % types.length];
+    const listingType = listingTypes[(i - 1) % listingTypes.length];
+    const loc = locations[(i - 1) % locations.length];
+    const seller = sellerNames[(i - 1) % sellerNames.length];
+    const img = images[(i - 1) % images.length];
+
+    let title = "";
+    let price = 0;
+    let area = 0;
+    let areaUnit: "sqft" | "sqyd" | "acre" | "bigha" = "sqft";
+    let desc = "";
+    let features: string[] = [];
+
+    if (type === "residential") {
+      if (listingType === "sell") {
+        title = `${(i % 3) + 2} BHK Independent Villa for Sale in ${loc}`;
+        price = 2500000 + (i * 45000);
+        area = 1200 + (i * 15);
+        areaUnit = "sqft";
+        desc = `Spacious ${(i % 3) + 2} BHK residential villa with modern fittings, ventilated rooms, modular kitchen, and parking in prime ${loc}, Khurja.`;
+        features = ["Parking Space", "Modular Kitchen", "Balcony", "Gated Security"];
+      } else {
+        title = `Furnished ${(i % 2) + 2} BHK Floor for Rent in ${loc}`;
+        price = 7000 + (i * 250);
+        area = 900 + (i * 10);
+        areaUnit = "sqft";
+        desc = `Well-maintained ${(i % 2) + 2} BHK house for rent in ${loc}, Khurja with 24hr water supply, power backup, and wide colony roads.`;
+        features = ["24/7 Water", "Balcony", "Separate Meter", "Car Parking"];
+      }
+    } else if (type === "commercial") {
+      if (listingType === "sell") {
+        title = `Prime Commercial Shop Space for Sale on ${loc}`;
+        price = 3500000 + (i * 60000);
+        area = 450 + (i * 20);
+        areaUnit = "sqft";
+        desc = `High footfall main road commercial property on ${loc}, Khurja. Ideal for retail stores, banking, pharmacy, or brand showrooms.`;
+        features = ["Main Road Facing", "High Footfall", "Power Backup", "Glass Front"];
+      } else {
+        title = `Commercial Hall / Office Space for ${listingType === "lease" ? "Lease" : "Rent"} on ${loc}`;
+        price = 15000 + (i * 500);
+        area = 1200 + (i * 30);
+        areaUnit = "sqft";
+        desc = `Spacious commercial hall for ${listingType === "lease" ? "lease" : "rent"} in ${loc}, Khurja. Perfect for coaching centers, offices, or warehouse storage.`;
+        features = ["Open Floor", "Washroom", "Separate Entry", "CCTV Installed"];
+      }
+    } else if (type === "plot") {
+      title = `${100 + (i * 5)} Gaj Residential Plot for Sale in ${loc}`;
+      price = 1200000 + (i * 35000);
+      area = 900 + (i * 45);
+      areaUnit = "sqft";
+      desc = `Corner plot available in fast-developing colony in ${loc}, Khurja. Wide RCC road, electricity connection ready, streetlights installed.`;
+      features = ["Corner Plot", "25ft Wide Road", "Boundary Wall", "Clear Title"];
+    } else {
+      title = `${(i % 5) + 2} Bigha Fertile Agricultural Land for Sale near ${loc}`;
+      price = 4500000 + (i * 80000);
+      area = 25000 + (i * 500);
+      areaUnit = "bigha";
+      desc = `Highly fertile agricultural land near ${loc}, Khurja with tube-well irrigation system, canal access, and tractor connectivity.`;
+      features = ["Canal Water Access", "Tube-well Pump", "Tractor Road Access", "Freehold Land"];
+    }
+
+    const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${i}`;
+
+    properties.push({
+      title,
+      slug,
+      description: desc,
+      type,
+      listingType,
+      status: "active",
+      price,
+      area,
+      areaUnit,
+      location: loc,
+      address: `Plot / Shop No. ${i * 3}, ${loc}, Khurja, UP`,
+      images: [img],
+      features,
+      contactName: seller,
+      contactPhone: "917906896546",
+      isFeatured: i <= 15 || i % 6 === 0,
+      views: 45 + (i * 3),
+    });
+  }
+
+  return properties;
+}
+
+function generate100Products() {
+  const categories = [
+    "Bikes & Cars",
+    "Electric Vehicles",
+    "Mobiles & Laptops",
+    "Electronics",
+    "Home Appliances",
+    "Furniture & Decor",
+    "Others",
+  ];
+
+  const conditions: Array<"new" | "used" | "refurbished"> = ["used", "new", "refurbished"];
+
+  const locations = [
+    "GT Road", "Junction Road", "Subhash Road", "Aligarh Road", "Mandi Road",
+    "Industrial Area", "Shubham Vihar", "Anand Vihar", "Green Park Enclave",
+    "Tariyan Colony"
+  ];
+
+  const sellers = [
+    "Sanjay Electronics", "Rakesh Appliance Hub", "Cool Care Khurja", "Gupta Traders",
+    "Verma Electronics", "Nitin Sharma", "Computer Care Khurja", "EV Motors Khurja",
+    "Captain Vikram", "iCare Mobile Khurja", "Cycle World Khurja", "Royal Furniture House",
+    "Decor Studio Khurja", "Refurb Appliance Hub", "Khurja Appliance Store"
+  ];
+
+  const imageMap: Record<string, string[]> = {
+    "Home Appliances": [
+      "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80"
+    ],
+    "Electronics": [
+      "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=800&q=80"
+    ],
+    "Bikes & Cars": [
+      "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"
+    ],
+    "Electric Vehicles": [
+      "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"
+    ],
+    "Mobiles & Laptops": [
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80"
+    ],
+    "Furniture & Decor": [
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80"
+    ],
+    "Others": [
+      "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"
+    ]
+  };
+
+  const products = [];
+
+  for (let i = 1; i <= 100; i++) {
+    const category = categories[(i - 1) % categories.length];
+    const condition = conditions[(i - 1) % conditions.length];
+    const loc = locations[(i - 1) % locations.length];
+    const seller = sellers[(i - 1) % sellers.length];
+    const catImages = imageMap[category] || imageMap["Others"];
+    const img = catImages[(i - 1) % catImages.length];
+
+    let title = "";
+    let price = 0;
+    let desc = "";
+
+    if (category === "Home Appliances") {
+      const items = ["LG 260L Refrigerator", "Samsung Washing Machine", "Voltas 1.5 Ton AC", "Symphony 70L Air Cooler", "Whirlpool Microwave", "Havells Water Heater"];
+      const item = items[i % items.length];
+      title = `${item} (${condition === "new" ? "Brand New" : condition === "refurbished" ? "Refurbished" : "Second-Hand"})`;
+      price = 4500 + (i * 350);
+      desc = `Well-maintained ${item} in perfect working condition. Includes 100% copper parts, genuine bill, and testing warranty in ${loc}, Khurja.`;
+    } else if (category === "Electronics") {
+      const items = ["Sony 43 Inch Smart LED TV", "Philips Soundbar System", "Canon DSLR Camera", "Boat Bluetooth Party Speaker", "Mi 32 Inch Android TV"];
+      const item = items[i % items.length];
+      title = `${item} (${condition === "new" ? "New Box Open" : condition === "refurbished" ? "Certified Refurbished" : "Pre-Owned"})`;
+      price = 3200 + (i * 450);
+      desc = `High performance ${item} with crystal clear display/sound, remote, wall mount, and original power adapter.`;
+    } else if (category === "Bikes & Cars") {
+      const items = ["Honda Activa 5G Scooter", "Hero Splendor Plus Bike", "Royal Enfield Bullet 350", "Bajaj Pulsar 150", "TVS Jupiter 110cc"];
+      const item = items[i % items.length];
+      title = `${item} (${2018 + (i % 6)} Model)`;
+      price = 28000 + (i * 1200);
+      desc = `Single hand owner ${item} driven in Khurja. All original RC papers, valid insurance, smooth engine, and fresh service done.`;
+    } else if (category === "Electric Vehicles") {
+      const items = ["Ather 450X Electric Scooter", "Ola S1 Pro EV", "Hero Electric Optima", "Okinawa Dual EV Loader"];
+      const item = items[i % items.length];
+      title = `${item} (${condition === "new" ? "New Demo Vehicle" : "Used - 85km Range"})`;
+      price = 45000 + (i * 1500);
+      desc = `Clean ${item} with long battery life, fast portable charger, digital touch dashboard, and zero maintenance cost.`;
+    } else if (category === "Mobiles & Laptops") {
+      const items = ["HP Pavilion i7 Gaming Laptop", "Apple iPhone 12 (64GB)", "Dell Latitude Business Laptop", "Samsung Galaxy S21 5G", "Lenovo ThinkPad i5"];
+      const item = items[i % items.length];
+      title = `${item} (${condition === "refurbished" ? "Refurbished with Warranty" : condition === "new" ? "Sealed Pack" : "Used - 88% Battery"})`;
+      price = 14500 + (i * 850);
+      desc = `High speed ${item} with original charger, fast RAM, excellent battery backup, and scratchless body condition.`;
+    } else if (category === "Furniture & Decor") {
+      const items = ["L-Shape Fabric Sofa Set (6 Seater)", "Solid Teak Wood King Bed", "Wooden 4-Seater Dining Table", "Steel Almirah Wardrobe", "Executive Office Chair"];
+      const item = items[i % items.length];
+      title = `${item} (${condition === "new" ? "Brand New Factory Direct" : "Lightly Used"})`;
+      price = 5500 + (i * 600);
+      desc = `Premium quality ${item} crafted with durable wood/cushions. Perfect for home or office setups in ${loc}, Khurja.`;
+    } else {
+      const items = ["Firefox 21-Speed Gear Bicycle", "Hero Ranger Mountain Cycle", "Singer Sewing Machine", "Khurja Handcrafted Ceramic Vases Set"];
+      const item = items[i % items.length];
+      title = `${item} (${condition === "new" ? "Brand New" : "Pre-Owned"})`;
+      price = 1800 + (i * 200);
+      desc = `Authentic local product / item in great condition available directly from seller in ${loc}, Khurja.`;
+    }
+
+    const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "")}-p${i}`;
+
+    products.push({
+      title,
+      slug,
+      description: desc,
+      category,
+      condition,
+      status: "active",
+      price,
+      images: [img],
+      location: loc,
+      contactName: seller,
+      contactPhone: "917906896546",
+      isFeatured: i <= 15 || i % 5 === 0,
+      views: 30 + (i * 4),
+    });
+  }
+
+  return products;
+}
+
 export async function seedDatabase(force: boolean = false) {
   if (isSeeded && !force) return;
 
@@ -22,640 +286,25 @@ export async function seedDatabase(force: boolean = false) {
       console.log("Seeded admin user.");
     }
 
-    // 2. Properties Seeding
+    // 2. Properties Seeding (100 Properties across all categories and locations)
     const propertyCount = await Property.countDocuments();
-    if (propertyCount < 15 || force) {
-      if (force) {
+    if (propertyCount < 100 || force) {
+      if (force || propertyCount < 100) {
         await Property.deleteMany({});
       }
-      const mockProperties = [
-        {
-          title: "Premium Commercial Shop on G.T. Road",
-          slug: "premium-commercial-shop-gt-road-01",
-          description: "A spacious 200 sq. yard commercial shop located in the prime market area of G.T. Road, Khurja. High foot traffic, ideal for retail or showrooms.",
-          type: "commercial",
-          listingType: "sell",
-          status: "active",
-          price: 4500000,
-          area: 1800,
-          areaUnit: "sqft",
-          location: "GT Road",
-          address: "Shop No. 42, GT Road, Khurja, UP",
-          images: ["https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=800&q=80"],
-          features: ["Parking Space", "Main Road Face", "Power Backup"],
-          contactName: "Ramesh Sharma",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 120,
-        },
-        {
-          title: "Residential Plot for Sale near Khurja Junction",
-          slug: "residential-plot-khurja-junction-02",
-          description: "150 Gaj residential plot available in a secure gated colony near Khurja Junction with wide roads and green parks.",
-          type: "plot",
-          listingType: "sell",
-          status: "active",
-          price: 1800000,
-          area: 1350,
-          areaUnit: "sqft",
-          location: "Junction Road",
-          address: "Plot 89, Shubham Vihar Colony, Junction Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"],
-          features: ["Gated Colony", "24ft Wide Road", "Park Facing"],
-          contactName: "Shubham Gupta",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 95,
-        },
-        {
-          title: "Spacious 3 BHK Independent House for Rent",
-          slug: "spacious-3-bhk-house-rent-03",
-          description: "Beautifully constructed double-story 3 BHK independent house for rent in a peaceful residential area of Khurja.",
-          type: "residential",
-          listingType: "rent",
-          status: "active",
-          price: 12000,
-          area: 1600,
-          areaUnit: "sqft",
-          location: "Subhash Road",
-          address: "House 12B, Subhash Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80"],
-          features: ["Modular Kitchen", "Balcony", "Car Parking"],
-          contactName: "Devender Singh",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 64,
-        },
-        {
-          title: "Prime Agricultural Land near Aligarh Bypass",
-          slug: "prime-agricultural-land-aligarh-04",
-          description: "Fertile 5 Bigha agricultural land suitable for farming, warehouse, or cold storage project. Direct canal water access.",
-          type: "agricultural",
-          listingType: "sell",
-          status: "active",
-          price: 7500000,
-          area: 32000,
-          areaUnit: "sqft",
-          location: "Aligarh Road",
-          address: "Khasra 402, Aligarh Bypass Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"],
-          features: ["Tube Well", "Road Touch", "Clear Title"],
-          contactName: "Chaudhary Mahipal",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 110,
-        },
-        {
-          title: "Commercial Godown / Warehouse for Rent",
-          slug: "commercial-godown-warehouse-rent-05",
-          description: "Heavy duty 4000 sq ft industrial godown space available for lease near GT Road Industrial Area, Khurja.",
-          type: "commercial",
-          listingType: "lease",
-          status: "active",
-          price: 35000,
-          area: 4000,
-          areaUnit: "sqft",
-          location: "Industrial Area",
-          address: "Plot 14, Ceramic Zone, Khurja",
-          images: ["https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80"],
-          features: ["High Ceiling", "Truck Loading Dock", "3-Phase Power"],
-          contactName: "Sanjay Ceramics Pvt Ltd",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 82,
-        },
-        {
-          title: "Modern 2 BHK Apartment for Sale in Navjeevan City",
-          slug: "modern-2-bhk-apartment-navjeevan-06",
-          description: "Ready to move 2 BHK flat with modern amenities, 24x7 security, power backup, and lift facility.",
-          type: "residential",
-          listingType: "sell",
-          status: "active",
-          price: 2800000,
-          area: 1050,
-          areaUnit: "sqft",
-          location: "Junction Road",
-          address: "Flat 304, Tower B, Navjeevan City, Khurja",
-          images: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"],
-          features: ["Lift", "Security Guard", "Gym"],
-          contactName: "Pankaj Sharma",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 140,
-        },
-        {
-          title: "Corner Market Shop for Sale on Junction Road",
-          slug: "corner-market-shop-sale-07",
-          description: "Double side open corner shop in prime retail market. High daily footfall, dual shutters.",
-          type: "commercial",
-          listingType: "sell",
-          status: "active",
-          price: 3200000,
-          area: 450,
-          areaUnit: "sqft",
-          location: "Junction Road",
-          address: "Shop 12, Main Market, Junction Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"],
-          features: ["Corner Property", "Double Shutter", "Prime Location"],
-          contactName: "Vikas Agrawal",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 75,
-        },
-        {
-          title: "Residential Land 200 Sq Yd in Govindpuri Colony",
-          slug: "residential-land-govindpuri-08",
-          description: "Prime residential plot ready for instant home construction. Electricity & sewer line connected.",
-          type: "plot",
-          listingType: "sell",
-          status: "active",
-          price: 2200000,
-          area: 1800,
-          areaUnit: "sqft",
-          location: "Govindpuri",
-          address: "Plot 45, Govindpuri Extension, Khurja",
-          images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"],
-          features: ["Sewerage Line", "Street Lights", "Wide Road"],
-          contactName: "Anil Varshney",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 58,
-        },
-        {
-          title: "1 BHK Furnished Flat for Rent near Bus Stand",
-          slug: "1-bhk-flat-rent-bus-stand-09",
-          description: "Fully furnished 1 BHK apartment with AC, bed, sofa, and kitchen appliances.",
-          type: "residential",
-          listingType: "rent",
-          status: "active",
-          price: 7500,
-          area: 550,
-          areaUnit: "sqft",
-          location: "GT Road",
-          address: "Flat 102, Near Old Bus Stand, Khurja",
-          images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"],
-          features: ["Fully Furnished", "AC Included", "Wi-Fi Ready"],
-          contactName: "Manoj Solanki",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 92,
-        },
-        {
-          title: "Industrial Plot 1000 Sq Mtr for Lease",
-          slug: "industrial-plot-1000-sq-mtr-lease-10",
-          description: "UPSIDC approved industrial plot available for long term lease for manufacturing or packaging industry.",
-          type: "commercial",
-          listingType: "lease",
-          status: "active",
-          price: 45000,
-          area: 10760,
-          areaUnit: "sqft",
-          location: "Industrial Area",
-          address: "Plot 88-C, UPSIDC Industrial Zone, Khurja",
-          images: ["https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80"],
-          features: ["UPSIDC Approved", "Industrial Power Feeder"],
-          contactName: "Deepak Industrial Corp",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 130,
-        },
-        {
-          title: "Luxury 4 BHK Villa for Sale in Green Park Colony",
-          slug: "luxury-4-bhk-villa-green-park-11",
-          description: "Exclusive duplex villa featuring modern interior, modular kitchen, lush lawn, and 2-car garage.",
-          type: "residential",
-          listingType: "sell",
-          status: "active",
-          price: 6500000,
-          area: 2700,
-          areaUnit: "sqft",
-          location: "Subhash Road",
-          address: "Villa 5, Green Park Enclave, Khurja",
-          images: ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"],
-          features: ["Private Garden", "Duplex Design", "2 Car Parking"],
-          contactName: "Rajeshwar Prasad",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 210,
-        },
-        {
-          title: "Retail Shop for Rent in Main Grain Market (Mandi)",
-          slug: "retail-shop-rent-grain-mandi-12",
-          description: "Prime ground floor retail shop ideal for grocery store, seed business, or office.",
-          type: "commercial",
-          listingType: "rent",
-          status: "active",
-          price: 15000,
-          area: 350,
-          areaUnit: "sqft",
-          location: "Mandi Road",
-          address: "Shop 77, Grain Mandi Complex, Khurja",
-          images: ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"],
-          features: ["Ground Floor", "High Loading Capacity"],
-          contactName: "Satish Chand",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 54,
-        },
-        {
-          title: "Farmland 10 Bigha with Borewell on Jewar Road",
-          slug: "farmland-10-bigha-jewar-road-13",
-          description: "High fertility agricultural land located near proposed Jewar airport connectivity corridor.",
-          type: "agricultural",
-          listingType: "sell",
-          status: "active",
-          price: 12500000,
-          area: 64000,
-          areaUnit: "sqft",
-          location: "Jewar Road",
-          address: "Village Aurangpur, Jewar Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"],
-          features: ["Borewell Installed", "Jewar Corridor"],
-          contactName: "Chaudhary Vijendra Singh",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 175,
-        },
-        {
-          title: "Affordable 100 Gaj Plot in Anand Vihar",
-          slug: "affordable-100-gaj-plot-anand-vihar-14",
-          description: "Budget-friendly plot suitable for nuclear family home or investment near school.",
-          type: "plot",
-          listingType: "sell",
-          status: "active",
-          price: 1100000,
-          area: 900,
-          areaUnit: "sqft",
-          location: "Junction Road",
-          address: "Plot 104, Anand Vihar Colony, Khurja",
-          images: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"],
-          features: ["Near School", "Electric Poles"],
-          contactName: "Mohit Jain",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 88,
-        },
-        {
-          title: "2 BHK Builder Floor for Rent on GT Road",
-          slug: "2-bhk-builder-floor-rent-gt-road-15",
-          description: "First floor 2 BHK flat with balcony and reserved scooter parking.",
-          type: "residential",
-          listingType: "rent",
-          status: "active",
-          price: 8500,
-          area: 900,
-          areaUnit: "sqft",
-          location: "GT Road",
-          address: "Floor 1, Plot 34, GT Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80"],
-          features: ["Balcony", "Separate Meter"],
-          contactName: "Sunil Kumar",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 61,
-        },
-        {
-          title: "Commercial Hall 1500 Sq Ft for Lease on Subhash Road",
-          slug: "commercial-hall-subhash-road-16",
-          description: "Open floor commercial hall suitable for gym, coaching institute, bank branch.",
-          type: "commercial",
-          listingType: "lease",
-          status: "active",
-          price: 25000,
-          area: 1500,
-          areaUnit: "sqft",
-          location: "Subhash Road",
-          address: "2nd Floor, Commercial Plaza, Subhash Road, Khurja",
-          images: ["https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80"],
-          features: ["Open Floor", "Washroom"],
-          contactName: "Dr. Alok Sharma",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 99,
-        }
-      ];
+      const mockProperties = generate100Properties();
 
       await Property.insertMany(mockProperties);
       console.log(`Database Seeded: Created ${mockProperties.length} mock properties.`);
     }
 
-    // 3. Products Seeding (20 Products covering ALL categories and ALL conditions)
+    // 3. Products Seeding (100 Products covering ALL categories and ALL conditions)
     const productCount = await Product.countDocuments();
-    if (productCount < 15 || force) {
-      if (force) {
+    if (productCount < 100 || force) {
+      if (force || productCount < 100) {
         await Product.deleteMany({});
       }
-      const mockProducts = [
-        // ── Home Appliances & Second-Hand Electronics ──
-        {
-          title: "LG 260L Double Door Refrigerator (Second-Hand)",
-          slug: "lg-260l-double-door-refrigerator-p01",
-          description: "LG 3 Star Inverter Frost Free Double Door Refrigerator in 100% working condition. Quick cooling.",
-          category: "Home Appliances",
-          condition: "used",
-          status: "active",
-          price: 11500,
-          images: ["https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=800&q=80"],
-          location: "Subhash Road",
-          contactName: "Sanjay Electronics",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 180,
-        },
-        {
-          title: "Samsung 6.5 Kg Fully Automatic Washing Machine",
-          slug: "samsung-65kg-fully-automatic-washing-machine-p02",
-          description: "Top load washing machine in excellent working condition with diamond drum technology.",
-          category: "Home Appliances",
-          condition: "used",
-          status: "active",
-          price: 8800,
-          images: ["https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=800&q=80"],
-          location: "Junction Road",
-          contactName: "Rakesh Appliance Hub",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 145,
-        },
-        {
-          title: "Voltas 1.5 Ton 3 Star Split AC (2 Years Used)",
-          slug: "voltas-15-ton-3-star-split-ac-p03",
-          description: "100% copper condenser split air conditioner. Fast cooling, low power consumption, includes remote and copper pipe.",
-          category: "Home Appliances",
-          condition: "used",
-          status: "active",
-          price: 16500,
-          images: ["https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80"],
-          location: "GT Road",
-          contactName: "Cool Care Khurja",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 210,
-        },
-        {
-          title: "Symphony 70 Litre Heavy Duty Desert Air Cooler",
-          slug: "symphony-70l-heavy-duty-desert-cooler-p04",
-          description: "High throw desert air cooler with honeycomb pads and castor wheels. Ideal for Khurja summers.",
-          category: "Home Appliances",
-          condition: "used",
-          status: "active",
-          price: 4200,
-          images: ["https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80"],
-          location: "Mandi Road",
-          contactName: "Gupta Traders",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 78,
-        },
-        {
-          title: "Sony Bravia 43 Inch Full HD Smart LED TV",
-          slug: "sony-bravia-43-inch-smart-led-tv-p05",
-          description: "Pre-owned Sony 43 inch Smart Android TV with YouTube, Netflix, Wi-Fi connectivity and wall mount.",
-          category: "Electronics",
-          condition: "used",
-          status: "active",
-          price: 18500,
-          images: ["https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=800&q=80"],
-          location: "Junction Road",
-          contactName: "Verma Electronics",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 60,
-        },
-
-        // ── Bikes, Cars & Electric Vehicles ──
-        {
-          title: "Honda Activa 5G Scooter (2019 Model)",
-          slug: "honda-activa-5g-2019-model-p06",
-          description: "Single owner Honda Activa 5G in excellent condition, 28,000 km driven.",
-          category: "Bikes & Scooters",
-          condition: "used",
-          status: "active",
-          price: 38000,
-          images: ["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"],
-          location: "Junction Road",
-          contactName: "Nitin Sharma",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 310,
-        },
-        {
-          title: "Refurbished HP Pavilion Gaming Laptop i7",
-          slug: "refurbished-hp-pavilion-gaming-laptop-i7-p07",
-          description: "Refurbished HP Pavilion gaming laptop, Intel Core i7 10th Gen, 16GB RAM, GTX 1650 GPU.",
-          category: "Laptops & Computers",
-          condition: "refurbished",
-          status: "active",
-          price: 36000,
-          images: ["https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80"],
-          location: "Junction Road",
-          contactName: "Computer Care Khurja",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 280,
-        },
-        {
-          title: "Ather 450X Electric Scooter (Used - 2022 Model)",
-          slug: "ather-450x-electric-scooter-used-2022-p08",
-          description: "Used Ather 450X smart electric scooter with 85km range, fast charging support, and dashboard display. Good battery health.",
-          category: "Electric Vehicles",
-          condition: "used",
-          status: "active",
-          price: 72000,
-          images: ["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80"],
-          location: "Junction Road",
-          contactName: "EV Motors Khurja",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 340,
-        },
-        {
-          title: "Royal Enfield Bullet 350 ES (2018 Model)",
-          slug: "royal-enfield-bullet-350-es-2018-p09",
-          description: "Black Royal Enfield Bullet 350 Electric Start in showroom condition.",
-          category: "Bikes & Scooters",
-          condition: "used",
-          status: "active",
-          price: 112000,
-          images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
-          location: "GT Road",
-          contactName: "Captain Vikram",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 420,
-        },
-        {
-          title: "Refurbished Apple iPhone 11 (64GB Black)",
-          slug: "refurbished-apple-iphone-11-64gb-p10",
-          description: "Factory refurbished iPhone 11 with 88% battery health, brand new display screen.",
-          category: "Phones & Mobiles",
-          condition: "refurbished",
-          status: "active",
-          price: 21500,
-          images: ["https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80"],
-          location: "Subhash Road",
-          contactName: "iCare Mobile Khurja",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 195,
-        },
-
-        // ── Bicycles & Tech ──
-        {
-          title: "Used Hero Ranger Mountain Bicycle 18 Speed",
-          slug: "used-hero-ranger-mountain-bicycle-p11",
-          description: "Hero Ranger cycle in excellent running condition. 18 speed gear shift.",
-          category: "Bicycles & Tech",
-          condition: "used",
-          status: "active",
-          price: 3200,
-          images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
-          location: "GT Road",
-          contactName: "Amit Kumar",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 42,
-        },
-        {
-          title: "Refurbished Firefox Target 21-Speed Gear Bicycle",
-          slug: "refurbished-firefox-target-21-speed-bicycle-p12",
-          description: "Certified refurbished Firefox hybrid gear cycle with new Shimano derailleur and disc brakes.",
-          category: "Bicycles & Tech",
-          condition: "refurbished",
-          status: "active",
-          price: 6800,
-          images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
-          location: "GT Road",
-          contactName: "Cycle World Khurja",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 95,
-        },
-        {
-          title: "Brand New BSA Ladybird Breeze Bicycle",
-          slug: "brand-new-bsa-ladybird-breeze-bicycle-p13",
-          description: "Unused BSA Ladybird Breeze pink bicycle with basket and carrier in original packaging.",
-          category: "Bicycles & Tech",
-          condition: "new",
-          status: "active",
-          price: 4900,
-          images: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80"],
-          location: "Mandi Road",
-          contactName: "Super Cycle Store",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 112,
-        },
-
-        // ── Furniture & Decor ──
-        {
-          title: "Modern L-Shape Fabric Sofa Set (6 Seater)",
-          slug: "modern-l-shape-fabric-sofa-set-6-seater-p14",
-          description: "Stylish grey L-shape 6-seater sofa set with high-density foam cushions and wooden legs.",
-          category: "Furniture & Decor",
-          condition: "new",
-          status: "active",
-          price: 16500,
-          images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"],
-          location: "Subhash Road",
-          contactName: "Royal Furniture House",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 190,
-        },
-        {
-          title: "Used Teak Wood King Size Bed with Storage",
-          slug: "used-teak-wood-king-size-bed-storage-p15",
-          description: "Heavy solid teak wood king size bed with hydraulic box storage and mattress included.",
-          category: "Furniture & Decor",
-          condition: "used",
-          status: "active",
-          price: 14000,
-          images: ["https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80"],
-          location: "Govindpuri",
-          contactName: "Sunil Verma",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 110,
-        },
-        {
-          title: "Refurbished Wooden Dining Table 4 Seater",
-          slug: "refurbished-wooden-dining-table-4-seater-p16",
-          description: "Refinished solid wood 4-seater dining table set with newly upholstered chairs.",
-          category: "Furniture & Decor",
-          condition: "refurbished",
-          status: "active",
-          price: 7900,
-          images: ["https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80"],
-          location: "Junction Road",
-          contactName: "Decor Studio Khurja",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 85,
-        },
-
-        // ── Household Appliances ──
-        {
-          title: "Refurbished IFB 6.5 Kg Front Load Washing Machine",
-          slug: "refurbished-ifb-6-5-kg-front-load-washing-machine-p17",
-          description: "Fully factory-refurbished IFB front load washing machine with 1-year warranty and new motor.",
-          category: "Household Appliances",
-          condition: "refurbished",
-          status: "active",
-          price: 10500,
-          images: ["https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=800&q=80"],
-          location: "GT Road",
-          contactName: "Refurb Appliance Hub",
-          contactPhone: "917906896546",
-          isFeatured: true,
-          views: 135,
-        },
-        {
-          title: "Brand New Bajaj Majesty Microwave Oven 20L",
-          slug: "brand-new-bajaj-majesty-microwave-oven-p18",
-          description: "20L Grill Microwave oven in sealed box with bill and 2-year warranty.",
-          category: "Household Appliances",
-          condition: "new",
-          status: "active",
-          price: 5400,
-          images: ["https://images.unsplash.com/photo-1585659722983-3a675dabf23d?auto=format&fit=crop&w=800&q=80"],
-          location: "Subhash Road",
-          contactName: "Khurja Appliance Store",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 88,
-        },
-        {
-          title: "Used Voltas 1.5 Ton 3 Star Split AC",
-          slug: "used-voltas-1-5-ton-3-star-split-ac-p19",
-          description: "Inverter split air conditioner in perfect cooling condition, copper condenser with remote.",
-          category: "Household Appliances",
-          condition: "used",
-          status: "active",
-          price: 13500,
-          images: ["https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80"],
-          location: "GT Road",
-          contactName: "Vikas Cooling Center",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 165,
-        },
-        {
-          title: "Refurbished Orient Electric Ceiling Fan Pack of 3",
-          slug: "refurbished-orient-electric-ceiling-fan-pack-of-3-p20",
-          description: "Refurbished high-speed Orient ceiling fans with new copper winding and 6 month warranty.",
-          category: "Household Appliances",
-          condition: "refurbished",
-          status: "active",
-          price: 2800,
-          images: ["https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80"],
-          location: "Mandi Road",
-          contactName: "Electric Care Khurja",
-          contactPhone: "917906896546",
-          isFeatured: false,
-          views: 70,
-        }
-      ];
+      const mockProducts = generate100Products();
 
       await Product.insertMany(mockProducts);
       console.log(`Database Seeded: Created ${mockProducts.length} mock bazaar products.`);

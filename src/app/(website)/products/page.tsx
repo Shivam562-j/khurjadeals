@@ -111,7 +111,7 @@ function ProductsList() {
       minPrice,
       maxPrice,
     ],
-    queryFn: async ({ pageParam }: { pageParam?: string | null }) => {
+    queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       const q = new URLSearchParams();
       if (debouncedSearch) q.set("search", debouncedSearch);
       if (selectedCategories.length > 0) q.set("category", selectedCategories.join(","));
@@ -119,15 +119,15 @@ function ProductsList() {
       if (locationInput) q.set("location", locationInput);
       if (minPrice) q.set("minPrice", minPrice);
       if (maxPrice) q.set("maxPrice", maxPrice);
-      if (pageParam) q.set("cursor", pageParam);
+      q.set("page", String(pageParam));
       q.set("limit", String(LIMIT));
 
       const res = await fetch(`/api/products?${q.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch products");
       return res.json();
     },
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
     staleTime: 1000 * 60 * 3, // 3 minutes cache stale time
   });
 

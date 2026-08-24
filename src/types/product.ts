@@ -39,5 +39,6 @@ export interface PaginatedProductResponse {
   limit: number;
   totalPages?: number;
   nextCursor?: string | null;
+  nextPage?: number | null;
   hasMore: boolean;
 }

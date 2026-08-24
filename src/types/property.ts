@@ -44,5 +44,6 @@ export interface PaginatedPropertyResponse {
   limit: number;
   totalPages?: number;
   nextCursor?: string | null;
+  nextPage?: number | null;
   hasMore: boolean;
 }

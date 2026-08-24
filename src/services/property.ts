@@ -55,12 +55,12 @@ export async function getProperties(filters: PropertyFilter = {}): Promise<Pagin
     query._id = { $lt: cursor };
   }
 
-  const skip = cursor ? 0 : (page - 1) * limit;
+  const skip = (page - 1) * limit;
   const fetchLimit = limit + 1; // Fetch 1 extra item to check if hasMore exists without countDocuments
 
   const propertiesRaw = await Property.find(query)
     .select("_id title slug price area areaUnit images type listingType location address features isFeatured views status createdAt")
-    .sort({ isFeatured: -1, _id: -1 })
+    .sort({ isFeatured: -1, createdAt: -1, _id: -1 })
     .skip(skip)
     .limit(fetchLimit)
     .lean();
@@ -68,11 +68,14 @@ export async function getProperties(filters: PropertyFilter = {}): Promise<Pagin
   const hasMore = propertiesRaw.length > limit;
   const properties = hasMore ? propertiesRaw.slice(0, limit) : propertiesRaw;
   const nextCursor = hasMore && properties.length > 0 ? (properties[properties.length - 1]._id as any).toString() : null;
+  const nextPage = hasMore ? page + 1 : null;
 
   return {
     properties: JSON.parse(JSON.stringify(properties)),
+    page,
     limit,
     nextCursor,
+    nextPage,
     hasMore,
   };
 }

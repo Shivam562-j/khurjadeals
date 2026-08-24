@@ -56,12 +56,12 @@ export async function getProducts(filters: ProductFilter = {}): Promise<Paginate
     query._id = { $lt: cursor };
   }
 
-  const skip = cursor ? 0 : (page - 1) * limit;
+  const skip = (page - 1) * limit;
   const fetchLimit = limit + 1; // Fetch 1 extra item to check if hasMore exists without countDocuments
 
   const productsRaw = await Product.find(query)
     .select("_id title slug price images category condition location isFeatured views status createdAt")
-    .sort({ isFeatured: -1, _id: -1 })
+    .sort({ isFeatured: -1, createdAt: -1, _id: -1 })
     .skip(skip)
     .limit(fetchLimit)
     .lean();
@@ -69,11 +69,14 @@ export async function getProducts(filters: ProductFilter = {}): Promise<Paginate
   const hasMore = productsRaw.length > limit;
   const products = hasMore ? productsRaw.slice(0, limit) : productsRaw;
   const nextCursor = hasMore && products.length > 0 ? (products[products.length - 1]._id as any).toString() : null;
+  const nextPage = hasMore ? page + 1 : null;
 
   return {
     products: JSON.parse(JSON.stringify(products)),
+    page,
     limit,
     nextCursor,
+    nextPage,
     hasMore,
   };
 }

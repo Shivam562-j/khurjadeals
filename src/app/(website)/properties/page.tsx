@@ -108,7 +108,7 @@ function PropertiesList() {
       minPrice,
       maxPrice,
     ],
-    queryFn: async ({ pageParam }: { pageParam?: string | null }) => {
+    queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       const q = new URLSearchParams();
       if (debouncedSearch) q.set("search", debouncedSearch);
       if (selectedTypes.length > 0) q.set("type", selectedTypes.join(","));
@@ -116,15 +116,15 @@ function PropertiesList() {
       if (locationInput) q.set("location", locationInput);
       if (minPrice) q.set("minPrice", minPrice);
       if (maxPrice) q.set("maxPrice", maxPrice);
-      if (pageParam) q.set("cursor", pageParam);
+      q.set("page", String(pageParam));
       q.set("limit", String(LIMIT));
 
       const res = await fetch(`/api/properties?${q.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch properties");
       return res.json();
     },
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
     staleTime: 1000 * 60 * 3, // 3 minutes cache stale time
   });
 
