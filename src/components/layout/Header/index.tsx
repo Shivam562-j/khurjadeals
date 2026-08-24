@@ -6,11 +6,44 @@ import { FaPhoneAlt, FaPlus, FaTimes, FaSun, FaMoon } from "react-icons/fa";
 import { SITE_CONFIG } from "@/constants/site";
 import { useTheme } from "@/hooks/useTheme";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const queryClient = useQueryClient();
+
+  // Instant preloading handlers for Properties and Products
+  const prefetchProperties = () => {
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ["properties", "", [], [], "", "", ""],
+      queryFn: async () => {
+        const res = await fetch("/api/properties?page=1&limit=15");
+        return res.json();
+      },
+      initialPageParam: 1,
+      staleTime: 1000 * 60 * 3,
+    });
+  };
+
+  const prefetchProducts = () => {
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ["products", "", [], [], "", "", ""],
+      queryFn: async () => {
+        const res = await fetch("/api/products?page=1&limit=15");
+        return res.json();
+      },
+      initialPageParam: 1,
+      staleTime: 1000 * 60 * 3,
+    });
+  };
+
+  const handleItemHover = (path: string) => {
+    if (path === "/properties") prefetchProperties();
+    if (path === "/products") prefetchProducts();
+  };
 
   // Close drawer on path change
   useEffect(() => {
@@ -86,6 +119,9 @@ export default function Header() {
                   key={item.name}
                   href={item.path}
                   className={isActive ? "active" : ""}
+                  onMouseEnter={() => handleItemHover(item.path)}
+                  onTouchStart={() => handleItemHover(item.path)}
+                  onFocus={() => handleItemHover(item.path)}
                 >
                   {item.name}
                 </Link>
@@ -161,6 +197,9 @@ export default function Header() {
           <Link
             key={item.name}
             href={item.path}
+            onMouseEnter={() => handleItemHover(item.path)}
+            onTouchStart={() => handleItemHover(item.path)}
+            onFocus={() => handleItemHover(item.path)}
             onClick={() => setIsOpen(false)}
           >
             {item.name}
