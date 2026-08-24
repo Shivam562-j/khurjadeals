@@ -30,7 +30,7 @@ export default function LoginPage() {
           router.push("/admin/dashboard");
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +62,7 @@ export default function LoginPage() {
   return (
     <div
       style={{
-        minHeight: "90vh",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
