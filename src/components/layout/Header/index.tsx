@@ -40,9 +40,21 @@ export default function Header() {
     });
   };
 
+  const prefetchReviews = () => {
+    queryClient.prefetchQuery({
+      queryKey: ["reviews"],
+      queryFn: async () => {
+        const res = await fetch("/api/reviews");
+        return res.json();
+      },
+      staleTime: 1000 * 60 * 3,
+    });
+  };
+
   const handleItemHover = (path: string) => {
     if (path === "/properties") prefetchProperties();
     if (path === "/products") prefetchProducts();
+    if (path === "/reviews") prefetchReviews();
   };
 
   // Close drawer on path change
