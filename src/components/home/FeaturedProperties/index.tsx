@@ -6,6 +6,8 @@ import { FaFire, FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icons
 import PropertyCard from "@/components/property/PropertyCard";
 import SwitchTabs from "@/components/common/SwitchTabs";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 interface FeaturedPropertiesProps {
   properties: Property[];
 }
@@ -15,6 +17,19 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
   const [activeTab, setActiveTab] = useState("All Listings");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const queryClient = useQueryClient();
+
+  const prefetchProperties = () => {
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ["properties", "", [], [], "", "", ""],
+      queryFn: async () => {
+        const res = await fetch("/api/properties?page=1&limit=15");
+        return res.json();
+      },
+      initialPageParam: 1,
+      staleTime: 1000 * 60 * 3,
+    });
+  };
 
   if (!properties?.length) return null;
 
@@ -79,7 +94,13 @@ export default function FeaturedProperties({ properties }: FeaturedPropertiesPro
             </div>
             <h2 className="h2" style={{ margin: 0, marginTop: 6 }}>Featured Properties</h2>
           </div>
-          <Link href="/properties" className="btn btn-outline sec-viewall-btn">
+          <Link
+            href="/properties"
+            className="btn btn-outline sec-viewall-btn"
+            onMouseEnter={prefetchProperties}
+            onTouchStart={prefetchProperties}
+            onFocus={prefetchProperties}
+          >
             <span>View All</span>
             <FaArrowRight style={{ fontSize: "0.7rem" }} />
           </Link>
