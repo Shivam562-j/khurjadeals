@@ -1,9 +1,9 @@
 import connectDB from "@/lib/mongodb";
 import Property, { IProperty } from "@/models/Property";
-import { PropertyFilter } from "@/types/property";
+import { PropertyFilter, PaginatedPropertyResponse } from "@/types/property";
 
-/** Get paginated and filtered properties */
-export async function getProperties(filters: PropertyFilter = {}) {
+/** Get paginated and filtered properties with cursor & lightweight DTO projection */
+export async function getProperties(filters: PropertyFilter = {}): Promise<PaginatedPropertyResponse> {
   await connectDB();
 
   const {
@@ -14,7 +14,8 @@ export async function getProperties(filters: PropertyFilter = {}) {
     location,
     search,
     page = 1,
-    limit = 12,
+    limit = 15,
+    cursor,
   } = filters;
 
   const query: any = { status: "active" };
@@ -49,23 +50,30 @@ export async function getProperties(filters: PropertyFilter = {}) {
     ];
   }
 
-  const skip = (page - 1) * limit;
+  // Cursor pagination filter
+  if (cursor) {
+    query._id = { $lt: cursor };
+  }
 
-  const [properties, total] = await Promise.all([
-    Property.find(query)
-      .sort({ isFeatured: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    Property.countDocuments(query),
-  ]);
+  const skip = cursor ? 0 : (page - 1) * limit;
+  const fetchLimit = limit + 1; // Fetch 1 extra item to check if hasMore exists without countDocuments
+
+  const propertiesRaw = await Property.find(query)
+    .select("_id title slug price area areaUnit images type listingType location address features isFeatured views status createdAt")
+    .sort({ isFeatured: -1, _id: -1 })
+    .skip(skip)
+    .limit(fetchLimit)
+    .lean();
+
+  const hasMore = propertiesRaw.length > limit;
+  const properties = hasMore ? propertiesRaw.slice(0, limit) : propertiesRaw;
+  const nextCursor = hasMore && properties.length > 0 ? (properties[properties.length - 1]._id as any).toString() : null;
 
   return {
     properties: JSON.parse(JSON.stringify(properties)),
-    total,
-    page,
     limit,
-    totalPages: Math.ceil(total / limit),
+    nextCursor,
+    hasMore,
   };
 }
 

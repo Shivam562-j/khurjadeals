@@ -14,7 +14,8 @@ export async function GET(request: Request) {
     const location = searchParams.get("location") || undefined;
     const search = searchParams.get("search") || undefined;
     const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
-    const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : 12;
+    const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : 15;
+    const cursor = searchParams.get("cursor") || undefined;
 
     const data = await getProperties({
       type: type as any,
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
       search,
       page,
       limit,
+      cursor,
     });
 
     return NextResponse.json(data);
