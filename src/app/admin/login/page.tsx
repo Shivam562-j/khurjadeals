@@ -187,7 +187,7 @@ export default function LoginPage() {
                 lineHeight: "1.4",
               }}
             >
-              <FaExclamationTriangle style={{ fontSize: "16px", marginTop: "2px", shrink: 0, color: "#ef4444" }} />
+              <FaExclamationTriangle style={{ fontSize: "16px", marginTop: "2px", flexShrink: 0, color: "#ef4444" }} />
               <div>{error}</div>
             </div>
           )}
