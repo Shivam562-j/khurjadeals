@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Property } from "@/types/property";
+import { Property, PaginatedPropertyResponse } from "@/types/property";
 import PropertyCard from "@/components/property/PropertyCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
@@ -39,7 +39,7 @@ const LISTING_TYPES = [
   { label: "For Lease", value: "lease" },
 ];
 
-function PropertiesList() {
+function PropertiesList({ initialData }: { initialData?: PaginatedPropertyResponse }) {
   const searchParams = useSearchParams();
 
   // Multi-select filters state (Arrays)
@@ -90,7 +90,7 @@ function PropertiesList() {
     setLocalMax(maxFromUrl);
   }, [searchParams]);
 
-  // TanStack Query useInfiniteQuery with cursor-based fetching
+  // TanStack Query useInfiniteQuery with initialData pre-hydrated from server
   const {
     data,
     fetchNextPage,
@@ -124,6 +124,13 @@ function PropertiesList() {
       return res.json();
     },
     initialPageParam: 1,
+    initialData:
+      initialData && !debouncedSearch && selectedTypes.length === 0 && selectedListings.length === 0 && !locationInput && !minPrice && !maxPrice
+        ? {
+            pages: [initialData],
+            pageParams: [1],
+          }
+        : undefined,
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
     staleTime: 1000 * 60 * 3, // 3 minutes cache stale time
   });
@@ -528,7 +535,7 @@ function PropertiesList() {
           )}
 
           {/* Initial Loading */}
-          {isLoading ? (
+          {isLoading && properties.length === 0 ? (
             <div className="py-16">
               <Loader size="lg" />
             </div>

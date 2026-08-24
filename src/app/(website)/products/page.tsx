@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Product } from "@/types/product";
+import { Product, PaginatedProductResponse } from "@/types/product";
 import ProductCard from "@/components/product/ProductCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
@@ -42,7 +42,7 @@ const CONDITION_OPTIONS = [
   { label: "Refurbished", value: "refurbished" },
 ];
 
-function ProductsList() {
+function ProductsList({ initialData }: { initialData?: PaginatedProductResponse }) {
   const searchParams = useSearchParams();
 
   // Multi-select filters state (Arrays)
@@ -93,7 +93,7 @@ function ProductsList() {
     setLocalMax(maxFromUrl);
   }, [searchParams]);
 
-  // TanStack Query useInfiniteQuery with cursor-based fetching
+  // TanStack Query useInfiniteQuery with initialData pre-hydrated from server
   const {
     data,
     fetchNextPage,
@@ -127,6 +127,13 @@ function ProductsList() {
       return res.json();
     },
     initialPageParam: 1,
+    initialData:
+      initialData && !debouncedSearch && selectedCategories.length === 0 && selectedConditions.length === 0 && !locationInput && !minPrice && !maxPrice
+        ? {
+            pages: [initialData],
+            pageParams: [1],
+          }
+        : undefined,
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
     staleTime: 1000 * 60 * 3, // 3 minutes cache stale time
   });
@@ -511,7 +518,7 @@ function ProductsList() {
           )}
 
           {/* Initial Loading */}
-          {isLoading ? (
+          {isLoading && products.length === 0 ? (
             <div className="py-16">
               <Loader size="lg" />
             </div>
