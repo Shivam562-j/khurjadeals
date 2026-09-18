@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@config "../../tailwind.config.js";
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
+@source "../../src/**/*.{js,ts,jsx,tsx,mdx}";
 
 :root {
   --bg-dark: #0a0a0a;
@@ -94,9 +96,6 @@ textarea {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
-  background: none;
-  border: none;
-  outline: none;
 }
 
 /* Typography Utility */
@@ -5356,4 +5355,4 @@ body,
   border-color: var(--primary);
   color: var(--primary);
   transform: rotate(15deg) scale(1.05);
-}
+}
