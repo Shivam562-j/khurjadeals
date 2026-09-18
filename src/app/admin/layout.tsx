@@ -1,5 +1,4 @@
 import React from "react";
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import Sidebar from "@/components/layout/Sidebar";
 
@@ -12,13 +11,11 @@ export default async function AdminLayout({
 }) {
   const session = await getSession();
 
-  // If no session exists, we don't block layout render for login route itself
-  // Note: we let login bypass the sidebar check by checking route inside page or redirecting here.
-  // Actually, we can just redirect if not on /admin/login
   return (
-    <div className="flex min-h-screen bg-neutral-950 text-white selection:bg-[var(--primary)] selection:text-white">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#0a0a0c] text-white selection:bg-[#E8590C] selection:text-white">
       {session && <Sidebar />}
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      <main className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">{children}</main>
     </div>
   );
 }
+

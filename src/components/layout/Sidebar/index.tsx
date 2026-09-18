@@ -14,6 +14,8 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaShieldAlt,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 import { AuthUser } from "@/types/user";
 
@@ -22,6 +24,7 @@ export default function Sidebar() {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     // Fetch logged in admin user
@@ -34,6 +37,11 @@ export default function Sidebar() {
       })
       .catch(() => {});
   }, []);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
@@ -72,21 +80,13 @@ export default function Sidebar() {
     });
   }
 
-  return (
-    <aside
-      className={`shrink-0 bg-[#121214] border-r border-neutral-800/80 flex flex-col min-h-screen text-neutral-400 transition-all duration-300 relative z-30 selection:bg-[#E8590C] selection:text-white ${
-        collapsed ? "w-20" : "w-64"
-      }`}
-    >
-      {/* ── Top Header / Brand Logo & Collapse Toggle ── */}
-      <div
-        className={`h-20 border-b border-neutral-800/80 flex items-center px-4 justify-between relative ${
-          collapsed ? "justify-center" : ""
-        }`}
-      >
+  const renderNavContent = (isMobile: boolean = false) => (
+    <>
+      {/* Brand Header */}
+      <div className="h-16 sm:h-20 border-b border-neutral-800/80 flex items-center px-4 justify-between relative shrink-0">
         <Link href="/admin/dashboard" className="flex items-center gap-3 group min-w-0">
           <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-base shadow-xl border border-white/10 shrink-0 transition-transform group-hover:scale-105"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center font-black text-white text-xs sm:text-base shadow-xl border border-white/10 shrink-0 transition-transform group-hover:scale-105"
             style={{
               background: "linear-gradient(135deg, #E8590C 0%, #f59e0b 100%)",
               boxShadow: "0 8px 20px rgba(232, 89, 12, 0.35)",
@@ -94,35 +94,48 @@ export default function Sidebar() {
           >
             KD
           </div>
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <div className="min-w-0">
-              <h2 className="font-black text-white text-base leading-tight tracking-tight truncate group-hover:text-[#E8590C] transition-colors">
+              <h2 className="font-black text-white text-sm sm:text-base leading-tight tracking-tight truncate group-hover:text-[#E8590C] transition-colors">
                 Khurja Deals
               </h2>
-              <div className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#E8590C] mt-0.5">
-                <FaShieldAlt className="text-[9px]" />
+              <div className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#E8590C] mt-0.5">
+                <FaShieldAlt className="text-[8px] sm:text-[9px]" />
                 <span>Admin Platform</span>
               </div>
             </div>
           )}
         </Link>
 
-        {/* Collapse / Expand Toggle Button */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-2 rounded-xl bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all cursor-pointer border border-neutral-700/50 shadow-sm"
-          title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-        >
-          {collapsed ? <FaChevronRight className="text-xs" /> : <FaChevronLeft className="text-xs" />}
-        </button>
+        {/* Desktop Collapse Toggle */}
+        {!isMobile && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 rounded-xl bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all cursor-pointer border border-neutral-700/50 shadow-sm"
+            title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {collapsed ? <FaChevronRight className="text-xs" /> : <FaChevronLeft className="text-xs" />}
+          </button>
+        )}
+
+        {/* Mobile Close Button */}
+        {isMobile && (
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="p-2 rounded-xl bg-neutral-800 text-neutral-300 hover:text-white transition-all border border-neutral-700/50"
+            aria-label="Close Mobile Menu"
+          >
+            <FaTimes className="text-sm" />
+          </button>
+        )}
       </div>
 
-      {/* ── User Profile Badge (Shown when expanded) ── */}
-      {!collapsed && user && (
-        <div className="mx-4 my-4 p-3 rounded-2xl bg-[#19191d] border border-neutral-800/80 flex items-center gap-3 shadow-md">
+      {/* User Profile Badge */}
+      {(!collapsed || isMobile) && user && (
+        <div className="mx-3 my-3 sm:mx-4 sm:my-4 p-3 rounded-2xl bg-[#19191d] border border-neutral-800/80 flex items-center gap-3 shadow-md shrink-0">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shrink-0 border border-white/10"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shrink-0 border border-white/10"
             style={{ background: "linear-gradient(135deg, #E8590C 0%, #f59e0b 100%)" }}
           >
             {user.name.charAt(0).toUpperCase()}
@@ -141,11 +154,11 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* ── Nav Links by Section ── */}
-      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto no-scrollbar">
+      {/* Navigation Section Links */}
+      <nav className="flex-1 px-3 py-3 space-y-4 overflow-y-auto no-scrollbar">
         {navSections.map((section, secIdx) => (
           <div key={secIdx} className="space-y-1.5">
-            {!collapsed && (
+            {(!collapsed || isMobile) && (
               <div className="px-3 text-[10px] font-black uppercase tracking-widest text-neutral-500">
                 {section.title}
               </div>
@@ -158,8 +171,9 @@ export default function Sidebar() {
                 <div key={item.href} className="relative group/tooltip">
                   <Link
                     href={item.href}
+                    onClick={() => isMobile && setMobileOpen(false)}
                     className={`flex items-center rounded-2xl text-xs sm:text-sm transition-all duration-200 ${
-                      collapsed
+                      collapsed && !isMobile
                         ? "justify-center p-3"
                         : "justify-between px-3.5 py-3 border-l-4"
                     } ${
@@ -170,7 +184,7 @@ export default function Sidebar() {
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 transition-all ${
+                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs sm:text-sm shrink-0 transition-all ${
                           isActive
                             ? "bg-[#E8590C] text-white shadow-md shadow-[#E8590C]/40"
                             : "bg-neutral-800/80 text-neutral-400 group-hover/tooltip:bg-neutral-800 group-hover/tooltip:text-[#E8590C] group-hover/tooltip:scale-105"
@@ -178,16 +192,18 @@ export default function Sidebar() {
                       >
                         {item.icon}
                       </div>
-                      {!collapsed && <span className="truncate tracking-wide">{item.label}</span>}
+                      {(!collapsed || isMobile) && (
+                        <span className="truncate tracking-wide">{item.label}</span>
+                      )}
                     </div>
 
-                    {!collapsed && isActive && (
+                    {(!collapsed || isMobile) && isActive && (
                       <FaChevronRight className="text-[10px] text-[#E8590C] shrink-0" />
                     )}
                   </Link>
 
-                  {/* Tooltip bubble when collapsed */}
-                  {collapsed && (
+                  {/* Tooltip bubble when collapsed on desktop */}
+                  {collapsed && !isMobile && (
                     <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-neutral-900 text-white text-xs font-bold rounded-xl shadow-2xl border border-neutral-700 opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50">
                       {item.label}
                     </div>
@@ -205,28 +221,84 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* ── Footer Branding & Logout ── */}
-      <div className="border-t border-neutral-800/80 p-3 space-y-2 bg-[#0f0f11]">
+      {/* Footer Branding & Logout */}
+      <div className="border-t border-neutral-800/80 p-3 space-y-2 bg-[#0f0f11] shrink-0">
         <button
           onClick={handleLogout}
           className={`w-full flex items-center gap-3 rounded-xl text-xs font-extrabold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all cursor-pointer ${
-            collapsed ? "justify-center p-2.5" : "px-3.5 py-2.5"
+            collapsed && !isMobile ? "justify-center p-2.5" : "px-3.5 py-2.5"
           }`}
           title="Log Out"
         >
           <div className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm shrink-0 border border-rose-500/30">
             <FaSignOutAlt />
           </div>
-          {!collapsed && <span>Log Out</span>}
+          {(!collapsed || isMobile) && <span>Log Out</span>}
         </button>
 
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
           <div className="pt-2 text-center text-[10px] text-neutral-500 font-bold border-t border-neutral-800/60">
             Powered by <strong className="text-neutral-400">Khurja Deals v2.0</strong>
           </div>
         )}
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* ── MOBILE HEADER (Visible on md:hidden) ── */}
+      <header className="md:hidden sticky top-0 z-40 w-full bg-[#121214]/95 backdrop-blur-md border-b border-neutral-800 px-4 py-3 flex items-center justify-between shadow-lg">
+        <Link href="/admin/dashboard" className="flex items-center gap-2.5 min-w-0">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-md border border-white/10 shrink-0"
+            style={{ background: "linear-gradient(135deg, #E8590C 0%, #f59e0b 100%)" }}
+          >
+            KD
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-black text-white text-sm leading-tight truncate">
+              Khurja Deals
+            </h2>
+            <span className="text-[9px] font-bold text-[#E8590C] block">Admin Dashboard</span>
+          </div>
+        </Link>
+
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="p-2 rounded-xl bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-700/50 cursor-pointer"
+          aria-label="Open Mobile Menu"
+        >
+          <FaBars className="text-base" />
+        </button>
+      </header>
+
+      {/* ── MOBILE DRAWER OVERLAY & SCULPTED SIDEBAR ── */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          {/* Backdrop Scrim */}
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileOpen(false)}
+          />
+
+          {/* Drawer Sidebar Content */}
+          <div className="relative w-72 max-w-[85vw] bg-[#121214] border-r border-neutral-800 flex flex-col h-full z-50 text-neutral-400 shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderNavContent(true)}
+          </div>
+        </div>
+      )}
+
+      {/* ── DESKTOP SIDEBAR (Visible on md:flex) ── */}
+      <aside
+        className={`hidden md:flex shrink-0 bg-[#121214] border-r border-neutral-800/80 flex-col min-h-screen text-neutral-400 transition-all duration-300 relative z-30 selection:bg-[#E8590C] selection:text-white ${
+          collapsed ? "w-20" : "w-64"
+        }`}
+      >
+        {renderNavContent(false)}
+      </aside>
+    </>
   );
 }
+
 
