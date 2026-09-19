@@ -112,7 +112,13 @@ const Header = memo(({ onToggleMobileMenu, mobileMenuOpen }: HeaderProps) => {
   const roleName = user?.role ? `${user.role} Admin` : "Super Admin Copy";
 
   return (
-    <div className="bg-[#fcfcfc] w-full flex justify-between py-2 px-6 sticky top-0 z-[999] border-b border-[#e5e9f0] select-none">
+    <div
+      className="bg-[#fcfcfc] w-full flex justify-between py-3 px-6 sticky top-0 z-[999] border-b border-[#e5e9f0]"
+      style={{
+        backgroundColor: "#fcfcfc",
+        borderBottom: "1px solid #e5e9f0",
+      }}
+    >
       <div className="flex items-center content-between justify-between w-full">
         {/* ── LEFT SIDE: BREADCRUMBS & MOBILE TOGGLE ── */}
         <div style={{ color: "black", display: "flex", alignItems: "center" }} className="gap-2 min-w-0">
