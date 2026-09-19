@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MdClose, MdCheck } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 
 export interface FilterFormData {
   status: string[];
@@ -25,27 +25,17 @@ interface CustomCheckBoxProps {
 
 function CustomCheckBox({ label, isChecked, onChange }: CustomCheckBoxProps) {
   return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        onChange();
-      }}
-      className="inline-flex items-center gap-2 cursor-pointer select-none group text-left"
-    >
-      <div
-        className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${
-          isChecked
-            ? "bg-[#008761] border-[#008761] text-white"
-            : "bg-white border-[#D8DDE7] group-hover:border-[#008761]"
-        }`}
-      >
-        {isChecked && <MdCheck className="text-xs stroke-[1.5]" />}
-      </div>
+    <label className="inline-flex items-center gap-2 cursor-pointer text-left">
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={onChange}
+        className="w-4 h-4 rounded border-gray-300 text-[#009E71] focus:ring-[#009E71] cursor-pointer accent-[#009E71]"
+      />
       <span className="text-[#252A34] text-xs font-medium leading-tight">
         {label}
       </span>
-    </button>
+    </label>
   );
 }
 
@@ -83,7 +73,7 @@ export default function Filter({
   };
 
   return (
-    <div className="flex flex-col w-[360px] sm:w-[420px] bg-[#FCFCFC] rounded-lg shadow-[0px_4px_32px_0px_rgba(14,17,24,0.12)] border border-[#E5E9F0] overflow-hidden select-none font-sans">
+    <div className="flex flex-col w-[360px] sm:w-[420px] bg-[#FCFCFC] rounded-lg shadow-[0px_4px_32px_0px_rgba(14,17,24,0.12)] border border-[#E5E9F0] overflow-hidden font-sans">
       {/* ── FILTER HEADER ── */}
       <div className="border-b border-[#E5E9F0] flex justify-between items-center w-full px-6 py-4 bg-[#FCFCFC]">
         <h4 className="text-[#252A34] text-sm font-semibold">Filter</h4>

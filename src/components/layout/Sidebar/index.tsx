@@ -151,7 +151,7 @@ export default function AppSidebar({
 
     return (
       <div
-        className="flex flex-col h-full bg-[#252A34] text-[#E5E9F0] select-none font-sans"
+        className="flex flex-col h-full bg-[#252A34] text-[#E5E9F0] font-sans"
         style={{
           width: isEffectivelyCollapsed ? "80px" : "260px",
           transition: "width 0.3s ease",

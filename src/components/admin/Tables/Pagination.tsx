@@ -49,7 +49,7 @@ export const TablePaginationActions = memo(
     if (count === 0) return null;
 
     return (
-      <div className="flex items-center justify-center gap-1.5 shrink-0 select-none">
+      <div className="flex items-center justify-center gap-1.5 shrink-0">
         {/* First Page */}
         <button
           type="button"
@@ -128,7 +128,7 @@ const Pagination = memo(
     const to = Math.min((page + 1) * rowsPerPage, dataLength);
 
     return (
-      <div className="w-full overflow-x-auto bg-[#FCFCFC] border-t border-[#E5E9F0] shrink-0 select-none">
+      <div className="w-full overflow-x-auto bg-[#FCFCFC] border-t border-[#E5E9F0] shrink-0">
         <div className="min-w-[640px] flex flex-row justify-between items-center px-6 py-3 text-nowrap gap-4">
           {/* Left: Showing X - Y out of Z */}
           <h4 className="text-[#252A34] text-sm font-medium">

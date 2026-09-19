@@ -371,7 +371,7 @@ export default function DashboardView({
       <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
         {/* TopHeader: Title: Inquiries List, Expandable Search, Filter Popover, Export CSV */}
         <TopHeader
-          title="Inquiries List"
+          title="Customer Queries List"
           searchText={searchQuery}
           setSearchText={setSearchQuery}
           handleSearchEnter={setSearchQuery}

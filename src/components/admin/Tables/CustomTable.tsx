@@ -131,7 +131,7 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
     typeof sortOrder === "boolean" ? sortOrder : sortOrder === "asc";
 
   return (
-    <div className="h-full w-full flex flex-col min-h-0 bg-white select-none">
+    <div className="h-full w-full flex flex-col min-h-0 bg-white">
       {/* Scrollable Container with sticky header */}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto w-full">
         <table className="w-full text-left border-collapse">

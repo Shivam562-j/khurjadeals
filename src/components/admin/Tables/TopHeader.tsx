@@ -71,7 +71,7 @@ export default function TopHeader({
   }, [searchInputOpen]);
 
   return (
-    <div className="w-full p-4 flex flex-row gap-4 items-center justify-between border-b border-[#E5E9F0] bg-[#FCFCFC] shrink-0 select-none font-sans">
+    <div className="w-full p-4 flex flex-row gap-4 items-center justify-between border-b border-[#E5E9F0] bg-[#FCFCFC] shrink-0 font-sans">
       {/* ── LEFT: TITLE ── */}
       <div className="justify-center text-[#252A34] text-sm font-semibold leading-5 tracking-tight font-sans">
         {title}
