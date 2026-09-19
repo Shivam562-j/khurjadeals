@@ -19,6 +19,8 @@ import {
   FaExternalLinkAlt,
 } from "react-icons/fa";
 import { AuthUser } from "@/types/user";
+import { toast } from "react-toastify";
+import Api from "@/api/endPoints";
 
 interface SidebarProps {
   mobileOpen?: boolean;
@@ -138,12 +140,18 @@ export default function AppSidebar({
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) {
-        router.push("/admin/login");
-        router.refresh();
+      await Api.logout();
+      toast.success("Logged out successfully.");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    } finally {
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        window.dispatchEvent(new Event("localStorageChanged"));
       }
-    } catch {}
+      router.push("/admin/login");
+      router.refresh();
+    }
   };
 
   const renderSidebarContent = (isMobile: boolean = false) => {

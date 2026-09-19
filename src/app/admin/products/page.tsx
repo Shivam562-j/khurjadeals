@@ -23,6 +23,7 @@ import {
   MdDeleteOutline,
   MdOpenInNew,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 // Filter configuration for Products matching Vecmocon filter drawer
 const productFilterSections: FilterSection[] = [
@@ -258,18 +259,42 @@ export default function ProductsManager() {
         method: "DELETE",
       });
       if (res.ok) {
+        toast.success("Product deleted successfully.");
         if (selectedProduct?._id === productToDelete._id) {
           setIsDrawerOpen(false);
           setSelectedProduct(null);
         }
         fetchProductsData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete product.");
       }
     } catch (err) {
       console.error("Failed to delete product:", err);
+      toast.error("Failed to delete product.");
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
       setProductToDelete(null);
+    }
+  };
+
+  // Bulk Delete handler
+  const handleBulkDeleteProducts = async () => {
+    if (!selectedRows.length) return;
+    const rowLength = selectedRows.length;
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          fetch(`/api/products/${id}`, { method: "DELETE" })
+        )
+      );
+      setSelectedRows([]);
+      toast.success(`${rowLength} asset profiles deleted successfully.`);
+      fetchProductsData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      toast.error("Failed to delete selected products.");
     }
   };
 
@@ -292,7 +317,7 @@ export default function ProductsManager() {
       const exportList: Product[] = data.products || products;
 
       if (!exportList.length) {
-        alert("No products to export.");
+        toast.warning("No products found to export.");
         return;
       }
       const headers = [
@@ -330,8 +355,10 @@ export default function ProductsManager() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success(`${exportList.length} products exported successfully.`);
     } catch (e) {
       console.error("Export error:", e);
+      toast.error("Failed to export products.");
     }
   };
 
@@ -543,6 +570,8 @@ export default function ProductsManager() {
           handleActionClick={handleNewProductClick}
           handleExportClick={handleExportCSV}
           exportTitle="Export Products (CSV)"
+          selectedCount={selectedRows.length}
+          handleBulkDelete={handleBulkDeleteProducts}
         />
 
         {/* Custom Table Component (Connected directly to backend-paginated data) */}

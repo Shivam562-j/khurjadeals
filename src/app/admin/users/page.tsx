@@ -23,6 +23,7 @@ import {
   MdOpenInNew,
   MdShield,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 // Filter configuration for Administrators
 const userFilterSections: FilterSection[] = [
@@ -203,21 +204,42 @@ export default function UsersManager() {
         method: "DELETE",
       });
       if (res.ok) {
+        toast.success("Administrator deleted successfully.");
         if (selectedUser?._id === userToDelete._id) {
           setIsDrawerOpen(false);
           setSelectedUser(null);
         }
         fetchUsersData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
       } else {
-        const err = await res.json();
-        alert(err.message || "Failed to delete user");
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete administrator.");
       }
     } catch (err) {
       console.error("Failed to delete user:", err);
+      toast.error("Failed to delete administrator.");
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
       setUserToDelete(null);
+    }
+  };
+
+  // Bulk Delete handler
+  const handleBulkDeleteUsers = async () => {
+    if (!selectedRows.length) return;
+    const rowLength = selectedRows.length;
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          fetch(`/api/users/${id}`, { method: "DELETE" })
+        )
+      );
+      setSelectedRows([]);
+      toast.success(`${rowLength} asset profiles deleted successfully.`);
+      fetchUsersData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      toast.error("Failed to delete selected administrators.");
     }
   };
 
@@ -238,7 +260,7 @@ export default function UsersManager() {
       const exportList: User[] = Array.isArray(data) ? data : data.users || users;
 
       if (!exportList.length) {
-        alert("No administrators to export.");
+        toast.warning("No administrators found to export.");
         return;
       }
       const headers = [
@@ -270,8 +292,10 @@ export default function UsersManager() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success(`${exportList.length} administrators exported successfully.`);
     } catch (e) {
       console.error("Export error:", e);
+      toast.error("Failed to export administrators.");
     }
   };
 
@@ -461,6 +485,8 @@ export default function UsersManager() {
           handleActionClick={handleNewUserClick}
           handleExportClick={handleExportCSV}
           exportTitle="Export Administrators (CSV)"
+          selectedCount={selectedRows.length}
+          handleBulkDelete={handleBulkDeleteUsers}
         />
 
         {/* Custom Table Component (Connected directly to backend-paginated data) */}

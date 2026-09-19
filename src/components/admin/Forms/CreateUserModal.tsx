@@ -11,6 +11,7 @@ import {
   MdShield,
   MdSecurity,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 export interface CreateUserModalProps {
   isOpen: boolean;
@@ -192,15 +193,20 @@ export default function CreateUserModal({
       });
 
       if (res.ok) {
+        toast.success(
+          editUser?._id
+            ? "Administrator updated successfully."
+            : "Administrator created successfully."
+        );
         onSuccess();
         onClose();
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to save user");
+        toast.error(err.message || "Failed to save administrator.");
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("Failed to submit administrator form.");
+      toast.error("Failed to submit administrator form.");
     }
     setIsSubmitting(false);
   };

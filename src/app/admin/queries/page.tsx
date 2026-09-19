@@ -25,6 +25,7 @@ import {
   MdHome,
   MdShoppingBag,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 // Filter configuration for Customer Queries
 const queryFilterSections: FilterSection[] = [
@@ -214,9 +215,13 @@ export default function QueriesManager() {
         if (selectedQuery?._id === id) {
           setSelectedQuery((prev) => (prev ? { ...prev, status: newStatus } : null));
         }
+        toast.success(`Inquiry status updated to ${newStatus}.`);
+      } else {
+        toast.error("Failed to update status.");
       }
     } catch (err) {
       console.error("Failed to update status:", err);
+      toast.error("Failed to update status.");
     }
   };
 
@@ -229,18 +234,42 @@ export default function QueriesManager() {
         method: "DELETE",
       });
       if (res.ok) {
+        toast.success("Inquiry deleted successfully.");
         if (selectedQuery?._id === queryToDelete._id) {
           setIsDrawerOpen(false);
           setSelectedQuery(null);
         }
         fetchQueriesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete inquiry.");
       }
     } catch (err) {
       console.error("Failed to delete query:", err);
+      toast.error("Failed to delete inquiry.");
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
       setQueryToDelete(null);
+    }
+  };
+
+  // Bulk Delete handler
+  const handleBulkDeleteQueries = async () => {
+    if (!selectedRows.length) return;
+    const rowLength = selectedRows.length;
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          fetch(`/api/queries/${id}`, { method: "DELETE" })
+        )
+      );
+      setSelectedRows([]);
+      toast.success(`${rowLength} asset profiles deleted successfully.`);
+      fetchQueriesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      toast.error("Failed to delete selected inquiries.");
     }
   };
 
@@ -261,7 +290,7 @@ export default function QueriesManager() {
       const exportList: Query[] = Array.isArray(data) ? data : data.queries || queries;
 
       if (!exportList.length) {
-        alert("No queries to export.");
+        toast.warning("No inquiries found to export.");
         return;
       }
       const headers = [
@@ -297,8 +326,10 @@ export default function QueriesManager() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success(`${exportList.length} inquiries exported successfully.`);
     } catch (e) {
       console.error("Export error:", e);
+      toast.error("Failed to export inquiries.");
     }
   };
 
@@ -519,6 +550,8 @@ export default function QueriesManager() {
           handleActionClick={handleNewQueryClick}
           handleExportClick={handleExportCSV}
           exportTitle="Export Queries (CSV)"
+          selectedCount={selectedRows.length}
+          handleBulkDelete={handleBulkDeleteQueries}
         />
 
         {/* Custom Table Component (Connected directly to backend-paginated data) */}

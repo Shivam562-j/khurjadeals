@@ -14,6 +14,7 @@ import {
   MdPhotoLibrary,
   MdTune,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 export interface CreateProductModalProps {
   isOpen: boolean;
@@ -293,15 +294,20 @@ export default function CreateProductModal({
       });
 
       if (res.ok) {
+        toast.success(
+          editProduct?._id
+            ? "Product updated successfully."
+            : "Product created successfully."
+        );
         onSuccess();
         onClose();
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to save product");
+        toast.error(err.message || "Failed to save product.");
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("Failed to submit product form.");
+      toast.error("Failed to submit product form.");
     }
     setIsSubmitting(false);
   };

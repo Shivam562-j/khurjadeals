@@ -24,6 +24,7 @@ import {
   MdOpenInNew,
   MdHome,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 // Filter configuration for Properties
 const propertyFilterSections: FilterSection[] = [
@@ -230,18 +231,42 @@ export default function PropertiesManager() {
         method: "DELETE",
       });
       if (res.ok) {
+        toast.success("Property deleted successfully.");
         if (selectedProperty?._id === propertyToDelete._id) {
           setIsDrawerOpen(false);
           setSelectedProperty(null);
         }
         fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete property.");
       }
     } catch (err) {
       console.error("Failed to delete property:", err);
+      toast.error("Failed to delete property.");
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
       setPropertyToDelete(null);
+    }
+  };
+
+  // Bulk Delete handler
+  const handleBulkDeleteProperties = async () => {
+    if (!selectedRows.length) return;
+    const rowLength = selectedRows.length;
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          fetch(`/api/properties/${id}`, { method: "DELETE" })
+        )
+      );
+      setSelectedRows([]);
+      toast.success(`${rowLength} asset profiles deleted successfully.`);
+      fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      toast.error("Failed to delete selected properties.");
     }
   };
 
@@ -264,7 +289,7 @@ export default function PropertiesManager() {
       const exportList: Property[] = data.properties || properties;
 
       if (!exportList.length) {
-        alert("No properties to export.");
+        toast.warning("No properties found to export.");
         return;
       }
       const headers = [
@@ -303,8 +328,10 @@ export default function PropertiesManager() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success(`${exportList.length} properties exported successfully.`);
     } catch (e) {
       console.error("Export error:", e);
+      toast.error("Failed to export properties.");
     }
   };
 
@@ -524,6 +551,8 @@ export default function PropertiesManager() {
           handleActionClick={handleNewPropertyClick}
           handleExportClick={handleExportCSV}
           exportTitle="Export Properties (CSV)"
+          selectedCount={selectedRows.length}
+          handleBulkDelete={handleBulkDeleteProperties}
         />
 
         {/* Custom Table Component (Connected directly to backend-paginated data) */}

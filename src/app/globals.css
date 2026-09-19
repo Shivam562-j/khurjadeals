@@ -1,6 +1,52 @@
+@import "react-toastify/dist/ReactToastify.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==========================================================================
+   REACT-TOASTIFY CUSTOM OVERRIDES FOR ADMIN PANEL
+   ========================================================================== */
+.Toastify__toast-container {
+  z-index: 99999999 !important;
+  pointer-events: none;
+}
+.Toastify__toast-container--top-center {
+  top: 14px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  max-width: 92vw !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+.Toastify__toast {
+  pointer-events: auto;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08) !important;
+  min-height: 46px !important;
+  min-width: 320px !important;
+  max-width: 520px !important;
+  margin-bottom: 8px !important;
+}
+.Toastify__toast-body {
+  margin: 0 !important;
+  padding: 4px 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  line-height: 1.4 !important;
+}
+.Toastify__toast-icon {
+  margin-inline-end: 0 !important;
+  margin-right: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  flex-shrink: 0 !important;
+}
 
 :root {
   --bg-dark: #0a0a0a;

@@ -12,6 +12,8 @@ import {
 } from "react-icons/md";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { AuthUser } from "@/types/user";
+import { toast } from "react-toastify";
+import Api from "@/api/endPoints";
 
 interface HeaderProps {
   onToggleMobileMenu?: () => void;
@@ -69,10 +71,15 @@ const Header = memo(({ onToggleMobileMenu, mobileMenuOpen }: HeaderProps) => {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await Api.logout();
+      toast.success("Logged out successfully.");
     } catch (error) {
       console.error("Error logging out:", error);
     } finally {
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        window.dispatchEvent(new Event("localStorageChanged"));
+      }
       handleClose();
       router.push("/admin/login");
       router.refresh();
@@ -171,19 +178,23 @@ const Header = memo(({ onToggleMobileMenu, mobileMenuOpen }: HeaderProps) => {
 
         {/* ── RIGHT SIDE: USER PROFILE TRIGGER & POPUP MENU ── */}
         <div className="flex flex-row gap-4 items-center relative" ref={dropdownRef}>
-          {/* Trigger matching provided code */}
           <div
             onClick={handleMenu}
-            className="flex flex-row items-center justify-center gap-2 p-1 hover:bg-slate-200 transition-all ease-in rounded cursor-pointer"
+            className="flex flex-row items-center justify-center gap-2 hover:bg-slate-200 transition-all ease-in rounded cursor-pointer"
           >
-            {/* Avatar circle with #fde9e7 background and #d51d10 text */}
             <div className="w-10 h-10 p-1 flex-shrink-0 bg-[#fde9e7] rounded-full flex items-center justify-center object-cover object-center overflow-hidden">
-              <span className="text-[#d51d10] text-xl font-semibold">
-                {initialLetter}
-              </span>
+              {user?.avatar || (user as any)?.imageUrl ? (
+                <img
+                  src={user?.avatar || (user as any)?.imageUrl}
+                  alt="User-Image"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="text-[#d51d10] text-xl font-semibold">
+                  {(user?.name || userName || "S").charAt(0)}
+                </span>
+              )}
             </div>
-
-            {/* Down arrow icon container */}
             <div className="p-1 w-6 h-6 flex items-center justify-center cursor-pointer rounded-[100%] hover:bg-slate-200 transition-all ease-in">
               <MdKeyboardArrowDown fontSize={20} className="text-[#717B8C]" />
             </div>
@@ -192,56 +203,58 @@ const Header = memo(({ onToggleMobileMenu, mobileMenuOpen }: HeaderProps) => {
           {/* ── POPUP MENU (Matching exact Menu styling, width: 250px) ── */}
           {anchorEl && (
             <div
+              id="menu-appbar"
+              aria-modal="true"
               className="absolute right-0 top-12 bg-white rounded-lg shadow-2xl border border-[#e5e9f0] py-2 z-[1000] animate-in fade-in duration-150"
               style={{ width: "250px" }}
             >
-              {/* Header inside popup */}
               <div className="p-4 w-full flex flex-row gap-4 items-center justify-start">
                 <div className="w-14 h-14 p-1 flex-shrink-0 bg-[#fde9e7] rounded-full flex items-center justify-center object-cover object-center overflow-hidden">
-                  <span className="text-[#d51d10] text-3xl font-semibold">
-                    {initialLetter}
-                  </span>
+                  {user?.avatar || (user as any)?.imageUrl ? (
+                    <img
+                      src={user?.avatar || (user as any)?.imageUrl}
+                      alt="User-Image"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="text-[#d51d10] text-3xl font-semibold">
+                      {(user?.name || userName || "S").charAt(0)}
+                    </span>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <div className="text-[#252a34] text-base font-medium leading-tight truncate">
-                    {userName || "shivam"}
+                <div>
+                  <div className="text-[#252a34] text-md font-medium leading-tight">
+                    {userName || user?.name || "Shivam"}
                   </div>
-                  <div className="text-[#555e6f] text-sm font-normal leading-none mt-1 truncate capitalize">
+                  <div className="text-[#555e6f] text-sm font-normal leading-none mt-1">
                     {roleName}
                   </div>
                 </div>
               </div>
-
               <hr className="border-[#e5e9f0]" />
-
-              {/* Settings Menu Item */}
               <li
                 onClick={() => {
                   handleClose();
                   router.push("/admin/users");
                 }}
-                className="text-[#252a34] text-sm font-normal leading-tight flex flex-row items-center justify-start px-4 py-2.5 cursor-pointer ease-in transition-all hover:text-[#252a34] hover:bg-[#f3f5f8] gap-2 list-none"
+                className="text-[#252a34] text-sm font-normal leading-tight flex flex-row items-center justify-start px-4 py-2 cursor-pointer ease-in transition-all hover:text-[#252a34] hover:bg-[#f3f5f8] gap-2 list-none"
               >
                 <MdOutlineSettings fontSize={18} className="text-[#555e6f]" />
                 <p> Settings </p>
               </li>
-
-              {/* Help Menu Item */}
               <li
                 onClick={() => {
                   handleClose();
                   router.push("/");
                 }}
-                className="text-[#252a34] text-sm font-normal leading-tight flex flex-row items-center justify-start px-4 py-2.5 cursor-pointer ease-in transition-all hover:text-[#252a34] hover:bg-[#f3f5f8] gap-2 list-none"
+                className="text-[#252a34] text-sm font-normal leading-tight flex flex-row items-center justify-start px-4 py-2 cursor-pointer ease-in transition-all hover:text-[#252a34] hover:bg-[#f3f5f8] gap-2 list-none"
               >
                 <MdHelpOutline fontSize={18} className="text-[#555e6f]" />
                 <p> Help </p>
               </li>
-
-              {/* Log out Menu Item (with #d51d10 color matching provided code) */}
               <li
                 onClick={handleLogout}
-                className="text-[#d51d10] text-sm font-normal leading-tight flex flex-row items-center justify-start px-4 py-2.5 cursor-pointer ease-in transition-all hover:text-[#d51d10] hover:bg-[#f3f5f8] gap-2 list-none"
+                className="text-[#d51d10] text-sm font-normal leading-tight flex flex-row items-center justify-start px-4 py-2 cursor-pointer ease-in transition-all hover:text-[#d51d10] hover:bg-[#f3f5f8] gap-2 list-none"
               >
                 <MdLogout fontSize={18} className="text-[#d51d10]" />
                 <p> Log out </p>

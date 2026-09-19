@@ -11,6 +11,7 @@ import {
   MdTune,
   MdOutlineMessage,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 export interface CreateQueryModalProps {
   isOpen: boolean;
@@ -193,15 +194,20 @@ export default function CreateQueryModal({
       });
 
       if (res.ok) {
+        toast.success(
+          editQuery?._id
+            ? "Inquiry updated successfully."
+            : "Inquiry created successfully."
+        );
         onSuccess();
         onClose();
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to save enquiry");
+        toast.error(err.message || "Failed to save inquiry.");
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("Failed to submit enquiry form.");
+      toast.error("Failed to submit inquiry form.");
     }
     setIsSubmitting(false);
   };

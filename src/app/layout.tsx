@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 
 export const metadata: Metadata = {
   title: "KhurjaDeals — Khurja's Local Marketplace",
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import QueryProvider from "@/components/providers/QueryProvider";
+import { AdminToaster } from "@/utils/toast";
 
 export default function RootLayout({
   children,
@@ -59,6 +61,7 @@ export default function RootLayout({
         <QueryProvider>
           {children}
         </QueryProvider>
+        <AdminToaster />
       </body>
     </html>
   );

@@ -14,6 +14,7 @@ import {
   MdPhotoLibrary,
   MdTune,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 
 export interface CreatePropertyModalProps {
   isOpen: boolean;
@@ -350,15 +351,20 @@ export default function CreatePropertyModal({
       });
 
       if (res.ok) {
+        toast.success(
+          editProperty?._id
+            ? "Property updated successfully."
+            : "Property created successfully."
+        );
         onSuccess();
         onClose();
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to save property");
+        toast.error(err.message || "Failed to save property.");
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("Failed to submit property form.");
+      toast.error("Failed to submit property form.");
     }
     setIsSubmitting(false);
   };

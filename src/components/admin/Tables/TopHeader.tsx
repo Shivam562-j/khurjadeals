@@ -8,6 +8,7 @@ import {
   MdSearch,
   MdClose,
   MdAdd,
+  MdDeleteOutline,
 } from "react-icons/md";
 import Filter, { FilterFormData, FilterSection } from "./Filter";
 import CustomSearch from "./CustomSearch";
@@ -34,6 +35,8 @@ export interface TopHeaderProps {
   exportTitle?: string;
   showFilter?: boolean;
   refetch?: () => void;
+  selectedCount?: number;
+  handleBulkDelete?: () => void;
 }
 
 export default function TopHeader({
@@ -57,6 +60,8 @@ export default function TopHeader({
   exportTitle = "Export (CSV)",
   showFilter = true,
   refetch,
+  selectedCount = 0,
+  handleBulkDelete,
 }: TopHeaderProps) {
   const [searchInputOpen, setSearchInputOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -215,6 +220,19 @@ export default function TopHeader({
               />
             )}
           </div>
+        )}
+
+        {/* 2.5 BULK DELETE BUTTON (Shown when table rows are selected) */}
+        {selectedCount > 0 && handleBulkDelete && (
+          <button
+            type="button"
+            onClick={handleBulkDelete}
+            title={`Delete ${selectedCount} selected items`}
+            className="h-10 px-3 py-2 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 bg-[#FDE9E7] hover:bg-[#FCD8D4] text-[#D51D10] border border-[#FAD4D0]"
+          >
+            <MdDeleteOutline className="text-base shrink-0 text-[#D51D10]" />
+            <span>Delete Selected ({selectedCount})</span>
+          </button>
         )}
 
         {/* 3. PRIMARY ACTION BUTTON (e.g. New Property, matching user screenshot) */}

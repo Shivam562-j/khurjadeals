@@ -14,10 +14,12 @@ export interface User {
 }
 
 export interface AuthUser {
-  id:    string;
-  name:  string;
+  id: string;
+  name: string;
   email: string;
-  role:  UserRole;
+  role: UserRole;
+  avatar?: string;
+  imageUrl?: string;
 }
 
 export interface UserFilter {

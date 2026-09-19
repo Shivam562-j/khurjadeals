@@ -22,6 +22,7 @@ import {
   FilterFormData,
   FilterSection,
 } from "./Tables";
+import { toast } from "react-toastify";
 import {
   initialSearchState,
   searchActions,
@@ -227,9 +228,13 @@ export default function DashboardView({
         if (selectedQuery?._id === id) {
           setSelectedQuery((prev) => (prev ? { ...prev, status: newStatus } : null));
         }
+        toast.success(`Inquiry status updated to ${newStatus}.`);
+      } else {
+        toast.error("Failed to update status.");
       }
     } catch (err) {
       console.error("Failed to update status:", err);
+      toast.error("Failed to update status.");
     }
   };
 
@@ -242,14 +247,19 @@ export default function DashboardView({
         method: "DELETE",
       });
       if (res.ok) {
+        toast.success("Inquiry deleted successfully.");
         if (selectedQuery?._id === queryToDelete._id) {
           setIsDrawerOpen(false);
           setSelectedQuery(null);
         }
         fetchQueriesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete query.");
       }
     } catch (err) {
       console.error("Failed to delete query:", err);
+      toast.error("Failed to delete query.");
     } finally {
       setIsDeleting(false);
       setDeleteOpen(false);
@@ -274,7 +284,7 @@ export default function DashboardView({
       const exportList: Query[] = Array.isArray(data) ? data : data.queries || queries;
 
       if (!exportList.length) {
-        alert("No inquiries to export.");
+        toast.warning("No inquiries found to export.");
         return;
       }
       const headers = [
@@ -289,7 +299,7 @@ export default function DashboardView({
       const rows = exportList.map((q) => [
         `"${(q.name || "").replace(/"/g, '""')}"`,
         `"${q.phone || ""}"`,
-        `"${q.email || ""}"`,
+        `"${(q.email || "").replace(/"/g, '""')}"`,
         `"${q.type || ""}"`,
         `"${q.status || ""}"`,
         `"${(q.message || "").replace(/"/g, '""')}"`,
@@ -309,8 +319,10 @@ export default function DashboardView({
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      toast.success(`${exportList.length} inquiries exported successfully.`);
     } catch (e) {
       console.error("Export error:", e);
+      toast.error("Failed to export inquiries.");
     }
   };
 
