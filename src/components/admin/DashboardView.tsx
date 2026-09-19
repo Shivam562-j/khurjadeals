@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   FaHome,
@@ -9,11 +9,8 @@ import {
   FaUserShield,
   FaPhoneAlt,
   FaWhatsapp,
-  FaSearch,
-  FaFilter,
-  FaDownload,
 } from "react-icons/fa";
-import { Table, TopHeader, TableColumn } from "./Tables";
+import { Table, TopHeader, TableColumn, FilterFormData } from "./Tables";
 
 interface QueryItem {
   _id: string;
@@ -45,29 +42,64 @@ export default function DashboardView({
   recentQueries,
 }: DashboardViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [filterFormData, setFilterFormData] = useState<FilterFormData>({
+    status: [],
+    type: [],
+  });
   const [page, setPage] = useState(0); // 0-indexed for table
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<boolean>(false); // false = desc (newest first)
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  // Filter queries based on search query and status filter
+  // Automatically reset page to first page when search or filters change
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery, filterFormData]);
+
+  // Count active filters
+  const filterCount =
+    (filterFormData.status?.length || 0) + (filterFormData.type?.length || 0);
+
+  // Filter queries based on search query, status array, and type array
   const filteredQueries = useMemo(() => {
     return recentQueries.filter((q) => {
+      const qSearch = searchQuery.trim().toLowerCase();
       const matchesSearch =
-        searchQuery === "" ||
-        q.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        q.phone.includes(searchQuery) ||
-        (q.email && q.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        q.message.toLowerCase().includes(searchQuery.toLowerCase());
+        qSearch === "" ||
+        (q.name && q.name.toLowerCase().includes(qSearch)) ||
+        (q.phone && q.phone.includes(qSearch)) ||
+        (q.email && q.email.toLowerCase().includes(qSearch)) ||
+        (q.message && q.message.toLowerCase().includes(qSearch));
 
-      const matchesStatus =
-        selectedStatus === "all" || q.status === selectedStatus;
+      // Status matching: handle "pending"/"offline", "resolved"/"online", "contacted", "closed"
+      let matchesStatus = true;
+      if (filterFormData.status && filterFormData.status.length > 0) {
+        const itemStatus = String(q.status || "").toLowerCase();
+        matchesStatus = filterFormData.status.some((selected) => {
+          const sel = selected.toLowerCase();
+          if (sel === "pending" || sel === "offline") {
+            return itemStatus === "pending" || itemStatus === "offline";
+          }
+          if (sel === "resolved" || sel === "online") {
+            return itemStatus === "resolved" || itemStatus === "online";
+          }
+          return itemStatus === sel;
+        });
+      }
 
-      return matchesSearch && matchesStatus;
+      // Type matching: "property", "product", "general"
+      let matchesType = true;
+      if (filterFormData.type && filterFormData.type.length > 0) {
+        const itemType = String(q.type || "").toLowerCase();
+        matchesType = filterFormData.type.some(
+          (selected) => selected.toLowerCase() === itemType
+        );
+      }
+
+      return matchesSearch && matchesStatus && matchesType;
     });
-  }, [recentQueries, searchQuery, selectedStatus]);
+  }, [recentQueries, searchQuery, filterFormData]);
 
   // Sort queries based on sortBy and sortOrder
   const sortedQueries = useMemo(() => {
@@ -97,24 +129,64 @@ export default function DashboardView({
     )}`;
   };
 
-  // Define Columns for CustomTable matching user design & requirement
+  // CSV Export Function
+  const handleExportCSV = () => {
+    if (!filteredQueries.length) {
+      alert("No inquiries to export.");
+      return;
+    }
+    const headers = [
+      "Customer Name",
+      "Phone",
+      "Email",
+      "Type",
+      "Status",
+      "Message",
+      "Created At",
+    ];
+    const rows = filteredQueries.map((q) => [
+      `"${(q.name || "").replace(/"/g, '""')}"`,
+      `"${q.phone || ""}"`,
+      `"${q.email || ""}"`,
+      `"${q.type || ""}"`,
+      `"${q.status || ""}"`,
+      `"${(q.message || "").replace(/"/g, '""')}"`,
+      `"${q.createdAt || ""}"`,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `inquiries_list_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Define Columns for CustomTable
   const columns: TableColumn<QueryItem>[] = [
     {
       id: "name",
-      label: "Asset / Customer Name",
+      label: "Customer Name",
       key1: "name",
       isSortable: true,
-      minWidth: "220px",
+      minWidth: "200px",
       render: (item) => (
         <span className="font-bold text-gray-900">{item.name}</span>
       ),
     },
     {
       id: "phone",
-      label: "VIM / Phone",
+      label: "Phone",
       key1: "phone",
       isSortable: true,
-      minWidth: "150px",
+      minWidth: "140px",
       render: (item) => (
         <span className="font-mono text-gray-600 font-medium tracking-wide">
           {item.phone}
@@ -126,7 +198,7 @@ export default function DashboardView({
       label: "Type",
       key1: "type",
       isSortable: true,
-      minWidth: "120px",
+      minWidth: "110px",
       render: (item) => (
         <span className="capitalize font-semibold text-gray-700">
           {item.type}
@@ -135,9 +207,9 @@ export default function DashboardView({
     },
     {
       id: "message",
-      label: "Message / Organization",
+      label: "Message",
       key1: "message",
-      minWidth: "280px",
+      minWidth: "260px",
       render: (item) => (
         <span
           className="text-gray-600 block max-w-sm truncate"
@@ -297,34 +369,22 @@ export default function DashboardView({
 
       {/* ── 2. MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
       <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
-        {/* TopHeader with title, expandable search, filter popover with count, action button, alert button */}
+        {/* TopHeader: Title: Inquiries List, Expandable Search, Filter Popover, Export CSV */}
         <TopHeader
-          title="Select Asset from List"
+          title="Inquiries List"
           searchText={searchQuery}
-          setSearchText={(val) => {
-            setSearchQuery(val);
-            setPage(0);
+          setSearchText={setSearchQuery}
+          handleSearchEnter={setSearchQuery}
+          filterFormData={filterFormData}
+          handleFilterFormDataChange={(key, value) => {
+            setFilterFormData((prev) => ({
+              ...prev,
+              [key]: value,
+            }));
           }}
-          handleSearchEnter={(val) => {
-            setSearchQuery(val);
-            setPage(0);
-          }}
-          selectedStatus={selectedStatus}
-          onStatusChange={(status) => {
-            setSelectedStatus(status);
-            setPage(0);
-          }}
-          filterCount={selectedStatus !== "all" ? 1 : 0}
-          statusOptions={[
-            { label: "All Status", value: "all" },
-            { label: "Offline / Pending", value: "pending" },
-            { label: "Contacted", value: "contacted" },
-            { label: "Online / Resolved", value: "resolved" },
-            { label: "Closed", value: "closed" },
-          ]}
-          actionButtonText="New Asset"
-          handleActionClick={() => alert("New Asset action clicked.")}
-          handleAlertRepeat={() => alert("Notification alerts checked.")}
+          setFilterFormData={setFilterFormData}
+          filterCount={filterCount}
+          handleExportClick={handleExportCSV}
         />
 
         {/* Custom Table Component */}

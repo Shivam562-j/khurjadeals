@@ -4,57 +4,39 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   MdFilterList,
   MdKeyboardArrowDown,
-  MdAdd,
-  MdNotificationsNone,
+  MdFileDownload,
   MdSearch,
   MdClose,
 } from "react-icons/md";
+import Filter, { FilterFormData } from "./Filter";
 
 export interface TopHeaderProps {
   title?: string;
   searchText?: string;
   setSearchText?: (text: string) => void;
   handleSearchEnter?: (text: string) => void;
+  filterFormData?: FilterFormData;
+  handleFilterFormDataChange?: (key: string, value: string[]) => void;
+  setFilterFormData?: React.Dispatch<React.SetStateAction<FilterFormData>>;
   filterCount?: number;
-  selectedStatus?: string;
-  onStatusChange?: (status: string) => void;
-  statusOptions?: { label: string; value: string }[];
-  actionButtonText?: string;
-  handleActionClick?: () => void;
-  handleAlertRepeat?: () => void;
+  handleExportClick?: () => void;
 }
 
-export const iconButtonStyles = {
-  width: "40px",
-  height: "40px",
-  borderRadius: "100px",
-  backgroundColor: "#FCFCFC",
-  color: "#555E6F",
-  border: "1px solid #D8DDE7",
-};
-
 export default function TopHeader({
-  title = "Select Asset from List",
+  title = "Inquiries List",
   searchText = "",
   setSearchText,
   handleSearchEnter,
+  filterFormData = { status: [], type: [] },
+  handleFilterFormDataChange = () => {},
+  setFilterFormData = () => {},
   filterCount = 0,
-  selectedStatus = "all",
-  onStatusChange,
-  statusOptions = [
-    { label: "All Status", value: "all" },
-    { label: "Offline / Pending", value: "pending" },
-    { label: "Contacted", value: "contacted" },
-    { label: "Online / Resolved", value: "resolved" },
-    { label: "Closed", value: "closed" },
-  ],
-  actionButtonText = "New Entry",
-  handleActionClick,
-  handleAlertRepeat,
+  handleExportClick,
 }: TopHeaderProps) {
   const [searchInputOpen, setSearchInputOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Close filter popover on outside click
@@ -66,14 +48,20 @@ export default function TopHeader({
       ) {
         setFilterOpen(false);
       }
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        if (!searchText) {
+          setSearchInputOpen(false);
+        }
+      }
     }
-    if (filterOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [filterOpen]);
+  }, [searchText]);
 
   // Focus search input when opened
   useEffect(() => {
@@ -83,17 +71,20 @@ export default function TopHeader({
   }, [searchInputOpen]);
 
   return (
-    <div className="w-full p-4 flex flex-row gap-4 items-center justify-between border-b border-[#E5E9F0] bg-[#FCFCFC] shrink-0 select-none">
+    <div className="w-full p-4 flex flex-row gap-4 items-center justify-between border-b border-[#E5E9F0] bg-[#FCFCFC] shrink-0 select-none font-sans">
       {/* ── LEFT: TITLE ── */}
-      <div className="justify-center text-[#252A34] text-sm font-semibold font-['Inter'] leading-5 tracking-tight">
+      <div className="justify-center text-[#252A34] text-sm font-semibold leading-5 tracking-tight font-sans">
         {title}
       </div>
 
       {/* ── RIGHT: ACTIONS ── */}
       <div className="flex items-center gap-3 ml-auto">
-        {/* 1. SEARCH: Expandable Search Input / Icon Button */}
+        {/* 1. SEARCH: Expandable Search Input / Icon Button with Single Close Button */}
         {searchInputOpen ? (
-          <div className="relative flex items-center bg-[#F3F5F8] border border-[#D8DDE7] rounded-md px-2.5 py-1.5 transition-all w-48 sm:w-64">
+          <div
+            ref={searchContainerRef}
+            className="relative flex items-center bg-[#F3F5F8] border border-[#D8DDE7] rounded-md px-2.5 py-1.5 transition-all w-52 sm:w-64"
+          >
             <MdSearch className="text-[#555E6F] text-lg mr-2 shrink-0" />
             <input
               ref={searchInputRef}
@@ -105,28 +96,30 @@ export default function TopHeader({
                 if (e.key === "Enter" && handleSearchEnter) {
                   handleSearchEnter(searchText);
                 }
+                if (e.key === "Escape") {
+                  if (searchText) {
+                    setSearchText && setSearchText("");
+                  } else {
+                    setSearchInputOpen(false);
+                  }
+                }
               }}
               className="w-full bg-transparent text-xs text-[#252A34] font-medium outline-none placeholder-[#949CAC]"
             />
-            {searchText && (
-              <button
-                type="button"
-                onClick={() => setSearchText && setSearchText("")}
-                className="text-[#949CAC] hover:text-[#555E6F] mr-1 p-0.5 cursor-pointer"
-              >
-                <MdClose className="text-sm" />
-              </button>
-            )}
+            {/* Single clean close/clear button (NO duplicate 'x' icons!) */}
             <button
               type="button"
               onClick={() => {
-                setSearchInputOpen(false);
-                if (!searchText && setSearchText) setSearchText("");
+                if (searchText) {
+                  setSearchText && setSearchText("");
+                } else {
+                  setSearchInputOpen(false);
+                }
               }}
-              title="Close search"
-              className="text-[#555E6F] hover:bg-[#E5E9F0] rounded p-0.5 transition-colors cursor-pointer"
+              title={searchText ? "Clear search" : "Close search"}
+              className="w-5 h-5 rounded-full flex items-center justify-center text-[#555E6F] hover:bg-[#E5E9F0] transition-colors cursor-pointer shrink-0 ml-1"
             >
-              <MdClose className="text-base" />
+              <MdClose className="text-xs" />
             </button>
           </div>
         ) : (
@@ -140,80 +133,52 @@ export default function TopHeader({
           </button>
         )}
 
-        {/* 2. FILTER: CustomButton with Badge + Popover */}
+        {/* 2. FILTER: CustomButton with Badge + Rich Filter Popover */}
         <div className="relative" ref={filterRef}>
           <button
             type="button"
             onClick={() => setFilterOpen((prev) => !prev)}
-            className="h-10 px-3 py-2 bg-[#F3F5F8] hover:bg-[#E5E9F0] text-[#252A34] border border-[#D8DDE7] rounded text-xs font-semibold font-['Inter'] flex items-center gap-2 transition-colors cursor-pointer"
+            className="h-10 px-3 py-2 bg-[#F3F5F8] hover:bg-[#E5E9F0] text-[#252A34] border border-[#D8DDE7] rounded text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
             style={{ minWidth: filterCount === 0 ? "110px" : "140px" }}
           >
             <MdFilterList className="text-base text-[#555E6F]" />
             <span>Filter</span>
             <div className="flex justify-end items-center gap-1.5 ml-auto">
               {filterCount > 0 && (
-                <span className="text-[10px] px-1.5 py-0.2 font-bold rounded-full bg-[#D51D10] text-[#FCFCFC]">
+                <span className="text-[10px] px-1.5 py-0.5 font-bold rounded-full bg-[#D51D10] text-[#FCFCFC]">
                   {filterCount}
                 </span>
               )}
               <MdKeyboardArrowDown
-                className={`text-base text-[#555E6F] transition-transform ${
+                className={`text-base text-[#555E6F] transition-transform duration-200 ${
                   filterOpen ? "rotate-180" : ""
                 }`}
               />
             </div>
           </button>
 
-          {/* Filter Popover */}
+          {/* Filter Popover matching user specification */}
           {filterOpen && (
-            <div className="absolute right-0 top-12 z-50 w-56 bg-[#FCFCFC] rounded-md shadow-[0px_4px_32px_0px_rgba(14,17,24,0.12)] border border-[#E5E9F0] p-2 flex flex-col space-y-1">
-              <div className="px-3 py-1.5 text-[11px] font-bold text-[#555E6F] uppercase tracking-wider border-b border-[#E5E9F0]">
-                Filter by Status
-              </div>
-              {statusOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    onStatusChange && onStatusChange(opt.value);
-                    setFilterOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 text-xs font-medium rounded transition-colors flex items-center justify-between cursor-pointer ${
-                    selectedStatus === opt.value
-                      ? "bg-[#E5E9F0] text-[#009E71] font-bold"
-                      : "text-[#252A34] hover:bg-[#F3F5F8]"
-                  }`}
-                >
-                  <span>{opt.label}</span>
-                  {selectedStatus === opt.value && (
-                    <span className="w-2 h-2 rounded-full bg-[#009E71]" />
-                  )}
-                </button>
-              ))}
+            <div className="absolute right-0 top-12 z-50">
+              <Filter
+                handleCloseFilter={() => setFilterOpen(false)}
+                filterFormData={filterFormData}
+                handleFilterFormDataChange={handleFilterFormDataChange}
+                setFilterFormData={setFilterFormData}
+                filterCount={filterCount}
+              />
             </div>
           )}
         </div>
 
-        {/* 3. PRIMARY ACTION BUTTON: CustomButton */}
-        {actionButtonText && (
-          <button
-            type="button"
-            onClick={handleActionClick}
-            className="h-10 px-3.5 py-2 bg-[#F3F5F8] hover:bg-[#E5E9F0] text-[#252A34] border border-[#D8DDE7] rounded text-xs font-semibold font-['Inter'] flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <MdAdd className="text-base text-[#555E6F]" />
-            <span>{actionButtonText}</span>
-          </button>
-        )}
-
-        {/* 4. NOTIFICATION / ALERT ICON BUTTON */}
+        {/* 3. EXPORT BUTTON (CSV Download) */}
         <button
           type="button"
-          onClick={handleAlertRepeat}
-          title="Notifications"
+          onClick={handleExportClick}
+          title="Export Inquiries (CSV)"
           className="w-10 h-10 rounded-full bg-[#FCFCFC] hover:bg-[#E5E9F0] border border-[#D8DDE7] text-[#555E6F] active:text-[#008761] flex items-center justify-center transition-colors cursor-pointer"
         >
-          <MdNotificationsNone className="text-xl" />
+          <MdFileDownload className="text-xl" />
         </button>
       </div>
     </div>
