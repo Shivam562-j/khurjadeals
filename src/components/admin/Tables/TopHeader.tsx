@@ -7,8 +7,9 @@ import {
   MdFileDownload,
   MdSearch,
   MdClose,
+  MdAdd,
 } from "react-icons/md";
-import Filter, { FilterFormData } from "./Filter";
+import Filter, { FilterFormData, FilterSection } from "./Filter";
 
 export interface TopHeaderProps {
   title?: string;
@@ -19,7 +20,13 @@ export interface TopHeaderProps {
   handleFilterFormDataChange?: (key: string, value: string[]) => void;
   setFilterFormData?: React.Dispatch<React.SetStateAction<FilterFormData>>;
   filterCount?: number;
+  filterSections?: FilterSection[];
+  actionButtonText?: string;
+  actionButtonColor?: "green" | "gray";
+  handleActionClick?: () => void;
   handleExportClick?: () => void;
+  exportTitle?: string;
+  showFilter?: boolean;
 }
 
 export default function TopHeader({
@@ -27,11 +34,17 @@ export default function TopHeader({
   searchText = "",
   setSearchText,
   handleSearchEnter,
-  filterFormData = { status: [], type: [] },
+  filterFormData = {},
   handleFilterFormDataChange = () => {},
   setFilterFormData = () => {},
   filterCount = 0,
+  filterSections,
+  actionButtonText,
+  actionButtonColor = "green",
+  handleActionClick,
   handleExportClick,
+  exportTitle = "Export (CSV)",
+  showFilter = true,
 }: TopHeaderProps) {
   const [searchInputOpen, setSearchInputOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -134,52 +147,73 @@ export default function TopHeader({
         )}
 
         {/* 2. FILTER: CustomButton with Badge + Rich Filter Popover */}
-        <div className="relative" ref={filterRef}>
+        {showFilter && (
+          <div className="relative" ref={filterRef}>
+            <button
+              type="button"
+              onClick={() => setFilterOpen((prev) => !prev)}
+              className="h-10 px-3 py-2 bg-[#F3F5F8] hover:bg-[#E5E9F0] text-[#252A34] border border-[#D8DDE7] rounded text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
+              style={{ minWidth: filterCount === 0 ? "110px" : "140px" }}
+            >
+              <MdFilterList className="text-base text-[#555E6F]" />
+              <span>Filter</span>
+              <div className="flex justify-end items-center gap-1.5 ml-auto">
+                {filterCount > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 font-bold rounded-full bg-[#D51D10] text-[#FCFCFC]">
+                    {filterCount}
+                  </span>
+                )}
+                <MdKeyboardArrowDown
+                  className={`text-base text-[#555E6F] transition-transform duration-200 ${
+                    filterOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+            </button>
+
+            {/* Filter Popover matching user specification */}
+            {filterOpen && (
+              <div className="absolute right-0 top-12 z-50">
+                <Filter
+                  handleCloseFilter={() => setFilterOpen(false)}
+                  filterFormData={filterFormData}
+                  handleFilterFormDataChange={handleFilterFormDataChange}
+                  setFilterFormData={setFilterFormData}
+                  filterCount={filterCount}
+                  sections={filterSections}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 3. PRIMARY ACTION BUTTON (e.g. New Property, matching user screenshot) */}
+        {actionButtonText && (
           <button
             type="button"
-            onClick={() => setFilterOpen((prev) => !prev)}
-            className="h-10 px-3 py-2 bg-[#F3F5F8] hover:bg-[#E5E9F0] text-[#252A34] border border-[#D8DDE7] rounded text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
-            style={{ minWidth: filterCount === 0 ? "110px" : "140px" }}
+            onClick={handleActionClick}
+            className={`h-10 px-3.5 sm:px-4 py-2 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap shrink-0 ${
+              actionButtonColor === "green"
+                ? "bg-[#008761] hover:bg-[#006C4D] text-white border border-[#008761]"
+                : "bg-[#F3F5F8] hover:bg-[#E5E9F0] text-[#252A34] border border-[#D8DDE7]"
+            }`}
           >
-            <MdFilterList className="text-base text-[#555E6F]" />
-            <span>Filter</span>
-            <div className="flex justify-end items-center gap-1.5 ml-auto">
-              {filterCount > 0 && (
-                <span className="text-[10px] px-1.5 py-0.5 font-bold rounded-full bg-[#D51D10] text-[#FCFCFC]">
-                  {filterCount}
-                </span>
-              )}
-              <MdKeyboardArrowDown
-                className={`text-base text-[#555E6F] transition-transform duration-200 ${
-                  filterOpen ? "rotate-180" : ""
-                }`}
-              />
-            </div>
+            <MdAdd className="text-base shrink-0" />
+            <span>{actionButtonText.replace(/^\+\s*/, "")}</span>
           </button>
+        )}
 
-          {/* Filter Popover matching user specification */}
-          {filterOpen && (
-            <div className="absolute right-0 top-12 z-50">
-              <Filter
-                handleCloseFilter={() => setFilterOpen(false)}
-                filterFormData={filterFormData}
-                handleFilterFormDataChange={handleFilterFormDataChange}
-                setFilterFormData={setFilterFormData}
-                filterCount={filterCount}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* 3. EXPORT BUTTON (CSV Download) */}
-        <button
-          type="button"
-          onClick={handleExportClick}
-          title="Export Inquiries (CSV)"
-          className="w-10 h-10 rounded-full bg-[#FCFCFC] hover:bg-[#E5E9F0] border border-[#D8DDE7] text-[#555E6F] active:text-[#008761] flex items-center justify-center transition-colors cursor-pointer"
-        >
-          <MdFileDownload className="text-xl" />
-        </button>
+        {/* 4. EXPORT BUTTON (CSV Download) */}
+        {handleExportClick && (
+          <button
+            type="button"
+            onClick={handleExportClick}
+            title={exportTitle}
+            className="w-10 h-10 rounded-full bg-[#FCFCFC] hover:bg-[#E5E9F0] border border-[#D8DDE7] text-[#555E6F] active:text-[#008761] flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <MdFileDownload className="text-xl" />
+          </button>
+        )}
       </div>
     </div>
   );

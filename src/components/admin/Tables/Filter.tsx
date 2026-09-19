@@ -4,9 +4,19 @@ import React from "react";
 import { MdClose } from "react-icons/md";
 
 export interface FilterFormData {
-  status: string[];
-  type: string[];
-  [key: string]: any;
+  [key: string]: string[];
+}
+
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+
+export interface FilterSection {
+  id: string;
+  title: string;
+  options: FilterOption[];
+  gridCols?: number;
 }
 
 export interface FilterProps {
@@ -15,6 +25,7 @@ export interface FilterProps {
   handleFilterFormDataChange: (key: string, value: string[]) => void;
   setFilterFormData: React.Dispatch<React.SetStateAction<FilterFormData>>;
   filterCount: number;
+  sections?: FilterSection[];
 }
 
 interface CustomCheckBoxProps {
@@ -39,37 +50,52 @@ function CustomCheckBox({ label, isChecked, onChange }: CustomCheckBoxProps) {
   );
 }
 
+const defaultSections: FilterSection[] = [
+  {
+    id: "status",
+    title: "Status",
+    gridCols: 2,
+    options: [
+      { label: "Offline / Pending", value: "pending" },
+      { label: "Contacted", value: "contacted" },
+      { label: "Online / Resolved", value: "resolved" },
+      { label: "Closed", value: "closed" },
+    ],
+  },
+  {
+    id: "type",
+    title: "Inquiry / Asset Type",
+    gridCols: 3,
+    options: [
+      { label: "Property", value: "property" },
+      { label: "Product", value: "product" },
+      { label: "General", value: "general" },
+    ],
+  },
+];
+
 export default function Filter({
   handleCloseFilter = () => {},
-  filterFormData = { status: [], type: [] },
+  filterFormData = {},
   handleFilterFormDataChange = () => {},
   setFilterFormData,
   filterCount = 0,
+  sections = defaultSections,
 }: FilterProps) {
   // Clear all filters
   const handleClearAllFilter = () => {
-    handleFilterFormDataChange("status", []);
-    handleFilterFormDataChange("type", []);
-    setFilterFormData({
-      status: [],
-      type: [],
+    sections.forEach((sec) => {
+      handleFilterFormDataChange(sec.id, []);
     });
+    setFilterFormData({});
   };
 
-  const toggleStatus = (val: string) => {
-    const current = filterFormData?.status || [];
+  const toggleOption = (sectionId: string, val: string) => {
+    const current = filterFormData?.[sectionId] || [];
     const updated = current.includes(val)
       ? current.filter((item) => item !== val)
       : [...current, val];
-    handleFilterFormDataChange("status", updated);
-  };
-
-  const toggleType = (val: string) => {
-    const current = filterFormData?.type || [];
-    const updated = current.includes(val)
-      ? current.filter((item) => item !== val)
-      : [...current, val];
-    handleFilterFormDataChange("type", updated);
+    handleFilterFormDataChange(sectionId, updated);
   };
 
   return (
@@ -99,83 +125,52 @@ export default function Filter({
 
       {/* ── FILTER BODY ── */}
       <div className="p-6 flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
-        {/* 1. STATUS SECTION */}
-        <div className="flex flex-col gap-2.5">
-          <div className="flex justify-between items-center gap-1">
-            <p className="text-[#252A34] text-xs font-semibold uppercase tracking-wider">
-              Status
-            </p>
-            {(filterFormData?.status || []).length > 0 && (
-              <span
-                className="cursor-pointer text-[#006C4D] text-xs font-medium hover:underline transition-all"
-                onClick={() => handleFilterFormDataChange("status", [])}
-              >
-                Clear
-              </span>
-            )}
-          </div>
+        {sections.map((section, idx) => {
+          const selectedVals = filterFormData?.[section.id] || [];
+          const gridColsClass =
+            section.gridCols === 3
+              ? "grid-cols-3"
+              : section.gridCols === 1
+              ? "grid-cols-1"
+              : "grid-cols-2";
 
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <CustomCheckBox
-              label="Offline / Pending"
-              isChecked={(filterFormData?.status || []).includes("pending")}
-              onChange={() => toggleStatus("pending")}
-            />
-            <CustomCheckBox
-              label="Contacted"
-              isChecked={(filterFormData?.status || []).includes("contacted")}
-              onChange={() => toggleStatus("contacted")}
-            />
-            <CustomCheckBox
-              label="Online / Resolved"
-              isChecked={(filterFormData?.status || []).includes("resolved")}
-              onChange={() => toggleStatus("resolved")}
-            />
-            <CustomCheckBox
-              label="Closed"
-              isChecked={(filterFormData?.status || []).includes("closed")}
-              onChange={() => toggleStatus("closed")}
-            />
-          </div>
-        </div>
+          return (
+            <React.Fragment key={section.id}>
+              {idx > 0 && (
+                <div className="w-full border-t border-[#E5E9F0]"></div>
+              )}
 
-        {/* Divider */}
-        <div className="w-full border-t border-[#E5E9F0]"></div>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex justify-between items-center gap-1">
+                  <p className="text-[#252A34] text-xs font-semibold uppercase tracking-wider">
+                    {section.title}
+                  </p>
+                  {selectedVals.length > 0 && (
+                    <span
+                      className="cursor-pointer text-[#006C4D] text-xs font-medium hover:underline transition-all"
+                      onClick={() =>
+                        handleFilterFormDataChange(section.id, [])
+                      }
+                    >
+                      Clear
+                    </span>
+                  )}
+                </div>
 
-        {/* 2. INQUIRY / ASSET TYPE SECTION */}
-        <div className="flex flex-col gap-2.5">
-          <div className="flex justify-between items-center gap-1">
-            <p className="text-[#252A34] text-xs font-semibold uppercase tracking-wider">
-              Inquiry / Asset Type
-            </p>
-            {(filterFormData?.type || []).length > 0 && (
-              <span
-                className="cursor-pointer text-[#006C4D] text-xs font-medium hover:underline transition-all"
-                onClick={() => handleFilterFormDataChange("type", [])}
-              >
-                Clear
-              </span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 pt-1">
-            <CustomCheckBox
-              label="Property"
-              isChecked={(filterFormData?.type || []).includes("property")}
-              onChange={() => toggleType("property")}
-            />
-            <CustomCheckBox
-              label="Product"
-              isChecked={(filterFormData?.type || []).includes("product")}
-              onChange={() => toggleType("product")}
-            />
-            <CustomCheckBox
-              label="General"
-              isChecked={(filterFormData?.type || []).includes("general")}
-              onChange={() => toggleType("general")}
-            />
-          </div>
-        </div>
+                <div className={`grid ${gridColsClass} gap-3 pt-1`}>
+                  {section.options.map((opt) => (
+                    <CustomCheckBox
+                      key={opt.value}
+                      label={opt.label}
+                      isChecked={selectedVals.includes(opt.value)}
+                      onChange={() => toggleOption(section.id, opt.value)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );

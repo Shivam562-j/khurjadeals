@@ -1,24 +1,86 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Property } from "@/types/property";
+import {
+  Table,
+  TopHeader,
+  TableColumn,
+  FilterFormData,
+  FilterSection,
+} from "@/components/admin/Tables";
+import {
+  MdEdit,
+  MdDeleteOutline,
+  MdOpenInNew,
+  MdHome,
+} from "react-icons/md";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import TextArea from "@/components/common/TextArea";
 import Select from "@/components/common/Select";
 import Modal from "@/components/common/Modal";
-import Loader from "@/components/common/Loader";
+
+// Filter configuration for Properties
+const propertyFilterSections: FilterSection[] = [
+  {
+    id: "status",
+    title: "Status",
+    gridCols: 2,
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Sold", value: "sold" },
+      { label: "Rented", value: "rented" },
+      { label: "Inactive", value: "inactive" },
+    ],
+  },
+  {
+    id: "type",
+    title: "Property Type",
+    gridCols: 2,
+    options: [
+      { label: "Residential", value: "residential" },
+      { label: "Commercial", value: "commercial" },
+      { label: "Plot", value: "plot" },
+      { label: "Agricultural", value: "agricultural" },
+    ],
+  },
+  {
+    id: "listingType",
+    title: "Purpose",
+    gridCols: 3,
+    options: [
+      { label: "Sell", value: "sell" },
+      { label: "Rent", value: "rent" },
+      { label: "Lease", value: "lease" },
+    ],
+  },
+];
 
 export default function PropertiesManager() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shouldOpenAdd = searchParams.get("add") === "true";
 
-  // State
+  // Data State
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterFormData, setFilterFormData] = useState<FilterFormData>({});
+
+  // Pagination & Sorting State
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<boolean>(false); // false = desc
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form Fields State
@@ -39,15 +101,18 @@ export default function PropertiesManager() {
   const [images, setImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Fetch properties from backend
   const fetchProperties = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/properties?limit=100"); // fetch all for list
+      const res = await fetch("/api/properties?limit=200");
       if (res.ok) {
         const data = await res.json();
         setProperties(data.properties || []);
       }
-    } catch {}
+    } catch (err) {
+      console.error("Failed to fetch properties:", err);
+    }
     setIsLoading(false);
   };
 
@@ -79,6 +144,70 @@ export default function PropertiesManager() {
     }
   }, [shouldOpenAdd, searchParams]);
 
+  // Reset page when search or filters change
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery, filterFormData]);
+
+  // Count active filters
+  const filterCount = Object.values(filterFormData).reduce(
+    (acc, arr) => acc + (arr?.length || 0),
+    0
+  );
+
+  // Filter properties
+  const filteredProperties = useMemo(() => {
+    return properties.filter((prop) => {
+      const q = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        q === "" ||
+        (prop.title && prop.title.toLowerCase().includes(q)) ||
+        (prop.location && prop.location.toLowerCase().includes(q)) ||
+        (prop.contactName && prop.contactName.toLowerCase().includes(q)) ||
+        (prop.contactPhone && prop.contactPhone.includes(q));
+
+      const matchesStatus =
+        !filterFormData.status ||
+        filterFormData.status.length === 0 ||
+        filterFormData.status.includes(prop.status);
+
+      const matchesType =
+        !filterFormData.type ||
+        filterFormData.type.length === 0 ||
+        filterFormData.type.includes(prop.type);
+
+      const matchesListingType =
+        !filterFormData.listingType ||
+        filterFormData.listingType.length === 0 ||
+        filterFormData.listingType.includes(prop.listingType);
+
+      return (
+        matchesSearch && matchesStatus && matchesType && matchesListingType
+      );
+    });
+  }, [properties, searchQuery, filterFormData]);
+
+  // Sort properties
+  const sortedProperties = useMemo(() => {
+    return [...filteredProperties].sort((a, b) => {
+      let valA = (a as any)[sortBy] ?? "";
+      let valB = (b as any)[sortBy] ?? "";
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+      if (valA < valB) return sortOrder ? -1 : 1;
+      if (valA > valB) return sortOrder ? 1 : -1;
+      return 0;
+    });
+  }, [filteredProperties, sortBy, sortOrder]);
+
+  // Paginated properties
+  const totalItems = sortedProperties.length;
+  const paginatedProperties = useMemo(() => {
+    const start = page * rowsPerPage;
+    return sortedProperties.slice(start, start + rowsPerPage);
+  }, [sortedProperties, page, rowsPerPage]);
+
+  // Open modal for Adding
   const handleOpenAdd = () => {
     setEditingId(null);
     setTitle("");
@@ -99,6 +228,7 @@ export default function PropertiesManager() {
     setIsModalOpen(true);
   };
 
+  // Open modal for Editing
   const handleOpenEdit = (prop: Property) => {
     setEditingId(prop._id);
     setTitle(prop.title);
@@ -119,17 +249,24 @@ export default function PropertiesManager() {
     setIsModalOpen(true);
   };
 
+  // Delete property
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this property?")) return;
+    if (!window.confirm("Are you sure you want to delete this property?"))
+      return;
     try {
       const res = await fetch(`/api/properties/${id}`, { method: "DELETE" });
       if (res.ok) {
         setProperties(properties.filter((p) => p._id !== id));
       }
-    } catch {}
+    } catch (err) {
+      console.error("Failed to delete property:", err);
+    }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Image Upload
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -163,6 +300,7 @@ export default function PropertiesManager() {
     setImages(images.filter((img) => img !== url));
   };
 
+  // Form Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitLoading(true);
@@ -181,12 +319,17 @@ export default function PropertiesManager() {
       contactName,
       contactPhone,
       isFeatured,
-      features: features.split(",").map((f) => f.trim()).filter(Boolean),
+      features: features
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean),
       images,
     };
 
     try {
-      const url = editingId ? `/api/properties/${editingId}` : "/api/properties";
+      const url = editingId
+        ? `/api/properties/${editingId}`
+        : "/api/properties";
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -198,7 +341,6 @@ export default function PropertiesManager() {
       if (res.ok) {
         setIsModalOpen(false);
         fetchProperties();
-        // remove URL query parameter if present
         if (shouldOpenAdd) {
           router.push("/admin/properties");
         }
@@ -206,10 +348,231 @@ export default function PropertiesManager() {
         const err = await res.json();
         alert(err.message || "Failed to save property");
       }
-    } catch {}
+    } catch (err) {
+      console.error("Save error:", err);
+    }
     setIsSubmitLoading(false);
   };
 
+  // CSV Export
+  const handleExportCSV = () => {
+    if (!filteredProperties.length) {
+      alert("No properties to export.");
+      return;
+    }
+    const headers = [
+      "Title",
+      "Type",
+      "Purpose",
+      "Price",
+      "Area",
+      "Location",
+      "Contact Name",
+      "Contact Phone",
+      "Status",
+    ];
+    const rows = filteredProperties.map((p) => [
+      `"${(p.title || "").replace(/"/g, '""')}"`,
+      `"${p.type || ""}"`,
+      `"${p.listingType || ""}"`,
+      `"${p.price || 0}"`,
+      `"${p.area || ""} ${p.areaUnit || ""}"`,
+      `"${(p.location || "").replace(/"/g, '""')}"`,
+      `"${(p.contactName || "").replace(/"/g, '""')}"`,
+      `"${p.contactPhone || ""}"`,
+      `"${p.status || ""}"`,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `properties_list_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Table Columns Definition matching user screenshot
+  const columns: TableColumn<Property>[] = [
+    {
+      id: "title",
+      label: "Name",
+      key1: "title",
+      isSortable: true,
+      minWidth: "220px",
+      render: (item) => (
+        <div className="truncate py-0.5">
+          <span
+            className="font-semibold text-gray-900 block truncate"
+            title={item.title}
+          >
+            {item.title}
+          </span>
+          {item.location && (
+            <span className="text-[11px] text-gray-500 block truncate">
+              {item.location}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "type",
+      label: "Type",
+      key1: "type",
+      isSortable: true,
+      minWidth: "120px",
+      render: (item) => (
+        <span className="capitalize font-medium text-gray-700">
+          {item.type}
+        </span>
+      ),
+    },
+    {
+      id: "listingType",
+      label: "Purpose",
+      key1: "listingType",
+      isSortable: true,
+      minWidth: "100px",
+      render: (item) => (
+        <span className="capitalize font-semibold text-gray-800">
+          {item.listingType}
+        </span>
+      ),
+    },
+    {
+      id: "price",
+      label: "Price",
+      key1: "price",
+      isSortable: true,
+      minWidth: "130px",
+      render: (item) => (
+        <span className="font-bold text-[#008761]">
+          ₹{Number(item.price).toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      id: "area",
+      label: "Area",
+      key1: "area",
+      isSortable: true,
+      minWidth: "120px",
+      render: (item) => (
+        <span className="text-gray-600 font-medium">
+          {item.area} {item.areaUnit}
+        </span>
+      ),
+    },
+    {
+      id: "contactName",
+      label: "Contact",
+      key1: "contactName",
+      minWidth: "150px",
+      render: (item) => (
+        <div className="truncate text-xs">
+          <span className="font-medium text-gray-800 block truncate">
+            {item.contactName || "—"}
+          </span>
+          <span className="text-gray-500 font-mono text-[11px]">
+            {item.contactPhone || ""}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "status",
+      label: "Status",
+      key1: "status",
+      isSortable: true,
+      minWidth: "110px",
+      render: (item) => {
+        const s = String(item.status || "").toLowerCase();
+        if (s === "active") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+              Active
+            </span>
+          );
+        }
+        if (s === "sold") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FDE9E7] text-[#D51D10]">
+              Sold
+            </span>
+          );
+        }
+        if (s === "rented") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E5EBFD] text-[#1249ED]">
+              Rented
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+            {item.status || "Inactive"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "action",
+      label: "Actions",
+      key1: "_id",
+      type: "action",
+      minWidth: "130px",
+      render: (item) => (
+        <div className="flex items-center justify-end gap-1">
+          {/* View Details / Open Link */}
+          <a
+            href={`/property/${item._id}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-gray-900 transition-colors"
+            title="View Property Page"
+          >
+            <MdOpenInNew className="text-base" />
+          </a>
+
+          {/* Edit Action (matching screenshot pencil) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenEdit(item);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            title="Edit Property"
+          >
+            <MdEdit className="text-base" />
+          </button>
+
+          {/* Delete Action */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(item._id);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            title="Delete Property"
+          >
+            <MdDeleteOutline className="text-base" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  // Options for Add/Edit Form
   const typeOptions = [
     { label: "Residential", value: "residential" },
     { label: "Commercial", value: "commercial" },
@@ -237,96 +600,80 @@ export default function PropertiesManager() {
     { label: "Bigha", value: "bigha" },
   ];
 
+  // Empty text based on whether database is empty or search/filter returned 0 results
+  const emptyText =
+    properties.length === 0
+      ? "No properties found. Click '+ New Property' to create your first listing!"
+      : "No properties or type found.";
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">Properties</h1>
-          <p className="text-sm text-neutral-450">
-            Create, update, or remove real estate listings.
-          </p>
-        </div>
-        <Button onClick={handleOpenAdd} size="sm">
-          Add Property
-        </Button>
+    <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
+      {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
+      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
+        {/* TopHeader with title: Property List, search, filters, green 'New Property' button, and CSV Export */}
+        <TopHeader
+          title="Property List"
+          searchText={searchQuery}
+          setSearchText={setSearchQuery}
+          handleSearchEnter={setSearchQuery}
+          filterFormData={filterFormData}
+          handleFilterFormDataChange={(key, value) => {
+            setFilterFormData((prev) => ({
+              ...prev,
+              [key]: value,
+            }));
+          }}
+          setFilterFormData={setFilterFormData}
+          filterCount={filterCount}
+          filterSections={propertyFilterSections}
+          actionButtonText="New Property"
+          actionButtonColor="green"
+          handleActionClick={handleOpenAdd}
+          handleExportClick={handleExportCSV}
+          exportTitle="Export Properties (CSV)"
+        />
+
+        {/* Custom Table Component */}
+        <Table
+          columns={columns}
+          tableData={paginatedProperties}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          totalCount={totalItems}
+          handleChangePage={(newPage) => setPage(newPage)}
+          handleChangeRowsPerPage={(newRows) => {
+            setRowsPerPage(newRows);
+            setPage(0);
+          }}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          setSortBy={setSortBy}
+          setSortOrder={setSortOrder}
+          isCheckBox={true}
+          isSno={false}
+          selectedRows={selectedRows}
+          handleRowSelect={(id) => {
+            setSelectedRows((prev) =>
+              prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
+            );
+          }}
+          handleSelectAllClick={() => {
+            if (selectedRows.length === paginatedProperties.length) {
+              setSelectedRows([]);
+            } else {
+              setSelectedRows(paginatedProperties.map((p) => p._id));
+            }
+          }}
+          loading={isLoading}
+          emptyText={emptyText}
+        />
       </div>
 
-      {isLoading ? (
-        <Loader size="lg" />
-      ) : properties.length === 0 ? (
-        <div className="text-center p-12 bg-neutral-900 border border-neutral-850 rounded-2xl">
-          <p className="text-neutral-400">No properties found. Add your first listing!</p>
-        </div>
-      ) : (
-        <div className="bg-neutral-900 border border-neutral-850 rounded-2xl overflow-hidden shadow">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-neutral-300">
-              <thead>
-                <tr className="border-b border-neutral-850 bg-neutral-950/20 text-xs text-neutral-500 uppercase font-bold tracking-wider">
-                  <th className="py-4 px-6">Property</th>
-                  <th className="py-4 px-6">Type / Purpose</th>
-                  <th className="py-4 px-6">Price</th>
-                  <th className="py-4 px-6">Area</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-850/50">
-                {properties.map((prop) => (
-                  <tr key={prop._id} className="hover:bg-neutral-950/10">
-                    <td className="py-4 px-6 font-semibold text-white">
-                      <div>{prop.title}</div>
-                      <span className="text-xs text-neutral-500 font-normal">
-                        📍 {prop.location}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 capitalize">
-                      {prop.type} · <span className="font-semibold text-xs">{prop.listingType}</span>
-                    </td>
-                    <td className="py-4 px-6 font-bold text-[var(--primary)]">
-                      ₹{prop.price.toLocaleString("en-IN")}
-                    </td>
-                    <td className="py-4 px-6">
-                      {prop.area} {prop.areaUnit}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
-                        prop.status === "active"
-                          ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                          : prop.status === "sold" || prop.status === "rented"
-                          ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                          : "bg-neutral-800 text-neutral-400"
-                      }`}>
-                        {prop.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-right space-x-2">
-                      <button
-                        onClick={() => handleOpenEdit(prop)}
-                        className="text-xs font-semibold text-neutral-400 hover:text-white px-2 py-1 rounded bg-neutral-850 hover:bg-neutral-800 transition cursor-pointer"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(prop._id)}
-                        className="text-xs font-semibold text-red-500 hover:text-red-400 px-2 py-1 rounded bg-red-950/10 hover:bg-red-950/30 border border-red-900/10 transition cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Add/Edit Modal */}
+      {/* ── ADD / EDIT PROPERTY MODAL ── */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingId ? "Edit Property" : "Add Property"}
+        title={editingId ? "Edit Property" : "Add New Property"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -439,7 +786,7 @@ export default function PropertiesManager() {
 
           {/* Image Upload field */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-350 block">
+            <label className="text-sm font-medium text-gray-700 block">
               Images ({images.length} uploaded)
             </label>
             <input
@@ -448,20 +795,31 @@ export default function PropertiesManager() {
               accept="image/*"
               onChange={handleImageUpload}
               disabled={isUploading}
-              className="w-full text-xs text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neutral-800 file:text-white hover:file:bg-neutral-700 cursor-pointer"
+              className="w-full text-xs text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#E5E9F0] file:text-[#252A34] hover:file:bg-[#D8DDE7] cursor-pointer"
             />
-            {isUploading && <p className="text-xs text-[var(--primary)] animate-pulse">Uploading images to Cloudinary...</p>}
+            {isUploading && (
+              <p className="text-xs text-[#008761] animate-pulse">
+                Uploading images to Cloudinary...
+              </p>
+            )}
 
             {/* Uploaded previews */}
             {images.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-2">
                 {images.map((img, idx) => (
-                  <div key={idx} className="relative w-16 h-12 rounded overflow-hidden bg-neutral-950 border border-neutral-800">
-                    <img src={img} className="w-full h-full object-cover" />
+                  <div
+                    key={idx}
+                    className="relative w-16 h-12 rounded overflow-hidden bg-gray-100 border border-gray-200"
+                  >
+                    <img
+                      src={img}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => removeImage(img)}
-                      className="absolute top-0 right-0 bg-red-600 text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-bl font-bold"
+                      className="absolute top-0 right-0 bg-red-600 text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-bl font-bold cursor-pointer"
                     >
                       X
                     </button>
@@ -477,14 +835,17 @@ export default function PropertiesManager() {
               type="checkbox"
               checked={isFeatured}
               onChange={(e) => setIsFeatured(e.target.checked)}
-              className="rounded bg-neutral-950 border-neutral-800 text-[var(--primary)] focus:ring-[var(--primary)]"
+              className="w-4 h-4 rounded border-gray-300 text-[#009E71] focus:ring-[#009E71] cursor-pointer accent-[#009E71]"
             />
-            <label htmlFor="isFeatured" className="text-sm font-semibold text-white">
+            <label
+              htmlFor="isFeatured"
+              className="text-sm font-medium text-gray-800 cursor-pointer"
+            >
               Mark as Featured Listing
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-neutral-850">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <Button
               type="button"
               variant="outline"

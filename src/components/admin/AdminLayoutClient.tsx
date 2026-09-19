@@ -21,7 +21,7 @@ export default function AdminLayoutClient({
 
   return (
     <div
-      className="flex min-h-screen w-full bg-[#f3f4f8] text-gray-900 font-sans selection:bg-[#10b981] selection:text-white"
+      className="flex min-h-screen lg:h-screen lg:overflow-hidden w-full bg-[#f3f4f8] text-gray-900 font-sans selection:bg-[#10b981] selection:text-white"
       style={{ backgroundColor: "#f3f4f8", color: "#111827" }}
     >
       {/* ── LEFT SIDEBAR ── */}
@@ -29,7 +29,7 @@ export default function AdminLayoutClient({
 
       {/* ── RIGHT CONTENT (Width: 100% - Sidebar) ── */}
       <div
-        className="flex-1 w-full min-w-0 flex flex-col min-h-screen bg-[#f3f4f8]"
+        className="flex-1 w-full min-w-0 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-[#f3f4f8]"
         style={{ backgroundColor: "#f3f4f8" }}
       >
         {/* White Header matching reference */}
@@ -38,8 +38,8 @@ export default function AdminLayoutClient({
           onToggleMobileMenu={() => setMobileOpen(!mobileOpen)}
         />
 
-        {/* Content Container (Full width, pages control inner padding with p-6 bg-[#f3f5f8] h-full) */}
-        <main className="flex-1 w-full flex flex-col min-h-[calc(100vh-74px)] lg:h-[calc(100vh-74px)] overflow-y-auto lg:overflow-hidden bg-[#f3f4f8]">
+        {/* Content Container (Full width, zero outer scroll on desktop view) */}
+        <main className="flex-1 w-full flex flex-col min-h-0 overflow-y-auto lg:overflow-hidden bg-[#f3f4f8]">
           {children}
         </main>
       </div>

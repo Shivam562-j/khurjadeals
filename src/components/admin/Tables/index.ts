@@ -6,4 +6,9 @@ export { default as Filter } from "./Filter";
 export type { TableColumn } from "./CustomTable";
 export type { TableProps } from "./Table";
 export type { TopHeaderProps } from "./TopHeader";
-export type { FilterFormData, FilterProps } from "./Filter";
+export type {
+  FilterFormData,
+  FilterProps,
+  FilterSection,
+  FilterOption,
+} from "./Filter";
