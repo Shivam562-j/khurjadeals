@@ -455,6 +455,7 @@ export default function UsersManager() {
           }}
           filterCount={filterCount}
           filterSections={userFilterSections}
+          refetch={() => setPage(0)}
           actionButtonText="New Administrator"
           actionButtonColor="green"
           handleActionClick={handleNewUserClick}

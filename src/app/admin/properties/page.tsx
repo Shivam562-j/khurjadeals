@@ -518,6 +518,7 @@ export default function PropertiesManager() {
           }}
           filterCount={filterCount}
           filterSections={propertyFilterSections}
+          refetch={() => setPage(0)}
           actionButtonText="New Property"
           actionButtonColor="green"
           handleActionClick={handleNewPropertyClick}

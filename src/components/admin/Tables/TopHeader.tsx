@@ -33,6 +33,7 @@ export interface TopHeaderProps {
   handleExportClick?: () => void;
   exportTitle?: string;
   showFilter?: boolean;
+  refetch?: () => void;
 }
 
 export default function TopHeader({
@@ -55,6 +56,7 @@ export default function TopHeader({
   handleExportClick,
   exportTitle = "Export (CSV)",
   showFilter = true,
+  refetch,
 }: TopHeaderProps) {
   const [searchInputOpen, setSearchInputOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -62,18 +64,13 @@ export default function TopHeader({
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Close filter popover on outside click
+  // Close search input on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        filterRef.current &&
-        !filterRef.current.contains(event.target as Node)
-      ) {
-        setFilterOpen(false);
-      }
+      const target = event.target as Node;
       if (
         searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
+        !searchContainerRef.current.contains(target)
       ) {
         if (!searchText) {
           setSearchInputOpen(false);
@@ -206,16 +203,16 @@ export default function TopHeader({
 
             {/* Filter Popover matching user specification */}
             {filterOpen && (
-              <div className="absolute right-0 top-12 z-50">
-                <Filter
-                  handleCloseFilter={() => setFilterOpen(false)}
-                  filterFormData={filterFormData}
-                  handleFilterFormDataChange={handleFilterFormDataChange}
-                  setFilterFormData={setFilterFormData}
-                  filterCount={filterCount}
-                  sections={filterSections}
-                />
-              </div>
+              <Filter
+                handleCloseFilter={() => setFilterOpen(false)}
+                filterFormData={filterFormData}
+                handleFilterFormDataChange={handleFilterFormDataChange}
+                setFilterFormData={setFilterFormData}
+                filterCount={filterCount}
+                sections={filterSections}
+                refetch={refetch}
+                anchorEl={filterRef.current}
+              />
             )}
           </div>
         )}

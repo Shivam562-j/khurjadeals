@@ -628,6 +628,7 @@ export default function DashboardView({
           }}
           filterCount={filterCount}
           filterSections={queryFilterSections}
+          refetch={() => setPage(0)}
           actionButtonText="New Query"
           actionButtonColor="green"
           handleActionClick={() => {

@@ -537,6 +537,7 @@ export default function ProductsManager() {
           }}
           filterCount={filterCount}
           filterSections={productFilterSections}
+          refetch={() => setPage(0)}
           actionButtonText="New Product"
           actionButtonColor="green"
           handleActionClick={handleNewProductClick}

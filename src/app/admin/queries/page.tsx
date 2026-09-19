@@ -513,6 +513,7 @@ export default function QueriesManager() {
           }}
           filterCount={filterCount}
           filterSections={queryFilterSections}
+          refetch={() => setPage(0)}
           actionButtonText="New Query"
           actionButtonColor="green"
           handleActionClick={handleNewQueryClick}
