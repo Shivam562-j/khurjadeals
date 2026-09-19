@@ -10,6 +10,7 @@ import {
   FilterFormData,
   FilterSection,
 } from "@/components/admin/Tables";
+import { RightDrawer, PropertyDrawerDetails } from "@/components/admin/Drawer";
 import {
   MdEdit,
   MdDeleteOutline,
@@ -77,6 +78,10 @@ export default function PropertiesManager() {
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<boolean>(false); // false = desc
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  // Drawer State
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Modal & Form State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -530,17 +535,19 @@ export default function PropertiesManager() {
       minWidth: "130px",
       render: (item) => (
         <div className="flex items-center justify-end gap-1">
-          {/* View Details / Open Link */}
-          <a
-            href={`/property/${item._id}`}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-gray-900 transition-colors"
-            title="View Property Page"
+          {/* View Details in Drawer (External Click) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedProperty(item);
+              setIsDrawerOpen(true);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            title="View Details in Drawer"
           >
             <MdOpenInNew className="text-base" />
-          </a>
+          </button>
 
           {/* Edit Action (matching screenshot pencil) */}
           <button
@@ -651,6 +658,10 @@ export default function PropertiesManager() {
           setSortOrder={setSortOrder}
           isCheckBox={true}
           isSno={false}
+          handleItemClick={(item) => {
+            setSelectedProperty(item);
+            setIsDrawerOpen(true);
+          }}
           selectedRows={selectedRows}
           handleRowSelect={(id) => {
             setSelectedRows((prev) =>
@@ -859,6 +870,49 @@ export default function PropertiesManager() {
           </div>
         </form>
       </Modal>
+
+      {/* ── RIGHT DRAWER DETAILS (No tabs, module-specific) ── */}
+      <RightDrawer
+        openModal={isDrawerOpen}
+        handleCloseRightModal={() => setIsDrawerOpen(false)}
+        headingText={selectedProperty?.title || "Property Details"}
+        subheadingText={selectedProperty?.location}
+        badgeText={selectedProperty?.status}
+        badgeBgColor={
+          selectedProperty?.status === "active"
+            ? "#DAF5ED"
+            : selectedProperty?.status === "sold"
+            ? "#FDE9E7"
+            : selectedProperty?.status === "rented"
+            ? "#E5EBFD"
+            : "#D8DDE7"
+        }
+        badgeTextColor={
+          selectedProperty?.status === "active"
+            ? "#006C4D"
+            : selectedProperty?.status === "sold"
+            ? "#D51D10"
+            : selectedProperty?.status === "rented"
+            ? "#1249ED"
+            : "#565F70"
+        }
+        isMoreViewEdit={true}
+        isMoreViewDelete={true}
+        handleEditClick={() => {
+          if (selectedProperty) {
+            setIsDrawerOpen(false);
+            handleOpenEdit(selectedProperty);
+          }
+        }}
+        handleDeleteClick={() => {
+          if (selectedProperty) {
+            setIsDrawerOpen(false);
+            handleDelete(selectedProperty._id);
+          }
+        }}
+      >
+        <PropertyDrawerDetails property={selectedProperty} />
+      </RightDrawer>
     </div>
   );
 }
