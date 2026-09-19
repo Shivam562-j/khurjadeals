@@ -311,7 +311,7 @@ export default function PropertyDrawerDetails({
       {/* ── EXTERNAL LIVE LINK BUTTON ── */}
       <div className="pt-2">
         <a
-          href={`/property/${property._id}`}
+          href={`/properties/${property.slug || property._id}`}
           target="_blank"
           rel="noreferrer"
           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#FCFCFC] border border-[#008761] text-[#008761] hover:bg-[#008761] hover:text-white rounded-md text-sm font-semibold transition-colors shadow-xs"

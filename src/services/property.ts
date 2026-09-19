@@ -80,12 +80,17 @@ export async function getProperties(filters: PropertyFilter = {}): Promise<Pagin
   };
 }
 
-/** Get property by slug and optionally increment view count */
+import mongoose from "mongoose";
+
+/** Get property by slug (or _id fallback) and optionally increment view count */
 export async function getPropertyBySlug(slug: string, incViews: boolean = false) {
   await connectDB();
+  const isObjectId = mongoose.Types.ObjectId.isValid(slug);
+  const filter = isObjectId ? { $or: [{ slug }, { _id: slug }] } : { slug };
+
   const query = incViews
-    ? Property.findOneAndUpdate({ slug }, { $inc: { views: 1 } }, { returnDocument: "after" })
-    : Property.findOne({ slug });
+    ? Property.findOneAndUpdate(filter, { $inc: { views: 1 } }, { returnDocument: "after" })
+    : Property.findOne(filter);
 
   const property = await query.lean();
   if (!property) return null;
