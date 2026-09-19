@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import AdminHeader from "@/components/admin/Header";
 
@@ -14,6 +14,17 @@ export default function AdminLayoutClient({
   hasSession,
 }: AdminLayoutClientProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Ensure PWA and Service Workers are completely deactivated in the Admin Panel
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  }, []);
 
   if (!hasSession) {
     return <>{children}</>;

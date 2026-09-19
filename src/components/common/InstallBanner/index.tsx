@@ -2,16 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { FaDownload, FaTimes, FaShareSquare } from "react-icons/fa";
 
 export default function InstallBanner() {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [isIOS, setIsIOS] = useState<boolean>(false);
   const [showIOSModal, setShowIOSModal] = useState<boolean>(false);
 
   useEffect(() => {
-    // 1. Register PWA Service Worker
+    // Never run PWA service worker or install prompt inside admin panel
+    if (isAdmin) return;
+
+    // 1. Register PWA Service Worker (Public website only)
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
@@ -76,7 +83,7 @@ export default function InstallBanner() {
     localStorage.setItem("khurjadeals_install_dismissed", String(Date.now()));
   };
 
-  if (!showBanner) return null;
+  if (isAdmin || !showBanner) return null;
 
   return (
     <>

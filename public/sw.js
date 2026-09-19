@@ -10,6 +10,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Exclude all admin panel pages and API endpoints from service worker interception
+  if (url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) {
+    return;
+  }
+
   // Network-first fetching strategy for dynamic real-estate & marketplace listings
   event.respondWith(
     fetch(event.request).catch(() => {

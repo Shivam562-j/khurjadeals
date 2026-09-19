@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import InstallBanner from "@/components/common/InstallBanner";
 
 export const metadata: Metadata = {
   title: "KhurjaDeals — Khurja's Local Marketplace",
@@ -59,7 +58,6 @@ export default function RootLayout({
       <body className="antialiased">
         <QueryProvider>
           {children}
-          <InstallBanner />
         </QueryProvider>
       </body>
     </html>
