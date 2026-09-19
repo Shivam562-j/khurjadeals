@@ -9,3 +9,6 @@ export * from "./PropertyDrawerDetails";
 
 export { default as ProductDrawerDetails } from "./ProductDrawerDetails";
 export * from "./ProductDrawerDetails";
+
+export { default as QueryDrawerDetails } from "./QueryDrawerDetails";
+export * from "./QueryDrawerDetails";

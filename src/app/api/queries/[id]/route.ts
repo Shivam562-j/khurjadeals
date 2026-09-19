@@ -13,13 +13,14 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { status } = await request.json();
+    const body = await request.json();
 
-    if (!status) {
-      return NextResponse.json({ message: "Status is required" }, { status: 400 });
+    if (!body || Object.keys(body).length === 0) {
+      return NextResponse.json({ message: "Update data is required" }, { status: 400 });
     }
 
-    const query = await updateQueryStatus(id, status);
+    const { updateQuery } = await import("@/services/query");
+    const query = await updateQuery(id, body);
     if (!query) {
       return NextResponse.json({ message: "Query not found" }, { status: 404 });
     }

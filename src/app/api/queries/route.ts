@@ -11,9 +11,27 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") || undefined;
+    const type = searchParams.get("type") || undefined;
+    const search = searchParams.get("search") || searchParams.get("searchKey") || undefined;
+    const sortBy = searchParams.get("sortBy") || undefined;
+    const sortOrder = searchParams.get("sortOrder") || undefined;
+    const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
+    const limit = searchParams.get("limit")
+      ? Number(searchParams.get("limit"))
+      : searchParams.get("size")
+      ? Number(searchParams.get("size"))
+      : 10;
 
-    const queries = await getQueries(status as any);
-    return NextResponse.json(queries);
+    const data = await getQueries({
+      status,
+      type,
+      search,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    });
+    return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message || "Failed to fetch queries" },
@@ -55,6 +73,10 @@ export async function POST(request: Request) {
       type: validEnum,
       message: fullMessage,
     };
+
+    if (body.status) {
+      queryData.status = body.status;
+    }
 
     if (body.referenceId) {
       queryData.referenceId = String(body.referenceId);
