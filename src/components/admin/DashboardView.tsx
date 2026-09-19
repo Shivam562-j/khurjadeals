@@ -110,7 +110,7 @@ export default function DashboardView({ stats, recentQueries }: DashboardViewPro
   };
 
   return (
-    <div className="w-full space-y-6 pb-12 select-none">
+    <div className="w-full h-full space-y-6">
       {/* ── 1. KPI SUMMARY CARDS (4 WHITE CARDS SPREAD ACROSS 100% WIDTH) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {/* Card 1: Active Properties */}

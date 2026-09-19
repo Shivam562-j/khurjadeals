@@ -39,7 +39,7 @@ export default function AdminLayoutClient({
         />
 
         {/* Content Container (100vh - header with full width and generous padding) */}
-        <main className="flex-1 w-full overflow-y-auto p-6 lg:p-8 space-y-6 min-h-[calc(100vh-65px)]">
+        <main className="flex-1 w-full overflow-y-auto p-6 lg:p-8 space-y-6 min-h-[calc(100vh-74px)]">
           {children}
         </main>
       </div>
