@@ -13,6 +13,7 @@ import {
   FaExclamationTriangle,
   FaArrowLeft,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,10 +51,13 @@ export default function LoginPage() {
         throw new Error(data.message || "Invalid email or password");
       }
 
+      toast.success("Login successful! Redirecting...");
       router.push("/admin/dashboard");
       router.refresh();
     } catch (err: any) {
-      setError(err.message || "Failed to sign in. Please verify your credentials.");
+      const msg = err.message || "Failed to sign in. Please verify your credentials.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

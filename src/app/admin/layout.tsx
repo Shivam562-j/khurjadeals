@@ -1,9 +1,14 @@
 import React from "react";
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
-import Sidebar from "@/components/layout/Sidebar";
+import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Admin Panel — KhurjaDeals",
+  manifest: null,
+};
 
 export default async function AdminLayout({
   children,
@@ -12,13 +17,9 @@ export default async function AdminLayout({
 }) {
   const session = await getSession();
 
-  // If no session exists, we don't block layout render for login route itself
-  // Note: we let login bypass the sidebar check by checking route inside page or redirecting here.
-  // Actually, we can just redirect if not on /admin/login
   return (
-    <div className="flex min-h-screen bg-neutral-950 text-white selection:bg-[var(--primary)] selection:text-white">
-      {session && <Sidebar />}
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
-    </div>
+    <AdminLayoutClient hasSession={!!session}>
+      {children}
+    </AdminLayoutClient>
   );
 }

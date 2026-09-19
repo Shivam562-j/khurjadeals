@@ -1,11 +1,98 @@
 import connectDB from "@/lib/mongodb";
 import User, { IUser } from "@/models/User";
+import { UserFilter, PaginatedUserResponse } from "@/types/user";
 
-/** Get all admin/moderator users */
-export async function getUsers() {
+/** Get single user by ID */
+export async function getUserById(id: string) {
   await connectDB();
-  const users = await User.find().sort({ createdAt: -1 }).lean();
-  return JSON.parse(JSON.stringify(users));
+  const user = await User.findById(id).lean();
+  if (!user) return null;
+  return JSON.parse(JSON.stringify(user));
+}
+
+/** Get all admin/moderator users with pagination, filtering, searching, and sorting */
+export async function getUsers(
+  options?: UserFilter
+): Promise<PaginatedUserResponse | any[]> {
+  await connectDB();
+
+  if (!options) {
+    const users = await User.find().sort({ createdAt: -1 }).lean();
+    return JSON.parse(JSON.stringify(users));
+  }
+
+  const {
+    role,
+    status,
+    search,
+    sortBy = "createdAt",
+    sortOrder = "desc",
+    page = 1,
+    limit = 10,
+  } = options;
+
+  const query: any = {};
+
+  // Role filter
+  if (role) {
+    if (Array.isArray(role)) {
+      query.role = { $in: role };
+    } else if (typeof role === "string" && role.includes(",")) {
+      query.role = { $in: role.split(",").map((r) => r.trim()) };
+    } else {
+      query.role = role;
+    }
+  }
+
+  // Status filter
+  if (status) {
+    if (Array.isArray(status)) {
+      query.status = { $in: status };
+    } else if (typeof status === "string" && status.includes(",")) {
+      query.status = { $in: status.split(",").map((s) => s.trim()) };
+    } else {
+      query.status = status;
+    }
+  }
+
+  // Search filter (name or email)
+  if (search && typeof search === "string" && search.trim()) {
+    const escaped = search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "i");
+    query.$or = [{ name: regex }, { email: regex }];
+  }
+
+  // Sort direction
+  const isAsc = sortOrder === "asc" || sortOrder === true || sortOrder === "true";
+  const direction = isAsc ? 1 : -1;
+  const sortOptions: Record<string, 1 | -1> = { [sortBy]: direction };
+
+  if (sortBy !== "createdAt") {
+    sortOptions.createdAt = -1;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [users, total] = await Promise.all([
+    User.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    User.countDocuments(query),
+  ]);
+
+  const totalPages = Math.ceil(total / limit) || 1;
+
+  return {
+    users: JSON.parse(JSON.stringify(users)),
+    total,
+    count: total,
+    page,
+    limit,
+    totalPages,
+    hasMore: page < totalPages,
+  };
 }
 
 /** Create a new admin or moderator */

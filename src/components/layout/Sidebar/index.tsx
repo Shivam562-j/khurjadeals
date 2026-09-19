@@ -4,27 +4,63 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  TbLayoutSidebarLeftCollapse,
+  TbLayoutSidebarRightCollapse,
+} from "react-icons/tb";
+import {
+  FaHome,
   FaChartBar,
-  FaSignOutAlt,
-  FaGlobe,
   FaBuilding,
   FaShoppingBag,
   FaEnvelopeOpenText,
   FaUserShield,
-  FaChevronLeft,
-  FaChevronRight,
-  FaShieldAlt,
+  FaTimes,
+  FaSignOutAlt,
+  FaExternalLinkAlt,
 } from "react-icons/fa";
 import { AuthUser } from "@/types/user";
+import { toast } from "react-toastify";
+import Api from "@/api/endPoints";
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  setMobileOpen?: (open: boolean) => void;
+}
+
+interface MenuItemType {
+  item: string;
+  link: string;
+  icon: React.ReactNode;
+  external?: boolean;
+  role?: string;
+}
+
+interface MenuSectionType {
+  items: MenuItemType[];
+}
+
+export default function AppSidebar({
+  mobileOpen: controlledMobileOpen,
+  setMobileOpen: controlledSetMobileOpen,
+}: SidebarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200
+  );
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+  const mobileOpen =
+    controlledMobileOpen !== undefined
+      ? controlledMobileOpen
+      : internalMobileOpen;
+  const setMobileOpen = controlledSetMobileOpen || setInternalMobileOpen;
+
+  // Fetch logged in admin user
   useEffect(() => {
-    // Fetch logged in admin user
     fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -35,198 +71,314 @@ export default function Sidebar() {
       .catch(() => {});
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) {
-        router.push("/admin/login");
-        router.refresh();
+  // Responsive auto-collapse based on window size (matching provided code)
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setWindowWidth(width);
+      if (width < 789 && !collapsed) {
+        setCollapsed(true);
+      } else if (width >= 789 && collapsed) {
+        setCollapsed(false);
       }
-    } catch {}
-  };
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [collapsed]);
 
-  const navSections = [
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const menuSections: MenuSectionType[] = [
     {
-      title: "Main Menu",
       items: [
-        { label: "Website Home", href: "/", icon: <FaGlobe /> },
-        { label: "Dashboard", href: "/admin/dashboard", icon: <FaChartBar /> },
+        {
+          item: "Home",
+          link: "/",
+          icon: <FaHome className="text-lg" />,
+          external: true,
+        },
+        {
+          item: "Dashboard",
+          link: "/admin/dashboard",
+          icon: <FaChartBar className="text-lg" />,
+        },
       ],
     },
     {
-      title: "Management",
       items: [
-        { label: "Properties", href: "/admin/properties", icon: <FaBuilding /> },
-        { label: "Bazaar Products", href: "/admin/products", icon: <FaShoppingBag /> },
-        { label: "Customer Queries", href: "/admin/queries", icon: <FaEnvelopeOpenText /> },
+        {
+          item: "Properties",
+          link: "/admin/properties",
+          icon: <FaBuilding className="text-lg" />,
+        },
+        {
+          item: "Bazaar Products",
+          link: "/admin/products",
+          icon: <FaShoppingBag className="text-lg" />,
+        },
+        {
+          item: "Customer Queries",
+          link: "/admin/queries",
+          icon: <FaEnvelopeOpenText className="text-lg" />,
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          item: "Administrators",
+          link: "/admin/users",
+          icon: <FaUserShield className="text-lg" />,
+          role: "admin",
+        },
       ],
     },
   ];
 
-  if (user?.role === "admin") {
-    navSections.push({
-      title: "Administration",
-      items: [
-        { label: "Administrators", href: "/admin/users", icon: <FaUserShield /> },
-      ],
-    });
-  }
+  const handleLogout = async () => {
+    try {
+      await Api.logout();
+      toast.success("Logged out successfully.");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    } finally {
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        window.dispatchEvent(new Event("localStorageChanged"));
+      }
+      router.push("/admin/login");
+      router.refresh();
+    }
+  };
 
-  return (
-    <aside
-      className={`shrink-0 bg-[#121214] border-r border-neutral-800/80 flex flex-col min-h-screen text-neutral-400 transition-all duration-300 relative z-30 selection:bg-[#E8590C] selection:text-white ${
-        collapsed ? "w-20" : "w-64"
-      }`}
-    >
-      {/* ── Top Header / Brand Logo & Collapse Toggle ── */}
+  const renderSidebarContent = (isMobile: boolean = false) => {
+    const isEffectivelyCollapsed = collapsed && !isMobile;
+
+    return (
       <div
-        className={`h-20 border-b border-neutral-800/80 flex items-center px-4 justify-between relative ${
-          collapsed ? "justify-center" : ""
-        }`}
+        className="flex flex-col h-full bg-[#252A34] text-[#E5E9F0] font-sans"
+        style={{
+          width: isEffectivelyCollapsed ? "80px" : "260px",
+          transition: "width 0.3s ease",
+        }}
       >
-        <Link href="/admin/dashboard" className="flex items-center gap-3 group min-w-0">
-          <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-base shadow-xl border border-white/10 shrink-0 transition-transform group-hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, #E8590C 0%, #f59e0b 100%)",
-              boxShadow: "0 8px 20px rgba(232, 89, 12, 0.35)",
-            }}
-          >
-            KD
-          </div>
-          {!collapsed && (
-            <div className="min-w-0">
-              <h2 className="font-black text-white text-base leading-tight tracking-tight truncate group-hover:text-[#E8590C] transition-colors">
-                Khurja Deals
-              </h2>
-              <div className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-[#E8590C] mt-0.5">
-                <FaShieldAlt className="text-[9px]" />
-                <span>Admin Platform</span>
-              </div>
-            </div>
-          )}
-        </Link>
-
-        {/* Collapse / Expand Toggle Button */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-2 rounded-xl bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-all cursor-pointer border border-neutral-700/50 shadow-sm"
-          title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        {/* ── TOP HEADER / BRANDING (h-[86px], matching provided code) ── */}
+        <div
+          className={`flex px-4 py-5 items-center gap-2.5 self-stretch h-[86px] my-1 ${
+            isEffectivelyCollapsed ? "justify-center" : "justify-between"
+          }`}
         >
-          {collapsed ? <FaChevronRight className="text-xs" /> : <FaChevronLeft className="text-xs" />}
-        </button>
-      </div>
-
-      {/* ── User Profile Badge (Shown when expanded) ── */}
-      {!collapsed && user && (
-        <div className="mx-4 my-4 p-3 rounded-2xl bg-[#19191d] border border-neutral-800/80 flex items-center gap-3 shadow-md">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shrink-0 border border-white/10"
-            style={{ background: "linear-gradient(135deg, #E8590C 0%, #f59e0b 100%)" }}
+          {/* Logo circle */}
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-2.5 min-w-0"
           >
-            {user.name.charAt(0).toUpperCase()}
-          </div>
-          <div className="overflow-hidden min-w-0">
-            <h4 className="font-extrabold text-white truncate text-xs leading-tight">
-              {user.name}
-            </h4>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="text-[10px] font-extrabold text-emerald-400 capitalize">
-                {user.role}
+            <div
+              className="flex w-8 h-8 flex-col justify-center items-center rounded-full bg-[#3F4653] shrink-0 text-white font-black text-xs shadow"
+              style={{ width: "32px", height: "32px" }}
+            >
+              <span className="text-[#00be88] font-black tracking-tighter text-sm">
+                KD
               </span>
             </div>
+
+            {/* Brand Title */}
+            {!isEffectivelyCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-[#e5e9f0] text-sm font-semibold leading-tight truncate">
+                  Khurja Deals
+                </p>
+              </div>
+            )}
+          </Link>
+
+          {/* Desktop Collapse Button (Matching TbLayoutSidebarLeftCollapse / RightCollapse) */}
+          {!isMobile && (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="text-[#D8DDE7] p-[6px] rounded-[4px] hover:bg-[#2e3542] transition-colors cursor-pointer"
+              title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {!collapsed ? (
+                <TbLayoutSidebarLeftCollapse fontSize={24} />
+              ) : (
+                <TbLayoutSidebarRightCollapse fontSize={24} />
+              )}
+            </button>
+          )}
+
+          {/* Mobile Drawer Close Button */}
+          {isMobile && (
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="text-[#D8DDE7] p-[6px] rounded-[4px] hover:bg-[#2e3542] transition-colors"
+            >
+              <FaTimes className="text-sm" />
+            </button>
+          )}
+        </div>
+
+        {/* ── MENU ITEMS CONTAINER (h-[calc(100vh-154px)] matching provided code) ── */}
+        <div className="h-[calc(100vh-154px)] no-scrollbar overflow-y-auto flex-1 py-1">
+          {menuSections.map((section, sectionIndex) => {
+            // Filter section items by role if needed
+            const visibleItems = section.items.filter((item) => {
+              if (item.role && user?.role !== item.role) return false;
+              return true;
+            });
+
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={sectionIndex} className="mb-2">
+                <div className="space-y-1">
+                  {visibleItems.map((menuItem) => {
+                    const isActive =
+                      menuItem.link === "/"
+                        ? pathname === "/"
+                        : pathname.startsWith(menuItem.link);
+                    const isHovered = hoveredItem === menuItem.item;
+
+                    return (
+                      <div
+                        key={menuItem.item}
+                        className="relative group/tooltip"
+                        onMouseEnter={() => setHoveredItem(menuItem.item)}
+                        onMouseLeave={() => setHoveredItem(null)}
+                      >
+                        <Link
+                          href={menuItem.link}
+                          target={menuItem.external ? "_blank" : undefined}
+                          onClick={() => isMobile && setMobileOpen(false)}
+                          className={`w-full px-4 py-2 flex items-center gap-3 rounded-lg transition-all duration-200 no-underline cursor-pointer ${
+                            isEffectivelyCollapsed
+                              ? "justify-center !px-2.5"
+                              : "justify-start"
+                          }`}
+                          style={{
+                            color: isActive ? "#00be88" : "#B0B7C5",
+                            fontWeight: isActive ? 600 : 500,
+                            backgroundColor:
+                              isActive || isHovered ? "#2e3542" : "transparent",
+                            padding: isEffectivelyCollapsed
+                              ? "8px 10px"
+                              : "8px 16px",
+                          }}
+                        >
+                          {/* Icon Container */}
+                          <span
+                            className="icon-container flex items-center justify-center shrink-0 text-xl transition-colors"
+                            style={{
+                              color:
+                                isActive || isHovered ? "#00be88" : "#B0B7C5",
+                            }}
+                          >
+                            {menuItem.icon}
+                          </span>
+
+                          {/* Menu Item Text with increased font size */}
+                          {!isEffectivelyCollapsed && (
+                            <span
+                              className="menu-item-text text-[15px] font-semibold truncate flex-1 tracking-wide"
+                              style={{
+                                color:
+                                  isActive || isHovered
+                                    ? "#E5E9F0"
+                                    : "#B0B7C5",
+                                fontWeight: isActive ? 600 : 500,
+                              }}
+                            >
+                              {menuItem.item}
+                            </span>
+                          )}
+
+                          {!isEffectivelyCollapsed && menuItem.external && (
+                            <FaExternalLinkAlt className="text-xs opacity-60 ml-auto" />
+                          )}
+                        </Link>
+
+                        {/* Collapsed Tooltip */}
+                        {isEffectivelyCollapsed && (
+                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-1.5 bg-[#565f70] text-[#fcfcfc] text-xs font-semibold rounded-md shadow-xl pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-opacity z-50 whitespace-nowrap">
+                            {menuItem.item}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Section Divider (height 2px, background #2E3542, margin 24px 0 matching provided code) */}
+                {sectionIndex < menuSections.length - 1 && (
+                  <div
+                    className="my-4 mx-3"
+                    style={{
+                      height: "2px",
+                      backgroundColor: "#2E3542",
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── FOOTER (h-[56px] matching provided code: Powered by SaasOrgName) ── */}
+        <div className="p-4 px-3 border-t border-[#0000001f] bg-[#252a34] h-[56px] shrink-0 flex items-center">
+          <div
+            className={`flex flex-row items-center gap-2.5 w-full ${
+              isEffectivelyCollapsed ? "justify-center" : "justify-start"
+            }`}
+          >
+            <div className="w-5 h-5 rounded-full bg-[#3F4653] flex items-center justify-center text-[10px] text-[#00be88] font-black shrink-0">
+              KD
+            </div>
+
+            {!isEffectivelyCollapsed && (
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <div className="text-[#717b8c] text-[10px] font-medium leading-3">
+                  Powered by
+                </div>
+                <div className="text-[#717b8c] text-xs font-semibold leading-none truncate">
+                  Khurja Deals
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {/* ── MOBILE DRAWER OVERLAY ── */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="relative h-full z-50 shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderSidebarContent(true)}
           </div>
         </div>
       )}
 
-      {/* ── Nav Links by Section ── */}
-      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto no-scrollbar">
-        {navSections.map((section, secIdx) => (
-          <div key={secIdx} className="space-y-1.5">
-            {!collapsed && (
-              <div className="px-3 text-[10px] font-black uppercase tracking-widest text-neutral-500">
-                {section.title}
-              </div>
-            )}
-
-            {section.items.map((item) => {
-              const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-
-              return (
-                <div key={item.href} className="relative group/tooltip">
-                  <Link
-                    href={item.href}
-                    className={`flex items-center rounded-2xl text-xs sm:text-sm transition-all duration-200 ${
-                      collapsed
-                        ? "justify-center p-3"
-                        : "justify-between px-3.5 py-3 border-l-4"
-                    } ${
-                      isActive
-                        ? "bg-gradient-to-r from-[#E8590C]/20 via-[#E8590C]/10 to-transparent text-white font-black border-[#E8590C] shadow-lg shadow-[#E8590C]/10"
-                        : "text-neutral-400 font-bold hover:bg-neutral-800/60 hover:text-white border-transparent hover:translate-x-0.5"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 transition-all ${
-                          isActive
-                            ? "bg-[#E8590C] text-white shadow-md shadow-[#E8590C]/40"
-                            : "bg-neutral-800/80 text-neutral-400 group-hover/tooltip:bg-neutral-800 group-hover/tooltip:text-[#E8590C] group-hover/tooltip:scale-105"
-                        }`}
-                      >
-                        {item.icon}
-                      </div>
-                      {!collapsed && <span className="truncate tracking-wide">{item.label}</span>}
-                    </div>
-
-                    {!collapsed && isActive && (
-                      <FaChevronRight className="text-[10px] text-[#E8590C] shrink-0" />
-                    )}
-                  </Link>
-
-                  {/* Tooltip bubble when collapsed */}
-                  {collapsed && (
-                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-neutral-900 text-white text-xs font-bold rounded-xl shadow-2xl border border-neutral-700 opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50">
-                      {item.label}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {secIdx < navSections.length - 1 && (
-              <div className="pt-2">
-                <hr className="border-t border-neutral-800/80" />
-              </div>
-            )}
-          </div>
-        ))}
-      </nav>
-
-      {/* ── Footer Branding & Logout ── */}
-      <div className="border-t border-neutral-800/80 p-3 space-y-2 bg-[#0f0f11]">
-        <button
-          onClick={handleLogout}
-          className={`w-full flex items-center gap-3 rounded-xl text-xs font-extrabold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all cursor-pointer ${
-            collapsed ? "justify-center p-2.5" : "px-3.5 py-2.5"
-          }`}
-          title="Log Out"
-        >
-          <div className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm shrink-0 border border-rose-500/30">
-            <FaSignOutAlt />
-          </div>
-          {!collapsed && <span>Log Out</span>}
-        </button>
-
-        {!collapsed && (
-          <div className="pt-2 text-center text-[10px] text-neutral-500 font-bold border-t border-neutral-800/60">
-            Powered by <strong className="text-neutral-400">Khurja Deals v2.0</strong>
-          </div>
-        )}
-      </div>
-    </aside>
+      {/* ── DESKTOP STICKY SIDEBAR (Matching Box position: sticky, height: 100vh from provided code) ── */}
+      <aside
+        className="hidden md:flex sticky top-0 bottom-0 h-screen shrink-0 z-30 overflow-hidden"
+        style={{
+          width: collapsed ? "80px" : "260px",
+          transition: "width 0.3s ease",
+        }}
+      >
+        {renderSidebarContent(false)}
+      </aside>
+    </>
   );
 }
-

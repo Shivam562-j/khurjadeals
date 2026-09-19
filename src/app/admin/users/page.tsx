@@ -1,256 +1,599 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useMemo, useRef, useCallback, useReducer } from "react";
 import { User, UserRole, UserStatus } from "@/types/user";
-import Button from "@/components/common/Button";
-import Input from "@/components/common/Input";
-import Select from "@/components/common/Select";
-import Modal from "@/components/common/Modal";
-import Loader from "@/components/common/Loader";
+import {
+  initialSearchState,
+  searchActions,
+  searchReducer,
+} from "@/reducer/searchReducer";
+import {
+  Table,
+  TopHeader,
+  TableColumn,
+  FilterFormData,
+  FilterSection,
+} from "@/components/admin/Tables";
+import { RightDrawer, UserDrawerDetails } from "@/components/admin/Drawer";
+import { CreateUserModal } from "@/components/admin/Forms";
+import { DeleteModal } from "@/components/admin/Modal";
+import {
+  MdEdit,
+  MdDeleteOutline,
+  MdOpenInNew,
+  MdShield,
+} from "react-icons/md";
+import { toast } from "react-toastify";
+
+// Filter configuration for Administrators
+const userFilterSections: FilterSection[] = [
+  {
+    id: "role",
+    title: "System Role",
+    gridCols: 2,
+    options: [
+      { label: "Administrator", value: "admin" },
+      { label: "Moderator", value: "moderator" },
+    ],
+  },
+  {
+    id: "status",
+    title: "Account Status",
+    gridCols: 2,
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Inactive", value: "inactive" },
+    ],
+  },
+];
 
 export default function UsersManager() {
+  // Data State (backend paginated & filtered)
   const [users, setUsers] = useState<User[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Form Fields State
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("moderator");
-  const [status, setStatus] = useState<UserStatus>("active");
+  // Search input state with reducer (onEnter search execution)
+  const [searchState, dispatchSearch] = useReducer(searchReducer, {
+    ...initialSearchState,
+    searchText: "",
+  });
+  const { searchInput, searchText, cacheSearchText } = searchState;
+  const [activeSearch, setActiveSearch] = useState("");
+  const [filterFormData, setFilterFormData] = useState<FilterFormData>({});
 
-  const fetchUsers = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/users");
-      if (res.ok) {
-        const data = await res.json();
-        setUsers(data || []);
+  // Pagination & Sorting State
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<boolean>(false); // false = desc
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  // Drawer State
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Delete Modal State
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Form Modal State (Create / Edit)
+  const [openForm, setOpenForm] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+
+  // Fetch users from backend with server-side pagination, search, filter, and sorting
+  const fetchUsersData = useCallback(
+    async (
+      targetPage = page,
+      targetLimit = rowsPerPage,
+      targetSortBy = sortBy,
+      targetSortOrder = sortOrder,
+      targetSearch = activeSearch,
+      targetFilters = filterFormData
+    ) => {
+      setIsLoading(true);
+      try {
+        const q = new URLSearchParams();
+        q.set("page", String(targetPage + 1));
+        q.set("limit", String(targetLimit));
+        if (targetSortBy) q.set("sortBy", targetSortBy);
+        q.set("sortOrder", targetSortOrder ? "asc" : "desc");
+
+        if (targetSearch && targetSearch.trim()) {
+          q.set("search", targetSearch.trim());
+        }
+
+        if (targetFilters?.role && targetFilters.role.length > 0) {
+          q.set("role", targetFilters.role.join(","));
+        }
+
+        if (targetFilters?.status && targetFilters.status.length > 0) {
+          q.set("status", targetFilters.status.join(","));
+        }
+
+        const res = await fetch(`/api/users?${q.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setUsers(data);
+            setTotalCount(data.length);
+          } else {
+            setUsers(data.users || []);
+            setTotalCount(data.total ?? data.count ?? (data.users?.length || 0));
+          }
+        } else {
+          setUsers([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch administrators:", err);
+        setUsers([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
       }
-    } catch {}
-    setIsLoading(false);
-  };
+    },
+    [page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData]
+  );
 
+  const prevFilterRef = useRef(filterFormData);
+  const prevSearchRef = useRef(activeSearch);
+
+  // Fetch data when pagination, sorting, activeSearch (onEnter), or filters change
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const filterChanged =
+      JSON.stringify(prevFilterRef.current.role) !== JSON.stringify(filterFormData.role) ||
+      JSON.stringify(prevFilterRef.current.status) !== JSON.stringify(filterFormData.status);
 
-  const handleOpenAdd = () => {
-    setEditingId(null);
-    setName("");
-    setEmail("");
-    setPassword("");
-    setRole("moderator");
-    setStatus("active");
-    setIsModalOpen(true);
-  };
+    const searchChanged = prevSearchRef.current !== activeSearch;
 
-  const handleOpenEdit = (user: User) => {
-    setEditingId(user._id);
-    setName(user.name);
-    setEmail(user.email);
-    setPassword(""); // Keep blank unless resetting
-    setRole(user.role);
-    setStatus(user.status);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this administrator?")) return;
-    try {
-      const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setUsers(users.filter((u) => u._id !== id));
-      } else {
-        const err = await res.json();
-        alert(err.message || "Failed to delete user");
+    if (filterChanged || searchChanged) {
+      prevFilterRef.current = filterFormData;
+      prevSearchRef.current = activeSearch;
+      if (page !== 0) {
+        setPage(0);
+        return;
       }
-    } catch {}
+    }
+
+    fetchUsersData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+  }, [page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData, fetchUsersData]);
+
+  // Handle search when user presses Enter key
+  const handleSearchEnter = (searchValue: string) => {
+    setPage(0);
+    setActiveSearch(searchValue.trim());
+    if (!searchValue.trim()) {
+      dispatchSearch({ type: searchActions.RESET_SEARCH });
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitLoading(true);
+  // Active filters count
+  const filterCount = useMemo(() => {
+    return Object.values(filterFormData).reduce(
+      (acc, arr) => acc + (arr?.length || 0),
+      0
+    );
+  }, [filterFormData]);
 
-    const userPayload: any = {
-      name,
-      email,
-      role,
-      status,
-    };
-    if (password) userPayload.password = password;
+  // Open modal for Adding
+  const handleNewUserClick = () => {
+    setEditUser(null);
+    setOpenForm(true);
+  };
 
+  // Open modal for Editing
+  const handleEditClick = (u: User) => {
+    setEditUser(u);
+    setOpenForm(true);
+  };
+
+  // Open delete modal
+  const handleOpenDelete = (u: User) => {
+    setUserToDelete(u);
+    setDeleteOpen(true);
+  };
+
+  // Confirm delete handler
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
     try {
-      const url = editingId ? `/api/users/${editingId}` : "/api/users";
-      const method = editingId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userPayload),
+      const res = await fetch(`/api/users/${userToDelete._id}`, {
+        method: "DELETE",
       });
-
       if (res.ok) {
-        setIsModalOpen(false);
-        fetchUsers();
+        toast.success("Administrator deleted successfully.");
+        if (selectedUser?._id === userToDelete._id) {
+          setIsDrawerOpen(false);
+          setSelectedUser(null);
+        }
+        fetchUsersData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
       } else {
-        const err = await res.json();
-        alert(err.message || "Failed to save user");
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete administrator.");
       }
-    } catch {}
-    setIsSubmitLoading(false);
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      toast.error("Failed to delete administrator.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteOpen(false);
+      setUserToDelete(null);
+    }
   };
 
-  const roleOptions = [
-    { label: "Administrator (Full Access)", value: "admin" },
-    { label: "Moderator (Listings Access)", value: "moderator" },
+  // Bulk Delete handler
+  const handleBulkDeleteUsers = async () => {
+    if (!selectedRows.length) return;
+    const rowLength = selectedRows.length;
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          fetch(`/api/users/${id}`, { method: "DELETE" })
+        )
+      );
+      setSelectedRows([]);
+      toast.success(`${rowLength} asset profiles deleted successfully.`);
+      fetchUsersData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      toast.error("Failed to delete selected administrators.");
+    }
+  };
+
+  // CSV Export
+  const handleExportCSV = async () => {
+    try {
+      const q = new URLSearchParams();
+      q.set("page", "1");
+      q.set("limit", "1000");
+      if (sortBy) q.set("sortBy", sortBy);
+      q.set("sortOrder", sortOrder ? "asc" : "desc");
+      if (activeSearch.trim()) q.set("search", activeSearch.trim());
+      if (filterFormData?.role?.length) q.set("role", filterFormData.role.join(","));
+      if (filterFormData?.status?.length) q.set("status", filterFormData.status.join(","));
+
+      const res = await fetch(`/api/users?${q.toString()}`);
+      const data = await res.json();
+      const exportList: User[] = Array.isArray(data) ? data : data.users || users;
+
+      if (!exportList.length) {
+        toast.warning("No administrators found to export.");
+        return;
+      }
+      const headers = [
+        "Full Name",
+        "Email Address",
+        "Role",
+        "Status",
+        "Created At",
+      ];
+
+      const rows = exportList.map((item) => [
+        `"${(item.name || "").replace(/"/g, '""')}"`,
+        `"${(item.email || "").replace(/"/g, '""')}"`,
+        `"${item.role || ""}"`,
+        `"${item.status || ""}"`,
+        `"${item.createdAt || ""}"`,
+      ]);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        `administrators_list_${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`${exportList.length} administrators exported successfully.`);
+    } catch (e) {
+      console.error("Export error:", e);
+      toast.error("Failed to export administrators.");
+    }
+  };
+
+  // Table Columns Definition matching Vecmocon design
+  const columns: TableColumn<User>[] = [
+    {
+      id: "name",
+      label: "Administrator",
+      key1: "name",
+      isSortable: true,
+      minWidth: "220px",
+      render: (item) => {
+        const initials = item.name
+          ? item.name
+              .split(" ")
+              .map((n) => n[0])
+              .slice(0, 2)
+              .join("")
+              .toUpperCase()
+          : "AD";
+
+        return (
+          <div className="flex items-center gap-2.5 py-0.5">
+            <div className="w-8 h-8 rounded-full bg-[#008761] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+              {initials}
+            </div>
+            <div className="truncate">
+              <span
+                className="font-semibold text-gray-900 block truncate"
+                title={item.name}
+              >
+                {item.name}
+              </span>
+              <span className="text-[11px] text-gray-500 block truncate font-mono">
+                {item.email}
+              </span>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "email",
+      label: "Email Address",
+      key1: "email",
+      isSortable: true,
+      minWidth: "180px",
+      render: (item) => (
+        <span className="font-mono text-xs text-gray-700 font-medium">
+          {item.email}
+        </span>
+      ),
+    },
+    {
+      id: "role",
+      label: "Role",
+      key1: "role",
+      isSortable: true,
+      minWidth: "130px",
+      render: (item) => {
+        const isAdmin = item.role === "admin";
+        return (
+          <span
+            className={`inline-flex items-center gap-1 capitalize font-bold text-xs px-2.5 py-0.5 rounded ${
+              isAdmin
+                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                : "bg-blue-50 text-blue-800 border border-blue-200"
+            }`}
+          >
+            <MdShield className="text-xs" />
+            {item.role === "admin" ? "Admin" : "Moderator"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "status",
+      label: "Status",
+      key1: "status",
+      isSortable: true,
+      minWidth: "110px",
+      render: (item) => {
+        const s = String(item.status || "").toLowerCase();
+        if (s === "active") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+              Active
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+            {item.status || "Inactive"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "action",
+      label: "Actions",
+      key1: "_id",
+      type: "action",
+      minWidth: "130px",
+      render: (item) => (
+        <div className="flex items-center justify-end gap-1">
+          {/* View Details in Drawer (External Click) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedUser(item);
+              setIsDrawerOpen(true);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            title="View Details in Drawer"
+          >
+            <MdOpenInNew className="text-base" />
+          </button>
+
+          {/* Edit Action */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditClick(item);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            title="Edit User"
+          >
+            <MdEdit className="text-base" />
+          </button>
+
+          {/* Delete Action */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenDelete(item);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            title="Delete User"
+          >
+            <MdDeleteOutline className="text-base" />
+          </button>
+        </div>
+      ),
+    },
   ];
 
-  const statusOptions = [
-    { label: "Active", value: "active" },
-    { label: "Inactive", value: "inactive" },
-  ];
+  // Empty text based on whether search/filter or database is empty
+  const isFilteredOrSearched = Boolean(activeSearch.trim()) || filterCount > 0;
+  const emptyText =
+    isFilteredOrSearched
+      ? "No administrators or roles found."
+      : "No administrators found. Click '+ New Administrator' to add one!";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">Platform Administrators</h1>
-          <p className="text-sm text-neutral-450">
-            Create or manage roles for moderators and admin users.
-          </p>
-        </div>
-        <Button onClick={handleOpenAdd} size="sm">
-          Add User
-        </Button>
+    <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
+      {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
+      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
+        {/* TopHeader with title: Administrators, search onEnter, filters, green 'New Administrator' button, and CSV Export */}
+        <TopHeader
+          title="Administrators"
+          searchInput={searchInput}
+          searchText={searchText}
+          cacheSearchText={cacheSearchText}
+          dispatchSearch={dispatchSearch}
+          searchActions={searchActions}
+          handleSearchEnter={handleSearchEnter}
+          filterFormData={filterFormData}
+          handleFilterFormDataChange={(key, value) => {
+            setPage(0);
+            setFilterFormData((prev) => ({
+              ...prev,
+              [key]: value,
+            }));
+          }}
+          setFilterFormData={(updater) => {
+            setPage(0);
+            setFilterFormData(updater);
+          }}
+          filterCount={filterCount}
+          filterSections={userFilterSections}
+          refetch={() => setPage(0)}
+          actionButtonText="New Administrator"
+          actionButtonColor="green"
+          handleActionClick={handleNewUserClick}
+          handleExportClick={handleExportCSV}
+          exportTitle="Export Administrators (CSV)"
+          selectedCount={selectedRows.length}
+          handleBulkDelete={handleBulkDeleteUsers}
+        />
+
+        {/* Custom Table Component (Connected directly to backend-paginated data) */}
+        <Table
+          columns={columns}
+          tableData={users}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          totalCount={totalCount}
+          handleChangePage={(newPage) => setPage(newPage)}
+          handleChangeRowsPerPage={(newRows) => {
+            setRowsPerPage(newRows);
+            setPage(0);
+          }}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          setSortBy={(newSort) => {
+            setSortBy(newSort);
+            setPage(0);
+          }}
+          setSortOrder={(newOrder) => {
+            setSortOrder(newOrder);
+            setPage(0);
+          }}
+          isCheckBox={true}
+          isSno={false}
+          handleItemClick={(item) => {
+            setSelectedUser(item);
+            setIsDrawerOpen(true);
+          }}
+          selectedRows={selectedRows}
+          handleRowSelect={(id) => {
+            setSelectedRows((prev) =>
+              prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
+            );
+          }}
+          handleSelectAllClick={() => {
+            if (selectedRows.length === users.length) {
+              setSelectedRows([]);
+            } else {
+              setSelectedRows(users.map((u) => u._id));
+            }
+          }}
+          loading={isLoading}
+          emptyText={emptyText}
+        />
       </div>
 
-      {isLoading ? (
-        <Loader size="lg" />
-      ) : users.length === 0 ? (
-        <div className="text-center p-12 bg-neutral-900 border border-neutral-850 rounded-2xl">
-          <p className="text-neutral-400">No users found.</p>
-        </div>
-      ) : (
-        <div className="bg-neutral-900 border border-neutral-850 rounded-2xl overflow-hidden shadow">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-neutral-300">
-              <thead>
-                <tr className="border-b border-neutral-850 bg-neutral-950/20 text-xs text-neutral-500 uppercase font-bold tracking-wider">
-                  <th className="py-4 px-6">Name</th>
-                  <th className="py-4 px-6">Email Address</th>
-                  <th className="py-4 px-6">Role</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-850/50">
-                {users.map((u) => (
-                  <tr key={u._id} className="hover:bg-neutral-950/10">
-                    <td className="py-4 px-6 font-semibold text-white">
-                      {u.name}
-                    </td>
-                    <td className="py-4 px-6 text-neutral-400">{u.email}</td>
-                    <td className="py-4 px-6 capitalize font-semibold text-xs text-amber-500">
-                      {u.role}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
-                        u.status === "active"
-                          ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                          : "bg-neutral-800 text-neutral-400"
-                      }`}>
-                        {u.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-right space-x-2">
-                      <button
-                        onClick={() => handleOpenEdit(u)}
-                        className="text-xs font-semibold text-neutral-400 hover:text-white px-2.5 py-1 rounded bg-neutral-850 hover:bg-neutral-800 transition cursor-pointer"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(u._id)}
-                        className="text-xs font-semibold text-red-500 hover:text-red-400 px-2.5 py-1 rounded bg-red-950/10 hover:bg-red-950/30 border border-red-900/10 transition cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* ── CREATE / EDIT USER MODAL (Vecmocon 2-column layout) ── */}
+      <CreateUserModal
+        isOpen={openForm}
+        onClose={() => {
+          setOpenForm(false);
+          setEditUser(null);
+        }}
+        editUser={editUser}
+        onSuccess={() => {
+          fetchUsersData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+        }}
+      />
 
-      {/* Add/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingId ? "Edit Admin User" : "Add Admin User"}
+      {/* ── DELETE CONFIRMATION MODAL (Matching Vecmocon style) ── */}
+      <DeleteModal
+        deleteOpenModal={deleteOpen}
+        headerTitle="Administrator"
+        deleteTextname={userToDelete ? `${userToDelete.name} (${userToDelete.email})` : ""}
+        handleCloseClick={() => {
+          setDeleteOpen(false);
+          setUserToDelete(null);
+        }}
+        handleDeleteClick={handleConfirmDelete}
+        loading={isDeleting}
+      />
+
+      {/* ── RIGHT DRAWER DETAILS (No tabs, module-specific) ── */}
+      <RightDrawer
+        openModal={isDrawerOpen}
+        handleCloseRightModal={() => setIsDrawerOpen(false)}
+        headingText={selectedUser?.name || "Administrator Profile"}
+        subheadingText={selectedUser?.email}
+        badgeText={selectedUser?.role}
+        badgeBgColor={
+          selectedUser?.role === "admin"
+            ? "#FEF3C7"
+            : "#E5EBFD"
+        }
+        badgeTextColor={
+          selectedUser?.role === "admin"
+            ? "#B45309"
+            : "#1249ED"
+        }
+        isMoreViewEdit={true}
+        isMoreViewDelete={true}
+        handleEditClick={() => {
+          if (selectedUser) {
+            setIsDrawerOpen(false);
+            handleEditClick(selectedUser);
+          }
+        }}
+        handleDeleteClick={() => {
+          if (selectedUser) {
+            handleOpenDelete(selectedUser);
+          }
+        }}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Name *"
-            placeholder="e.g. Ramesh Kumar"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Email Address *"
-            type="email"
-            placeholder="email@khurjadeals.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <Input
-            label={editingId ? "Reset Password" : "Password *"}
-            type="password"
-            placeholder={editingId ? "Leave blank to keep current" : "••••••••"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required={!editingId}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Role *"
-              options={roleOptions}
-              value={role}
-              onChange={(e) => setRole(e.target.value as any)}
-              required
-            />
-            <Select
-              label="Status *"
-              options={statusOptions}
-              value={status}
-              onChange={(e) => setStatus(e.target.value as any)}
-              required
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-neutral-850">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitLoading}>
-              Save User
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        <UserDrawerDetails user={selectedUser} />
+      </RightDrawer>
     </div>
   );
 }

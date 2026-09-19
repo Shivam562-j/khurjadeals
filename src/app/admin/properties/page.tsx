@@ -1,503 +1,676 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useMemo, useRef, useCallback, useReducer } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Property } from "@/types/property";
-import Button from "@/components/common/Button";
-import Input from "@/components/common/Input";
-import TextArea from "@/components/common/TextArea";
-import Select from "@/components/common/Select";
-import Modal from "@/components/common/Modal";
-import Loader from "@/components/common/Loader";
+import {
+  initialSearchState,
+  searchActions,
+  searchReducer,
+} from "@/reducer/searchReducer";
+import {
+  Table,
+  TopHeader,
+  TableColumn,
+  FilterFormData,
+  FilterSection,
+} from "@/components/admin/Tables";
+import { RightDrawer, PropertyDrawerDetails } from "@/components/admin/Drawer";
+import { CreatePropertyModal } from "@/components/admin/Forms";
+import { DeleteModal } from "@/components/admin/Modal";
+import {
+  MdEdit,
+  MdDeleteOutline,
+  MdOpenInNew,
+  MdHome,
+} from "react-icons/md";
+import { toast } from "react-toastify";
+
+// Filter configuration for Properties
+const propertyFilterSections: FilterSection[] = [
+  {
+    id: "status",
+    title: "Status",
+    gridCols: 2,
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Sold", value: "sold" },
+      { label: "Rented", value: "rented" },
+      { label: "Inactive", value: "inactive" },
+    ],
+  },
+  {
+    id: "type",
+    title: "Property Type",
+    gridCols: 2,
+    options: [
+      { label: "Residential", value: "residential" },
+      { label: "Commercial", value: "commercial" },
+      { label: "Plot", value: "plot" },
+      { label: "Agricultural", value: "agricultural" },
+    ],
+  },
+  {
+    id: "listingType",
+    title: "Purpose",
+    gridCols: 3,
+    options: [
+      { label: "Sell", value: "sell" },
+      { label: "Rent", value: "rent" },
+      { label: "Lease", value: "lease" },
+    ],
+  },
+];
 
 export default function PropertiesManager() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shouldOpenAdd = searchParams.get("add") === "true";
 
-  // State
+  // Data State (backend paginated & filtered)
   const [properties, setProperties] = useState<Property[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Form Fields State
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("residential");
-  const [listingType, setListingType] = useState("sell");
-  const [status, setStatus] = useState("active");
-  const [price, setPrice] = useState("");
-  const [area, setArea] = useState("");
-  const [areaUnit, setAreaUnit] = useState("sqft");
-  const [location, setLocation] = useState("");
-  const [address, setAddress] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [features, setFeatures] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  // Search input state with reducer (onEnter search execution)
+  const [searchState, dispatchSearch] = useReducer(searchReducer, {
+    ...initialSearchState,
+    searchText: "",
+  });
+  const { searchInput, searchText, cacheSearchText } = searchState;
+  const [activeSearch, setActiveSearch] = useState("");
+  const [filterFormData, setFilterFormData] = useState<FilterFormData>({});
 
-  const fetchProperties = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/properties?limit=100"); // fetch all for list
-      if (res.ok) {
-        const data = await res.json();
-        setProperties(data.properties || []);
+  // Pagination & Sorting State
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<boolean>(false); // false = desc
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  // Drawer State
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Delete Modal State
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Form Modal State (Create / Edit)
+  const [openForm, setOpenForm] = useState(false);
+  const [editProperty, setEditProperty] = useState<Property | null>(null);
+
+  // Fetch properties from backend with server-side pagination, search, filter, and sorting
+  const fetchPropertiesData = useCallback(
+    async (
+      targetPage = page,
+      targetLimit = rowsPerPage,
+      targetSortBy = sortBy,
+      targetSortOrder = sortOrder,
+      targetSearch = activeSearch,
+      targetFilters = filterFormData
+    ) => {
+      setIsLoading(true);
+      try {
+        const q = new URLSearchParams();
+        q.set("isAdmin", "true");
+        q.set("page", String(targetPage + 1));
+        q.set("limit", String(targetLimit));
+        if (targetSortBy) q.set("sortBy", targetSortBy);
+        q.set("sortOrder", targetSortOrder ? "asc" : "desc");
+
+        if (targetSearch && targetSearch.trim()) {
+          q.set("search", targetSearch.trim());
+        }
+
+        if (targetFilters?.status && targetFilters.status.length > 0) {
+          q.set("status", targetFilters.status.join(","));
+        }
+
+        if (targetFilters?.type && targetFilters.type.length > 0) {
+          q.set("type", targetFilters.type.join(","));
+        }
+
+        if (targetFilters?.listingType && targetFilters.listingType.length > 0) {
+          q.set("listingType", targetFilters.listingType.join(","));
+        }
+
+        const res = await fetch(`/api/properties?${q.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProperties(data.properties || []);
+          setTotalCount(data.total ?? data.count ?? (data.properties?.length || 0));
+        } else {
+          setProperties([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch properties:", err);
+        setProperties([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
       }
-    } catch {}
-    setIsLoading(false);
+    },
+    [page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData]
+  );
+
+  const prevFilterRef = useRef(filterFormData);
+  const prevSearchRef = useRef(activeSearch);
+
+  // Fetch data when pagination, sorting, activeSearch (onEnter), or filters change
+  useEffect(() => {
+    const filterChanged =
+      JSON.stringify(prevFilterRef.current.status) !== JSON.stringify(filterFormData.status) ||
+      JSON.stringify(prevFilterRef.current.type) !== JSON.stringify(filterFormData.type) ||
+      JSON.stringify(prevFilterRef.current.listingType) !== JSON.stringify(filterFormData.listingType);
+
+    const searchChanged = prevSearchRef.current !== activeSearch;
+
+    if (filterChanged || searchChanged) {
+      prevFilterRef.current = filterFormData;
+      prevSearchRef.current = activeSearch;
+      if (page !== 0) {
+        setPage(0);
+        return;
+      }
+    }
+
+    fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+  }, [page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData, fetchPropertiesData]);
+
+  // Handle search when user presses Enter key
+  const handleSearchEnter = (searchValue: string) => {
+    setPage(0);
+    setActiveSearch(searchValue.trim());
+    if (!searchValue.trim()) {
+      dispatchSearch({ type: searchActions.RESET_SEARCH });
+    }
   };
 
   useEffect(() => {
-    fetchProperties();
     if (shouldOpenAdd) {
-      const paramTitle = searchParams.get("title") || "";
-      const paramDesc = searchParams.get("description") || "";
-      const paramName = searchParams.get("contactName") || "";
-      const paramPhone = searchParams.get("contactPhone") || "";
-
-      setEditingId(null);
-      setTitle(paramTitle);
-      setDescription(paramDesc);
-      setType("residential");
-      setListingType("sell");
-      setStatus("active");
-      setPrice("");
-      setArea("");
-      setAreaUnit("sqft");
-      setLocation("");
-      setAddress("");
-      setContactName(paramName);
-      setContactPhone(paramPhone);
-      setIsFeatured(false);
-      setFeatures("");
-      setImages([]);
-      setIsModalOpen(true);
+      setEditProperty(null);
+      setOpenForm(true);
     }
-  }, [shouldOpenAdd, searchParams]);
+  }, [shouldOpenAdd]);
 
-  const handleOpenAdd = () => {
-    setEditingId(null);
-    setTitle("");
-    setDescription("");
-    setType("residential");
-    setListingType("sell");
-    setStatus("active");
-    setPrice("");
-    setArea("");
-    setAreaUnit("sqft");
-    setLocation("");
-    setAddress("");
-    setContactName("");
-    setContactPhone("");
-    setIsFeatured(false);
-    setFeatures("");
-    setImages([]);
-    setIsModalOpen(true);
+  // Active filters count
+  const filterCount = useMemo(() => {
+    return Object.values(filterFormData).reduce(
+      (acc, arr) => acc + (arr?.length || 0),
+      0
+    );
+  }, [filterFormData]);
+
+  // Open modal for Adding
+  const handleNewPropertyClick = () => {
+    setEditProperty(null);
+    setOpenForm(true);
   };
 
-  const handleOpenEdit = (prop: Property) => {
-    setEditingId(prop._id);
-    setTitle(prop.title);
-    setDescription(prop.description);
-    setType(prop.type);
-    setListingType(prop.listingType);
-    setStatus(prop.status);
-    setPrice(String(prop.price));
-    setArea(String(prop.area));
-    setAreaUnit(prop.areaUnit);
-    setLocation(prop.location);
-    setAddress(prop.address || "");
-    setContactName(prop.contactName);
-    setContactPhone(prop.contactPhone);
-    setIsFeatured(prop.isFeatured || false);
-    setFeatures(prop.features ? prop.features.join(", ") : "");
-    setImages(prop.images || []);
-    setIsModalOpen(true);
+  // Open modal for Editing
+  const handleEditClick = (prop: Property) => {
+    setEditProperty(prop);
+    setOpenForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this property?")) return;
+  // Open delete modal
+  const handleOpenDelete = (prop: Property) => {
+    setPropertyToDelete(prop);
+    setDeleteOpen(true);
+  };
+
+  // Confirm delete handler
+  const handleConfirmDelete = async () => {
+    if (!propertyToDelete) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/properties/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setProperties(properties.filter((p) => p._id !== id));
-      }
-    } catch {}
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setIsUploading(true);
-    const uploadedUrls: string[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) uploadedUrls.push(data.url);
-        }
-      } catch (err) {
-        console.error("Upload error:", err);
-      }
-    }
-
-    setImages((prev) => [...prev, ...uploadedUrls]);
-    setIsUploading(false);
-  };
-
-  const removeImage = (url: string) => {
-    setImages(images.filter((img) => img !== url));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitLoading(true);
-
-    const propertyPayload = {
-      title,
-      description,
-      type,
-      listingType,
-      status,
-      price: Number(price),
-      area: Number(area),
-      areaUnit,
-      location,
-      address,
-      contactName,
-      contactPhone,
-      isFeatured,
-      features: features.split(",").map((f) => f.trim()).filter(Boolean),
-      images,
-    };
-
-    try {
-      const url = editingId ? `/api/properties/${editingId}` : "/api/properties";
-      const method = editingId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(propertyPayload),
+      const res = await fetch(`/api/properties/${propertyToDelete._id}`, {
+        method: "DELETE",
       });
-
       if (res.ok) {
-        setIsModalOpen(false);
-        fetchProperties();
-        // remove URL query parameter if present
-        if (shouldOpenAdd) {
-          router.push("/admin/properties");
+        toast.success("Property deleted successfully.");
+        if (selectedProperty?._id === propertyToDelete._id) {
+          setIsDrawerOpen(false);
+          setSelectedProperty(null);
         }
+        fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
       } else {
-        const err = await res.json();
-        alert(err.message || "Failed to save property");
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || "Failed to delete property.");
       }
-    } catch {}
-    setIsSubmitLoading(false);
+    } catch (err) {
+      console.error("Failed to delete property:", err);
+      toast.error("Failed to delete property.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteOpen(false);
+      setPropertyToDelete(null);
+    }
   };
 
-  const typeOptions = [
-    { label: "Residential", value: "residential" },
-    { label: "Commercial", value: "commercial" },
-    { label: "Plot", value: "plot" },
-    { label: "Agricultural", value: "agricultural" },
+  // Bulk Delete handler
+  const handleBulkDeleteProperties = async () => {
+    if (!selectedRows.length) return;
+    const rowLength = selectedRows.length;
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          fetch(`/api/properties/${id}`, { method: "DELETE" })
+        )
+      );
+      setSelectedRows([]);
+      toast.success(`${rowLength} asset profiles deleted successfully.`);
+      fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      toast.error("Failed to delete selected properties.");
+    }
+  };
+
+  // CSV Export (fetch all matching backend records for accurate export)
+  const handleExportCSV = async () => {
+    try {
+      const q = new URLSearchParams();
+      q.set("isAdmin", "true");
+      q.set("page", "1");
+      q.set("limit", "1000");
+      if (sortBy) q.set("sortBy", sortBy);
+      q.set("sortOrder", sortOrder ? "asc" : "desc");
+      if (activeSearch.trim()) q.set("search", activeSearch.trim());
+      if (filterFormData?.status?.length) q.set("status", filterFormData.status.join(","));
+      if (filterFormData?.type?.length) q.set("type", filterFormData.type.join(","));
+      if (filterFormData?.listingType?.length) q.set("listingType", filterFormData.listingType.join(","));
+
+      const res = await fetch(`/api/properties?${q.toString()}`);
+      const data = await res.json();
+      const exportList: Property[] = data.properties || properties;
+
+      if (!exportList.length) {
+        toast.warning("No properties found to export.");
+        return;
+      }
+      const headers = [
+        "Title",
+        "Type",
+        "Purpose",
+        "Price",
+        "Area",
+        "Location",
+        "Contact Name",
+        "Contact Phone",
+        "Status",
+      ];
+      const rows = exportList.map((p) => [
+        `"${(p.title || "").replace(/"/g, '""')}"`,
+        `"${p.type || ""}"`,
+        `"${p.listingType || ""}"`,
+        `"${p.price || 0}"`,
+        `"${p.area || ""} ${p.areaUnit || ""}"`,
+        `"${(p.location || "").replace(/"/g, '""')}"`,
+        `"${(p.contactName || "").replace(/"/g, '""')}"`,
+        `"${p.contactPhone || ""}"`,
+        `"${p.status || ""}"`,
+      ]);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        `properties_list_${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`${exportList.length} properties exported successfully.`);
+    } catch (e) {
+      console.error("Export error:", e);
+      toast.error("Failed to export properties.");
+    }
+  };
+
+  // Table Columns Definition matching user screenshot
+  const columns: TableColumn<Property>[] = [
+    {
+      id: "title",
+      label: "Name",
+      key1: "title",
+      isSortable: true,
+      minWidth: "220px",
+      render: (item) => (
+        <div className="truncate py-0.5">
+          <span
+            className="font-semibold text-gray-900 block truncate"
+            title={item.title}
+          >
+            {item.title}
+          </span>
+          {item.location && (
+            <span className="text-[11px] text-gray-500 block truncate">
+              {item.location}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "type",
+      label: "Type",
+      key1: "type",
+      isSortable: true,
+      minWidth: "120px",
+      render: (item) => (
+        <span className="capitalize font-medium text-gray-700">
+          {item.type}
+        </span>
+      ),
+    },
+    {
+      id: "listingType",
+      label: "Purpose",
+      key1: "listingType",
+      isSortable: true,
+      minWidth: "100px",
+      render: (item) => (
+        <span className="capitalize font-semibold text-gray-800">
+          {item.listingType}
+        </span>
+      ),
+    },
+    {
+      id: "price",
+      label: "Price",
+      key1: "price",
+      isSortable: true,
+      minWidth: "130px",
+      render: (item) => (
+        <span className="font-bold text-[#008761]">
+          ₹{Number(item.price).toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      id: "area",
+      label: "Area",
+      key1: "area",
+      isSortable: true,
+      minWidth: "120px",
+      render: (item) => (
+        <span className="text-gray-600 font-medium">
+          {item.area} {item.areaUnit}
+        </span>
+      ),
+    },
+    {
+      id: "contactName",
+      label: "Contact",
+      key1: "contactName",
+      minWidth: "150px",
+      render: (item) => (
+        <div className="truncate text-xs">
+          <span className="font-medium text-gray-800 block truncate">
+            {item.contactName || "—"}
+          </span>
+          <span className="text-gray-500 font-mono text-[11px]">
+            {item.contactPhone || ""}
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "status",
+      label: "Status",
+      key1: "status",
+      isSortable: true,
+      minWidth: "110px",
+      render: (item) => {
+        const s = String(item.status || "").toLowerCase();
+        if (s === "active") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+              Active
+            </span>
+          );
+        }
+        if (s === "sold") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FDE9E7] text-[#D51D10]">
+              Sold
+            </span>
+          );
+        }
+        if (s === "rented") {
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E5EBFD] text-[#1249ED]">
+              Rented
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+            {item.status || "Inactive"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "action",
+      label: "Actions",
+      key1: "_id",
+      type: "action",
+      minWidth: "130px",
+      render: (item) => (
+        <div className="flex items-center justify-end gap-1">
+          {/* View Details in Drawer (External Click) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedProperty(item);
+              setIsDrawerOpen(true);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            title="View Details in Drawer"
+          >
+            <MdOpenInNew className="text-base" />
+          </button>
+
+          {/* Edit Action (matching screenshot pencil) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditClick(item);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            title="Edit Property"
+          >
+            <MdEdit className="text-base" />
+          </button>
+
+          {/* Delete Action */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenDelete(item);
+            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            title="Delete Property"
+          >
+            <MdDeleteOutline className="text-base" />
+          </button>
+        </div>
+      ),
+    },
   ];
 
-  const listingOptions = [
-    { label: "Sell", value: "sell" },
-    { label: "Rent", value: "rent" },
-    { label: "Lease", value: "lease" },
-  ];
-
-  const statusOptions = [
-    { label: "Active", value: "active" },
-    { label: "Sold", value: "sold" },
-    { label: "Rented", value: "rented" },
-    { label: "Inactive", value: "inactive" },
-  ];
-
-  const areaUnitOptions = [
-    { label: "Sq. Ft", value: "sqft" },
-    { label: "Sq. Yard", value: "sqyd" },
-    { label: "Acre", value: "acre" },
-    { label: "Bigha", value: "bigha" },
-  ];
+  // Empty text based on whether search/filter or database is empty
+  const isFilteredOrSearched = Boolean(activeSearch.trim()) || filterCount > 0;
+  const emptyText =
+    isFilteredOrSearched
+      ? "No properties or type found."
+      : "No properties found. Click '+ New Property' to create your first listing!";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">Properties</h1>
-          <p className="text-sm text-neutral-450">
-            Create, update, or remove real estate listings.
-          </p>
-        </div>
-        <Button onClick={handleOpenAdd} size="sm">
-          Add Property
-        </Button>
+    <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
+      {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
+      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
+        {/* TopHeader with title: Property List, search onEnter, filters, green 'New Property' button, and CSV Export */}
+        <TopHeader
+          title="Property List"
+          searchInput={searchInput}
+          searchText={searchText}
+          cacheSearchText={cacheSearchText}
+          dispatchSearch={dispatchSearch}
+          searchActions={searchActions}
+          handleSearchEnter={handleSearchEnter}
+          filterFormData={filterFormData}
+          handleFilterFormDataChange={(key, value) => {
+            setPage(0);
+            setFilterFormData((prev) => ({
+              ...prev,
+              [key]: value,
+            }));
+          }}
+          setFilterFormData={(updater) => {
+            setPage(0);
+            setFilterFormData(updater);
+          }}
+          filterCount={filterCount}
+          filterSections={propertyFilterSections}
+          refetch={() => setPage(0)}
+          actionButtonText="New Property"
+          actionButtonColor="green"
+          handleActionClick={handleNewPropertyClick}
+          handleExportClick={handleExportCSV}
+          exportTitle="Export Properties (CSV)"
+          selectedCount={selectedRows.length}
+          handleBulkDelete={handleBulkDeleteProperties}
+        />
+
+        {/* Custom Table Component (Connected directly to backend-paginated data) */}
+        <Table
+          columns={columns}
+          tableData={properties}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          totalCount={totalCount}
+          handleChangePage={(newPage) => setPage(newPage)}
+          handleChangeRowsPerPage={(newRows) => {
+            setRowsPerPage(newRows);
+            setPage(0);
+          }}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          setSortBy={(newSort) => {
+            setSortBy(newSort);
+            setPage(0);
+          }}
+          setSortOrder={(newOrder) => {
+            setSortOrder(newOrder);
+            setPage(0);
+          }}
+          isCheckBox={true}
+          isSno={false}
+          handleItemClick={(item) => {
+            setSelectedProperty(item);
+            setIsDrawerOpen(true);
+          }}
+          selectedRows={selectedRows}
+          handleRowSelect={(id) => {
+            setSelectedRows((prev) =>
+              prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
+            );
+          }}
+          handleSelectAllClick={() => {
+            if (selectedRows.length === properties.length) {
+              setSelectedRows([]);
+            } else {
+              setSelectedRows(properties.map((p) => p._id));
+            }
+          }}
+          loading={isLoading}
+          emptyText={emptyText}
+        />
       </div>
 
-      {isLoading ? (
-        <Loader size="lg" />
-      ) : properties.length === 0 ? (
-        <div className="text-center p-12 bg-neutral-900 border border-neutral-850 rounded-2xl">
-          <p className="text-neutral-400">No properties found. Add your first listing!</p>
-        </div>
-      ) : (
-        <div className="bg-neutral-900 border border-neutral-850 rounded-2xl overflow-hidden shadow">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-neutral-300">
-              <thead>
-                <tr className="border-b border-neutral-850 bg-neutral-950/20 text-xs text-neutral-500 uppercase font-bold tracking-wider">
-                  <th className="py-4 px-6">Property</th>
-                  <th className="py-4 px-6">Type / Purpose</th>
-                  <th className="py-4 px-6">Price</th>
-                  <th className="py-4 px-6">Area</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-850/50">
-                {properties.map((prop) => (
-                  <tr key={prop._id} className="hover:bg-neutral-950/10">
-                    <td className="py-4 px-6 font-semibold text-white">
-                      <div>{prop.title}</div>
-                      <span className="text-xs text-neutral-500 font-normal">
-                        📍 {prop.location}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 capitalize">
-                      {prop.type} · <span className="font-semibold text-xs">{prop.listingType}</span>
-                    </td>
-                    <td className="py-4 px-6 font-bold text-[var(--primary)]">
-                      ₹{prop.price.toLocaleString("en-IN")}
-                    </td>
-                    <td className="py-4 px-6">
-                      {prop.area} {prop.areaUnit}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
-                        prop.status === "active"
-                          ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                          : prop.status === "sold" || prop.status === "rented"
-                          ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                          : "bg-neutral-800 text-neutral-400"
-                      }`}>
-                        {prop.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-right space-x-2">
-                      <button
-                        onClick={() => handleOpenEdit(prop)}
-                        className="text-xs font-semibold text-neutral-400 hover:text-white px-2 py-1 rounded bg-neutral-850 hover:bg-neutral-800 transition cursor-pointer"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(prop._id)}
-                        className="text-xs font-semibold text-red-500 hover:text-red-400 px-2 py-1 rounded bg-red-950/10 hover:bg-red-950/30 border border-red-900/10 transition cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* ── CREATE / EDIT PROPERTY MODAL (Vecmocon full-width layout) ── */}
+      <CreatePropertyModal
+        isOpen={openForm}
+        onClose={() => {
+          setOpenForm(false);
+          setEditProperty(null);
+        }}
+        editProperty={editProperty}
+        onSuccess={() => {
+          fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+          if (shouldOpenAdd) {
+            router.push("/admin/properties");
+          }
+        }}
+      />
 
-      {/* Add/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingId ? "Edit Property" : "Add Property"}
+      {/* ── DELETE CONFIRMATION MODAL (Matching Vecmocon style) ── */}
+      <DeleteModal
+        deleteOpenModal={deleteOpen}
+        headerTitle="Property"
+        deleteTextname={propertyToDelete?.title || ""}
+        handleCloseClick={() => {
+          setDeleteOpen(false);
+          setPropertyToDelete(null);
+        }}
+        handleDeleteClick={handleConfirmDelete}
+        loading={isDeleting}
+      />
+
+      {/* ── RIGHT DRAWER DETAILS (No tabs, module-specific) ── */}
+      <RightDrawer
+        openModal={isDrawerOpen}
+        handleCloseRightModal={() => setIsDrawerOpen(false)}
+        headingText={selectedProperty?.title || "Property Details"}
+        subheadingText={selectedProperty?.location}
+        badgeText={selectedProperty?.status}
+        badgeBgColor={
+          selectedProperty?.status === "active"
+            ? "#DAF5ED"
+            : selectedProperty?.status === "sold"
+            ? "#FDE9E7"
+            : selectedProperty?.status === "rented"
+            ? "#E5EBFD"
+            : "#D8DDE7"
+        }
+        badgeTextColor={
+          selectedProperty?.status === "active"
+            ? "#006C4D"
+            : selectedProperty?.status === "sold"
+            ? "#D51D10"
+            : selectedProperty?.status === "rented"
+            ? "#1249ED"
+            : "#565F70"
+        }
+        isMoreViewEdit={true}
+        isMoreViewDelete={true}
+        handleEditClick={() => {
+          if (selectedProperty) {
+            setIsDrawerOpen(false);
+            handleEditClick(selectedProperty);
+          }
+        }}
+        handleDeleteClick={() => {
+          if (selectedProperty) {
+            handleOpenDelete(selectedProperty);
+          }
+        }}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Property Title *"
-            placeholder="e.g. 100 Gaj Commercial Shop on G.T. Road"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-
-          <TextArea
-            label="Description *"
-            placeholder="Describe the property highlights..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Property Type *"
-              options={typeOptions}
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              required
-            />
-            <Select
-              label="Purpose *"
-              options={listingOptions}
-              value={listingType}
-              onChange={(e) => setListingType(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Asking Price (₹) *"
-              type="number"
-              placeholder="e.g. 1800000"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-            <Select
-              label="Status *"
-              options={statusOptions}
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Area (Size) *"
-              type="number"
-              placeholder="e.g. 100"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              required
-            />
-            <Select
-              label="Area Unit *"
-              options={areaUnitOptions}
-              value={areaUnit}
-              onChange={(e) => setAreaUnit(e.target.value)}
-              required
-            />
-          </div>
-
-          <Input
-            label="Location (General Area) *"
-            placeholder="e.g. GT Road, near Junction"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Exact Address"
-            placeholder="e.g. Shop 14, Main Bazaar Road, Khurja"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Contact Name *"
-              placeholder="Owner or Agent name"
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              required
-            />
-            <Input
-              label="Contact Mobile *"
-              placeholder="10 digit number"
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              required
-            />
-          </div>
-
-          <Input
-            label="Features / Amenities"
-            placeholder="Separated by comma, e.g. Water supply, Parking, Main Road face"
-            value={features}
-            onChange={(e) => setFeatures(e.target.value)}
-          />
-
-          {/* Image Upload field */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-350 block">
-              Images ({images.length} uploaded)
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-              disabled={isUploading}
-              className="w-full text-xs text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neutral-800 file:text-white hover:file:bg-neutral-700 cursor-pointer"
-            />
-            {isUploading && <p className="text-xs text-[var(--primary)] animate-pulse">Uploading images to Cloudinary...</p>}
-
-            {/* Uploaded previews */}
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {images.map((img, idx) => (
-                  <div key={idx} className="relative w-16 h-12 rounded overflow-hidden bg-neutral-950 border border-neutral-800">
-                    <img src={img} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(img)}
-                      className="absolute top-0 right-0 bg-red-600 text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-bl font-bold"
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 py-2">
-            <input
-              id="isFeatured"
-              type="checkbox"
-              checked={isFeatured}
-              onChange={(e) => setIsFeatured(e.target.checked)}
-              className="rounded bg-neutral-950 border-neutral-800 text-[var(--primary)] focus:ring-[var(--primary)]"
-            />
-            <label htmlFor="isFeatured" className="text-sm font-semibold text-white">
-              Mark as Featured Listing
-            </label>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-neutral-850">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitLoading}>
-              Save Property
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        <PropertyDrawerDetails property={selectedProperty} />
+      </RightDrawer>
     </div>
   );
 }

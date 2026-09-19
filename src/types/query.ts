@@ -13,3 +13,23 @@ export interface Query {
   createdAt:   string;
   updatedAt:   string;
 }
+
+export interface QueryFilter {
+  type?:      QueryType | QueryType[] | string;
+  status?:    QueryStatus | QueryStatus[] | string;
+  search?:    string;
+  sortBy?:    string;
+  sortOrder?: "asc" | "desc" | boolean | string;
+  page?:      number;
+  limit?:     number;
+}
+
+export interface PaginatedQueryResponse {
+  queries: Query[];
+  total?: number;
+  count?: number;
+  page?: number;
+  limit: number;
+  totalPages?: number;
+  hasMore?: boolean;
+}

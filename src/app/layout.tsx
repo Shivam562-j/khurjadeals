@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import InstallBanner from "@/components/common/InstallBanner";
+import "react-toastify/dist/ReactToastify.css";
 
 export const metadata: Metadata = {
   title: "KhurjaDeals — Khurja's Local Marketplace",
@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import QueryProvider from "@/components/providers/QueryProvider";
+import { AdminToaster } from "@/utils/toast";
 
 export default function RootLayout({
   children,
@@ -32,6 +33,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#e8590c" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -53,8 +60,8 @@ export default function RootLayout({
       <body className="antialiased">
         <QueryProvider>
           {children}
-          <InstallBanner />
         </QueryProvider>
+        <AdminToaster />
       </body>
     </html>
   );
