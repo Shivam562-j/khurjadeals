@@ -48,6 +48,32 @@
   flex-shrink: 0 !important;
 }
 
+/* Guaranteed Toast Type Color & Border Styling */
+.Toastify__toast.toast-success,
+.Toastify__toast.bg-\[\#daf5ed\] {
+  background-color: #daf5ed !important;
+  color: #006c4d !important;
+  border: 1px solid #bbf0df !important;
+}
+
+.Toastify__toast.toast-error,
+.Toastify__toast.bg-\[\#fde9e7\] {
+  background-color: #fde9e7 !important;
+  color: #d51d10 !important;
+  border: 1px solid #fad4d0 !important;
+}
+
+.Toastify__toast.toast-warning {
+  background-color: #fde9e7 !important;
+  color: #d51d10 !important;
+  border: 1px solid #fad4d0 !important;
+}
+
+.Toastify__toast-body,
+.Toastify__toast-body > div {
+  color: inherit !important;
+}
+
 :root {
   --bg-dark: #0a0a0a;
   --bg-card: #141414;

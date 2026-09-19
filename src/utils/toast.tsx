@@ -97,10 +97,10 @@ export function AdminToaster() {
       }
       toastClassName={(context) =>
         context?.type === "success"
-          ? "bg-[#daf5ed] text-[#006c4d] flex justify-between items-center p-2 rounded text-sm font-semibold cursor-pointer border border-[#bbf0df]"
+          ? "toast-success bg-[#daf5ed] text-[#006c4d] flex justify-between items-center p-2 rounded text-sm font-semibold cursor-pointer border border-[#bbf0df]"
           : context?.type === "error"
-          ? "bg-[#fde9e7] text-[#d51d10] flex justify-between items-center p-2 rounded text-sm font-semibold cursor-pointer border border-[#fad4d0]"
-          : "bg-[#fde9e7] text-[#d51d10] flex justify-between items-center p-2 rounded text-sm font-semibold cursor-pointer border border-[#fad4d0]"
+            ? "toast-error bg-[#fde9e7] text-[#d51d10] flex justify-between items-center p-2 rounded text-sm font-semibold cursor-pointer border border-[#fad4d0]"
+            : "toast-warning bg-[#fde9e7] text-[#d51d10] flex justify-between items-center p-2 rounded text-sm font-semibold cursor-pointer border border-[#fad4d0]"
       }
       closeButton={false}
       pauseOnHover={true}
