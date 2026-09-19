@@ -11,17 +11,14 @@ import {
   FilterSection,
 } from "@/components/admin/Tables";
 import { RightDrawer, PropertyDrawerDetails } from "@/components/admin/Drawer";
+import { CreatePropertyModal } from "@/components/admin/Forms";
+import { DeleteModal } from "@/components/admin/Modal";
 import {
   MdEdit,
   MdDeleteOutline,
   MdOpenInNew,
   MdHome,
 } from "react-icons/md";
-import Button from "@/components/common/Button";
-import Input from "@/components/common/Input";
-import TextArea from "@/components/common/TextArea";
-import Select from "@/components/common/Select";
-import Modal from "@/components/common/Modal";
 
 // Filter configuration for Properties
 const propertyFilterSections: FilterSection[] = [
@@ -83,28 +80,14 @@ export default function PropertiesManager() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Modal & Form State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  // Delete Modal State
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Form Fields State
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("residential");
-  const [listingType, setListingType] = useState("sell");
-  const [status, setStatus] = useState("active");
-  const [price, setPrice] = useState("");
-  const [area, setArea] = useState("");
-  const [areaUnit, setAreaUnit] = useState("sqft");
-  const [location, setLocation] = useState("");
-  const [address, setAddress] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [features, setFeatures] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  // Form Modal State (Create / Edit)
+  const [openForm, setOpenForm] = useState(false);
+  const [editProperty, setEditProperty] = useState<Property | null>(null);
 
   // Fetch properties from backend
   const fetchProperties = async () => {
@@ -124,30 +107,10 @@ export default function PropertiesManager() {
   useEffect(() => {
     fetchProperties();
     if (shouldOpenAdd) {
-      const paramTitle = searchParams.get("title") || "";
-      const paramDesc = searchParams.get("description") || "";
-      const paramName = searchParams.get("contactName") || "";
-      const paramPhone = searchParams.get("contactPhone") || "";
-
-      setEditingId(null);
-      setTitle(paramTitle);
-      setDescription(paramDesc);
-      setType("residential");
-      setListingType("sell");
-      setStatus("active");
-      setPrice("");
-      setArea("");
-      setAreaUnit("sqft");
-      setLocation("");
-      setAddress("");
-      setContactName(paramName);
-      setContactPhone(paramPhone);
-      setIsFeatured(false);
-      setFeatures("");
-      setImages([]);
-      setIsModalOpen(true);
+      setEditProperty(null);
+      setOpenForm(true);
     }
-  }, [shouldOpenAdd, searchParams]);
+  }, [shouldOpenAdd]);
 
   // Reset page when search or filters change
   useEffect(() => {
@@ -213,150 +176,47 @@ export default function PropertiesManager() {
   }, [sortedProperties, page, rowsPerPage]);
 
   // Open modal for Adding
-  const handleOpenAdd = () => {
-    setEditingId(null);
-    setTitle("");
-    setDescription("");
-    setType("residential");
-    setListingType("sell");
-    setStatus("active");
-    setPrice("");
-    setArea("");
-    setAreaUnit("sqft");
-    setLocation("");
-    setAddress("");
-    setContactName("");
-    setContactPhone("");
-    setIsFeatured(false);
-    setFeatures("");
-    setImages([]);
-    setIsModalOpen(true);
+  const handleNewPropertyClick = () => {
+    setEditProperty(null);
+    setOpenForm(true);
   };
 
   // Open modal for Editing
-  const handleOpenEdit = (prop: Property) => {
-    setEditingId(prop._id);
-    setTitle(prop.title);
-    setDescription(prop.description);
-    setType(prop.type);
-    setListingType(prop.listingType);
-    setStatus(prop.status);
-    setPrice(String(prop.price));
-    setArea(String(prop.area));
-    setAreaUnit(prop.areaUnit);
-    setLocation(prop.location);
-    setAddress(prop.address || "");
-    setContactName(prop.contactName);
-    setContactPhone(prop.contactPhone);
-    setIsFeatured(prop.isFeatured || false);
-    setFeatures(prop.features ? prop.features.join(", ") : "");
-    setImages(prop.images || []);
-    setIsModalOpen(true);
+  const handleEditClick = (prop: Property) => {
+    setEditProperty(prop);
+    setOpenForm(true);
   };
 
-  // Delete property
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this property?"))
-      return;
+  // Open delete modal
+  const handleOpenDelete = (prop: Property) => {
+    setPropertyToDelete(prop);
+    setDeleteOpen(true);
+  };
+
+  // Confirm delete handler
+  const handleConfirmDelete = async () => {
+    if (!propertyToDelete) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/properties/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/properties/${propertyToDelete._id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
-        setProperties(properties.filter((p) => p._id !== id));
+        setProperties((prev) =>
+          prev.filter((p) => p._id !== propertyToDelete._id)
+        );
+        if (selectedProperty?._id === propertyToDelete._id) {
+          setIsDrawerOpen(false);
+          setSelectedProperty(null);
+        }
       }
     } catch (err) {
       console.error("Failed to delete property:", err);
+    } finally {
+      setIsDeleting(false);
+      setDeleteOpen(false);
+      setPropertyToDelete(null);
     }
-  };
-
-  // Image Upload
-  const handleImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setIsUploading(true);
-    const uploadedUrls: string[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) uploadedUrls.push(data.url);
-        }
-      } catch (err) {
-        console.error("Upload error:", err);
-      }
-    }
-
-    setImages((prev) => [...prev, ...uploadedUrls]);
-    setIsUploading(false);
-  };
-
-  const removeImage = (url: string) => {
-    setImages(images.filter((img) => img !== url));
-  };
-
-  // Form Submit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitLoading(true);
-
-    const propertyPayload = {
-      title,
-      description,
-      type,
-      listingType,
-      status,
-      price: Number(price),
-      area: Number(area),
-      areaUnit,
-      location,
-      address,
-      contactName,
-      contactPhone,
-      isFeatured,
-      features: features
-        .split(",")
-        .map((f) => f.trim())
-        .filter(Boolean),
-      images,
-    };
-
-    try {
-      const url = editingId
-        ? `/api/properties/${editingId}`
-        : "/api/properties";
-      const method = editingId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(propertyPayload),
-      });
-
-      if (res.ok) {
-        setIsModalOpen(false);
-        fetchProperties();
-        if (shouldOpenAdd) {
-          router.push("/admin/properties");
-        }
-      } else {
-        const err = await res.json();
-        alert(err.message || "Failed to save property");
-      }
-    } catch (err) {
-      console.error("Save error:", err);
-    }
-    setIsSubmitLoading(false);
   };
 
   // CSV Export
@@ -554,7 +414,7 @@ export default function PropertiesManager() {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              handleOpenEdit(item);
+              handleEditClick(item);
             }}
             className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
             title="Edit Property"
@@ -567,7 +427,7 @@ export default function PropertiesManager() {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(item._id);
+              handleOpenDelete(item);
             }}
             className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
             title="Delete Property"
@@ -635,7 +495,7 @@ export default function PropertiesManager() {
           filterSections={propertyFilterSections}
           actionButtonText="New Property"
           actionButtonColor="green"
-          handleActionClick={handleOpenAdd}
+          handleActionClick={handleNewPropertyClick}
           handleExportClick={handleExportCSV}
           exportTitle="Export Properties (CSV)"
         />
@@ -680,196 +540,34 @@ export default function PropertiesManager() {
         />
       </div>
 
-      {/* ── ADD / EDIT PROPERTY MODAL ── */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={editingId ? "Edit Property" : "Add New Property"}
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Property Title *"
-            placeholder="e.g. 100 Gaj Commercial Shop on G.T. Road"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+      {/* ── CREATE / EDIT PROPERTY MODAL (Vecmocon full-width layout) ── */}
+      <CreatePropertyModal
+        isOpen={openForm}
+        onClose={() => {
+          setOpenForm(false);
+          setEditProperty(null);
+        }}
+        editProperty={editProperty}
+        onSuccess={() => {
+          fetchProperties();
+          if (shouldOpenAdd) {
+            router.push("/admin/properties");
+          }
+        }}
+      />
 
-          <TextArea
-            label="Description *"
-            placeholder="Describe the property highlights..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="Property Type *"
-              options={typeOptions}
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              required
-            />
-            <Select
-              label="Purpose *"
-              options={listingOptions}
-              value={listingType}
-              onChange={(e) => setListingType(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Asking Price (₹) *"
-              type="number"
-              placeholder="e.g. 1800000"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-            <Select
-              label="Status *"
-              options={statusOptions}
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Area (Size) *"
-              type="number"
-              placeholder="e.g. 100"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              required
-            />
-            <Select
-              label="Area Unit *"
-              options={areaUnitOptions}
-              value={areaUnit}
-              onChange={(e) => setAreaUnit(e.target.value)}
-              required
-            />
-          </div>
-
-          <Input
-            label="Location (General Area) *"
-            placeholder="e.g. GT Road, near Junction"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            required
-          />
-
-          <Input
-            label="Exact Address"
-            placeholder="e.g. Shop 14, Main Bazaar Road, Khurja"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Contact Name *"
-              placeholder="Owner or Agent name"
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              required
-            />
-            <Input
-              label="Contact Mobile *"
-              placeholder="10 digit number"
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
-              required
-            />
-          </div>
-
-          <Input
-            label="Features / Amenities"
-            placeholder="Separated by comma, e.g. Water supply, Parking, Main Road face"
-            value={features}
-            onChange={(e) => setFeatures(e.target.value)}
-          />
-
-          {/* Image Upload field */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 block">
-              Images ({images.length} uploaded)
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-              disabled={isUploading}
-              className="w-full text-xs text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#E5E9F0] file:text-[#252A34] hover:file:bg-[#D8DDE7] cursor-pointer"
-            />
-            {isUploading && (
-              <p className="text-xs text-[#008761] animate-pulse">
-                Uploading images to Cloudinary...
-              </p>
-            )}
-
-            {/* Uploaded previews */}
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {images.map((img, idx) => (
-                  <div
-                    key={idx}
-                    className="relative w-16 h-12 rounded overflow-hidden bg-gray-100 border border-gray-200"
-                  >
-                    <img
-                      src={img}
-                      alt="preview"
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(img)}
-                      className="absolute top-0 right-0 bg-red-600 text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-bl font-bold cursor-pointer"
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 py-2">
-            <input
-              id="isFeatured"
-              type="checkbox"
-              checked={isFeatured}
-              onChange={(e) => setIsFeatured(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-[#009E71] focus:ring-[#009E71] cursor-pointer accent-[#009E71]"
-            />
-            <label
-              htmlFor="isFeatured"
-              className="text-sm font-medium text-gray-800 cursor-pointer"
-            >
-              Mark as Featured Listing
-            </label>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitLoading}>
-              Save Property
-            </Button>
-          </div>
-        </form>
-      </Modal>
+      {/* ── DELETE CONFIRMATION MODAL (Matching Vecmocon style) ── */}
+      <DeleteModal
+        deleteOpenModal={deleteOpen}
+        headerTitle="Property"
+        deleteTextname={propertyToDelete?.title || ""}
+        handleCloseClick={() => {
+          setDeleteOpen(false);
+          setPropertyToDelete(null);
+        }}
+        handleDeleteClick={handleConfirmDelete}
+        loading={isDeleting}
+      />
 
       {/* ── RIGHT DRAWER DETAILS (No tabs, module-specific) ── */}
       <RightDrawer
@@ -901,13 +599,12 @@ export default function PropertiesManager() {
         handleEditClick={() => {
           if (selectedProperty) {
             setIsDrawerOpen(false);
-            handleOpenEdit(selectedProperty);
+            handleEditClick(selectedProperty);
           }
         }}
         handleDeleteClick={() => {
           if (selectedProperty) {
-            setIsDrawerOpen(false);
-            handleDelete(selectedProperty._id);
+            handleOpenDelete(selectedProperty);
           }
         }}
       >
