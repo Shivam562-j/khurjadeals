@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback, useReducer } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Property } from "@/types/property";
+import {
+  initialSearchState,
+  searchActions,
+  searchReducer,
+} from "@/reducer/searchReducer";
 import {
   Table,
   TopHeader,
@@ -61,12 +66,18 @@ export default function PropertiesManager() {
   const searchParams = useSearchParams();
   const shouldOpenAdd = searchParams.get("add") === "true";
 
-  // Data State
+  // Data State (backend paginated & filtered)
   const [properties, setProperties] = useState<Property[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState("");
+  // Search input state with reducer (onEnter search execution)
+  const [searchState, dispatchSearch] = useReducer(searchReducer, {
+    ...initialSearchState,
+    searchText: "",
+  });
+  const { searchInput, searchText, cacheSearchText } = searchState;
+  const [activeSearch, setActiveSearch] = useState("");
   const [filterFormData, setFilterFormData] = useState<FilterFormData>({});
 
   // Pagination & Sorting State
@@ -89,91 +100,108 @@ export default function PropertiesManager() {
   const [openForm, setOpenForm] = useState(false);
   const [editProperty, setEditProperty] = useState<Property | null>(null);
 
-  // Fetch properties from backend
-  const fetchProperties = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/properties?limit=200");
-      if (res.ok) {
-        const data = await res.json();
-        setProperties(data.properties || []);
+  // Fetch properties from backend with server-side pagination, search, filter, and sorting
+  const fetchPropertiesData = useCallback(
+    async (
+      targetPage = page,
+      targetLimit = rowsPerPage,
+      targetSortBy = sortBy,
+      targetSortOrder = sortOrder,
+      targetSearch = activeSearch,
+      targetFilters = filterFormData
+    ) => {
+      setIsLoading(true);
+      try {
+        const q = new URLSearchParams();
+        q.set("isAdmin", "true");
+        q.set("page", String(targetPage + 1));
+        q.set("limit", String(targetLimit));
+        if (targetSortBy) q.set("sortBy", targetSortBy);
+        q.set("sortOrder", targetSortOrder ? "asc" : "desc");
+
+        if (targetSearch && targetSearch.trim()) {
+          q.set("search", targetSearch.trim());
+        }
+
+        if (targetFilters?.status && targetFilters.status.length > 0) {
+          q.set("status", targetFilters.status.join(","));
+        }
+
+        if (targetFilters?.type && targetFilters.type.length > 0) {
+          q.set("type", targetFilters.type.join(","));
+        }
+
+        if (targetFilters?.listingType && targetFilters.listingType.length > 0) {
+          q.set("listingType", targetFilters.listingType.join(","));
+        }
+
+        const res = await fetch(`/api/properties?${q.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProperties(data.properties || []);
+          setTotalCount(data.total ?? data.count ?? (data.properties?.length || 0));
+        } else {
+          setProperties([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch properties:", err);
+        setProperties([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Failed to fetch properties:", err);
+    },
+    [page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData]
+  );
+
+  const prevFilterRef = useRef(filterFormData);
+  const prevSearchRef = useRef(activeSearch);
+
+  // Fetch data when pagination, sorting, activeSearch (onEnter), or filters change
+  useEffect(() => {
+    const filterChanged =
+      JSON.stringify(prevFilterRef.current.status) !== JSON.stringify(filterFormData.status) ||
+      JSON.stringify(prevFilterRef.current.type) !== JSON.stringify(filterFormData.type) ||
+      JSON.stringify(prevFilterRef.current.listingType) !== JSON.stringify(filterFormData.listingType);
+
+    const searchChanged = prevSearchRef.current !== activeSearch;
+
+    if (filterChanged || searchChanged) {
+      prevFilterRef.current = filterFormData;
+      prevSearchRef.current = activeSearch;
+      if (page !== 0) {
+        setPage(0);
+        return;
+      }
     }
-    setIsLoading(false);
+
+    fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
+  }, [page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData, fetchPropertiesData]);
+
+  // Handle search when user presses Enter key
+  const handleSearchEnter = (searchValue: string) => {
+    setPage(0);
+    setActiveSearch(searchValue.trim());
+    if (!searchValue.trim()) {
+      dispatchSearch({ type: searchActions.RESET_SEARCH });
+    }
   };
 
   useEffect(() => {
-    fetchProperties();
     if (shouldOpenAdd) {
       setEditProperty(null);
       setOpenForm(true);
     }
   }, [shouldOpenAdd]);
 
-  // Reset page when search or filters change
-  useEffect(() => {
-    setPage(0);
-  }, [searchQuery, filterFormData]);
-
-  // Count active filters
-  const filterCount = Object.values(filterFormData).reduce(
-    (acc, arr) => acc + (arr?.length || 0),
-    0
-  );
-
-  // Filter properties
-  const filteredProperties = useMemo(() => {
-    return properties.filter((prop) => {
-      const q = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        q === "" ||
-        (prop.title && prop.title.toLowerCase().includes(q)) ||
-        (prop.location && prop.location.toLowerCase().includes(q)) ||
-        (prop.contactName && prop.contactName.toLowerCase().includes(q)) ||
-        (prop.contactPhone && prop.contactPhone.includes(q));
-
-      const matchesStatus =
-        !filterFormData.status ||
-        filterFormData.status.length === 0 ||
-        filterFormData.status.includes(prop.status);
-
-      const matchesType =
-        !filterFormData.type ||
-        filterFormData.type.length === 0 ||
-        filterFormData.type.includes(prop.type);
-
-      const matchesListingType =
-        !filterFormData.listingType ||
-        filterFormData.listingType.length === 0 ||
-        filterFormData.listingType.includes(prop.listingType);
-
-      return (
-        matchesSearch && matchesStatus && matchesType && matchesListingType
-      );
-    });
-  }, [properties, searchQuery, filterFormData]);
-
-  // Sort properties
-  const sortedProperties = useMemo(() => {
-    return [...filteredProperties].sort((a, b) => {
-      let valA = (a as any)[sortBy] ?? "";
-      let valB = (b as any)[sortBy] ?? "";
-      if (typeof valA === "string") valA = valA.toLowerCase();
-      if (typeof valB === "string") valB = valB.toLowerCase();
-      if (valA < valB) return sortOrder ? -1 : 1;
-      if (valA > valB) return sortOrder ? 1 : -1;
-      return 0;
-    });
-  }, [filteredProperties, sortBy, sortOrder]);
-
-  // Paginated properties
-  const totalItems = sortedProperties.length;
-  const paginatedProperties = useMemo(() => {
-    const start = page * rowsPerPage;
-    return sortedProperties.slice(start, start + rowsPerPage);
-  }, [sortedProperties, page, rowsPerPage]);
+  // Active filters count
+  const filterCount = useMemo(() => {
+    return Object.values(filterFormData).reduce(
+      (acc, arr) => acc + (arr?.length || 0),
+      0
+    );
+  }, [filterFormData]);
 
   // Open modal for Adding
   const handleNewPropertyClick = () => {
@@ -202,13 +230,11 @@ export default function PropertiesManager() {
         method: "DELETE",
       });
       if (res.ok) {
-        setProperties((prev) =>
-          prev.filter((p) => p._id !== propertyToDelete._id)
-        );
         if (selectedProperty?._id === propertyToDelete._id) {
           setIsDrawerOpen(false);
           setSelectedProperty(null);
         }
+        fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
       }
     } catch (err) {
       console.error("Failed to delete property:", err);
@@ -219,48 +245,67 @@ export default function PropertiesManager() {
     }
   };
 
-  // CSV Export
-  const handleExportCSV = () => {
-    if (!filteredProperties.length) {
-      alert("No properties to export.");
-      return;
-    }
-    const headers = [
-      "Title",
-      "Type",
-      "Purpose",
-      "Price",
-      "Area",
-      "Location",
-      "Contact Name",
-      "Contact Phone",
-      "Status",
-    ];
-    const rows = filteredProperties.map((p) => [
-      `"${(p.title || "").replace(/"/g, '""')}"`,
-      `"${p.type || ""}"`,
-      `"${p.listingType || ""}"`,
-      `"${p.price || 0}"`,
-      `"${p.area || ""} ${p.areaUnit || ""}"`,
-      `"${(p.location || "").replace(/"/g, '""')}"`,
-      `"${(p.contactName || "").replace(/"/g, '""')}"`,
-      `"${p.contactPhone || ""}"`,
-      `"${p.status || ""}"`,
-    ]);
+  // CSV Export (fetch all matching backend records for accurate export)
+  const handleExportCSV = async () => {
+    try {
+      const q = new URLSearchParams();
+      q.set("isAdmin", "true");
+      q.set("page", "1");
+      q.set("limit", "1000");
+      if (sortBy) q.set("sortBy", sortBy);
+      q.set("sortOrder", sortOrder ? "asc" : "desc");
+      if (activeSearch.trim()) q.set("search", activeSearch.trim());
+      if (filterFormData?.status?.length) q.set("status", filterFormData.status.join(","));
+      if (filterFormData?.type?.length) q.set("type", filterFormData.type.join(","));
+      if (filterFormData?.listingType?.length) q.set("listingType", filterFormData.listingType.join(","));
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `properties_list_${new Date().toISOString().slice(0, 10)}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const res = await fetch(`/api/properties?${q.toString()}`);
+      const data = await res.json();
+      const exportList: Property[] = data.properties || properties;
+
+      if (!exportList.length) {
+        alert("No properties to export.");
+        return;
+      }
+      const headers = [
+        "Title",
+        "Type",
+        "Purpose",
+        "Price",
+        "Area",
+        "Location",
+        "Contact Name",
+        "Contact Phone",
+        "Status",
+      ];
+      const rows = exportList.map((p) => [
+        `"${(p.title || "").replace(/"/g, '""')}"`,
+        `"${p.type || ""}"`,
+        `"${p.listingType || ""}"`,
+        `"${p.price || 0}"`,
+        `"${p.area || ""} ${p.areaUnit || ""}"`,
+        `"${(p.location || "").replace(/"/g, '""')}"`,
+        `"${(p.contactName || "").replace(/"/g, '""')}"`,
+        `"${p.contactPhone || ""}"`,
+        `"${p.status || ""}"`,
+      ]);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute(
+        "download",
+        `properties_list_${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error("Export error:", e);
+    }
   };
 
   // Table Columns Definition matching user screenshot
@@ -439,58 +484,38 @@ export default function PropertiesManager() {
     },
   ];
 
-  // Options for Add/Edit Form
-  const typeOptions = [
-    { label: "Residential", value: "residential" },
-    { label: "Commercial", value: "commercial" },
-    { label: "Plot", value: "plot" },
-    { label: "Agricultural", value: "agricultural" },
-  ];
-
-  const listingOptions = [
-    { label: "Sell", value: "sell" },
-    { label: "Rent", value: "rent" },
-    { label: "Lease", value: "lease" },
-  ];
-
-  const statusOptions = [
-    { label: "Active", value: "active" },
-    { label: "Sold", value: "sold" },
-    { label: "Rented", value: "rented" },
-    { label: "Inactive", value: "inactive" },
-  ];
-
-  const areaUnitOptions = [
-    { label: "Sq. Ft", value: "sqft" },
-    { label: "Sq. Yard", value: "sqyd" },
-    { label: "Acre", value: "acre" },
-    { label: "Bigha", value: "bigha" },
-  ];
-
-  // Empty text based on whether database is empty or search/filter returned 0 results
+  // Empty text based on whether search/filter or database is empty
+  const isFilteredOrSearched = Boolean(activeSearch.trim()) || filterCount > 0;
   const emptyText =
-    properties.length === 0
-      ? "No properties found. Click '+ New Property' to create your first listing!"
-      : "No properties or type found.";
+    isFilteredOrSearched
+      ? "No properties or type found."
+      : "No properties found. Click '+ New Property' to create your first listing!";
 
   return (
     <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
       {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
       <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
-        {/* TopHeader with title: Property List, search, filters, green 'New Property' button, and CSV Export */}
+        {/* TopHeader with title: Property List, search onEnter, filters, green 'New Property' button, and CSV Export */}
         <TopHeader
           title="Property List"
-          searchText={searchQuery}
-          setSearchText={setSearchQuery}
-          handleSearchEnter={setSearchQuery}
+          searchInput={searchInput}
+          searchText={searchText}
+          cacheSearchText={cacheSearchText}
+          dispatchSearch={dispatchSearch}
+          searchActions={searchActions}
+          handleSearchEnter={handleSearchEnter}
           filterFormData={filterFormData}
           handleFilterFormDataChange={(key, value) => {
+            setPage(0);
             setFilterFormData((prev) => ({
               ...prev,
               [key]: value,
             }));
           }}
-          setFilterFormData={setFilterFormData}
+          setFilterFormData={(updater) => {
+            setPage(0);
+            setFilterFormData(updater);
+          }}
           filterCount={filterCount}
           filterSections={propertyFilterSections}
           actionButtonText="New Property"
@@ -500,13 +525,13 @@ export default function PropertiesManager() {
           exportTitle="Export Properties (CSV)"
         />
 
-        {/* Custom Table Component */}
+        {/* Custom Table Component (Connected directly to backend-paginated data) */}
         <Table
           columns={columns}
-          tableData={paginatedProperties}
+          tableData={properties}
           page={page}
           rowsPerPage={rowsPerPage}
-          totalCount={totalItems}
+          totalCount={totalCount}
           handleChangePage={(newPage) => setPage(newPage)}
           handleChangeRowsPerPage={(newRows) => {
             setRowsPerPage(newRows);
@@ -514,8 +539,14 @@ export default function PropertiesManager() {
           }}
           sortBy={sortBy}
           sortOrder={sortOrder}
-          setSortBy={setSortBy}
-          setSortOrder={setSortOrder}
+          setSortBy={(newSort) => {
+            setSortBy(newSort);
+            setPage(0);
+          }}
+          setSortOrder={(newOrder) => {
+            setSortOrder(newOrder);
+            setPage(0);
+          }}
           isCheckBox={true}
           isSno={false}
           handleItemClick={(item) => {
@@ -529,10 +560,10 @@ export default function PropertiesManager() {
             );
           }}
           handleSelectAllClick={() => {
-            if (selectedRows.length === paginatedProperties.length) {
+            if (selectedRows.length === properties.length) {
               setSelectedRows([]);
             } else {
-              setSelectedRows(paginatedProperties.map((p) => p._id));
+              setSelectedRows(properties.map((p) => p._id));
             }
           }}
           loading={isLoading}
@@ -549,7 +580,7 @@ export default function PropertiesManager() {
         }}
         editProperty={editProperty}
         onSuccess={() => {
-          fetchProperties();
+          fetchPropertiesData(page, rowsPerPage, sortBy, sortOrder, activeSearch, filterFormData);
           if (shouldOpenAdd) {
             router.push("/admin/properties");
           }

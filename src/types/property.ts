@@ -26,12 +26,16 @@ export interface Property {
 }
 
 export interface PropertyFilter {
-  type?:        PropertyType | PropertyType[];
-  listingType?: ListingType | ListingType[];
+  type?:        PropertyType | PropertyType[] | string;
+  listingType?: ListingType | ListingType[] | string;
+  status?:      PropertyStatus | PropertyStatus[] | string;
   minPrice?:    number;
   maxPrice?:    number;
   location?:    string;
   search?:      string;
+  sortBy?:      string;
+  sortOrder?:   "asc" | "desc" | boolean | string;
+  isAdmin?:     boolean;
   page?:        number;
   limit?:       number;
   cursor?:      string;
@@ -40,6 +44,7 @@ export interface PropertyFilter {
 export interface PaginatedPropertyResponse {
   properties: Property[];
   total?: number;
+  count?: number;
   page?: number;
   limit: number;
   totalPages?: number;

@@ -10,10 +10,16 @@ import {
   MdAdd,
 } from "react-icons/md";
 import Filter, { FilterFormData, FilterSection } from "./Filter";
+import CustomSearch from "./CustomSearch";
+import SearchIconButton from "./SearchIconButton";
 
 export interface TopHeaderProps {
   title?: string;
+  searchInput?: boolean;
   searchText?: string;
+  cacheSearchText?: string;
+  dispatchSearch?: (action: any) => void;
+  searchActions?: any;
   setSearchText?: (text: string) => void;
   handleSearchEnter?: (text: string) => void;
   filterFormData?: FilterFormData;
@@ -31,7 +37,11 @@ export interface TopHeaderProps {
 
 export default function TopHeader({
   title = "Inquiries List",
+  searchInput,
   searchText = "",
+  cacheSearchText = "",
+  dispatchSearch,
+  searchActions,
   setSearchText,
   handleSearchEnter,
   filterFormData = {},
@@ -92,11 +102,35 @@ export default function TopHeader({
 
       {/* ── RIGHT: ACTIONS ── */}
       <div className="flex items-center gap-3 ml-auto">
-        {/* 1. SEARCH: Expandable Search Input / Icon Button with Single Close Button */}
-        {searchInputOpen ? (
+        {/* 1. SEARCH: Controlled CustomSearch (onEnter only) matching Vecmocon UX */}
+        {dispatchSearch !== undefined ? (
+          searchInput ? (
+            <CustomSearch
+              searchText={searchText}
+              cacheSearchText={cacheSearchText}
+              searchDispatch={dispatchSearch}
+              setSearchInput={(val) =>
+                dispatchSearch({
+                  type: searchActions?.SET_SEARCH_INPUT || "SET_SEARCH_INPUT",
+                  payload: val,
+                })
+              }
+              onEnter={handleSearchEnter}
+            />
+          ) : (
+            <SearchIconButton
+              onClick={() =>
+                dispatchSearch({
+                  type: searchActions?.SET_SEARCH_INPUT || "SET_SEARCH_INPUT",
+                  payload: true,
+                })
+              }
+            />
+          )
+        ) : searchInputOpen ? (
           <div
             ref={searchContainerRef}
-            className="relative flex items-center bg-[#F3F5F8] border border-[#D8DDE7] rounded-md px-2.5 py-1.5 transition-all w-52 sm:w-64"
+            className="relative flex items-center h-9 bg-white border border-[#008761] ring-2 ring-[#008761]/15 rounded-md px-3 transition-all duration-200 w-56 sm:w-72 shadow-xs"
           >
             <MdSearch className="text-[#555E6F] text-lg mr-2 shrink-0" />
             <input
@@ -117,33 +151,32 @@ export default function TopHeader({
                   }
                 }
               }}
-              className="w-full bg-transparent text-xs text-[#252A34] font-medium outline-none placeholder-[#949CAC]"
+              className="w-full bg-transparent text-xs sm:text-sm text-[#252A34] font-normal leading-tight outline-none placeholder-[#949CAC]"
             />
-            {/* Single clean close/clear button (NO duplicate 'x' icons!) */}
+            {searchText?.trim().length > 0 && (
+              <span className="hidden sm:inline-flex items-center text-[10px] font-medium text-[#008761] bg-[#DAF5ED] px-1.5 py-0.5 rounded mr-1.5 shrink-0 select-none">
+                ↵ Enter
+              </span>
+            )}
+            {/* Circular rounded close button */}
             <button
               type="button"
               onClick={() => {
                 if (searchText) {
                   setSearchText && setSearchText("");
+                  handleSearchEnter && handleSearchEnter("");
                 } else {
                   setSearchInputOpen(false);
                 }
               }}
               title={searchText ? "Clear search" : "Close search"}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-[#555E6F] hover:bg-[#E5E9F0] transition-colors cursor-pointer shrink-0 ml-1"
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[#555E6F] hover:text-[#252A34] bg-[#F3F5F8] hover:bg-[#E5E9F0] transition-colors cursor-pointer shrink-0 ml-0.5"
             >
               <MdClose className="text-xs" />
             </button>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => setSearchInputOpen(true)}
-            title="Search"
-            className="w-10 h-10 rounded-full bg-[#FCFCFC] hover:bg-[#E5E9F0] border border-[#D8DDE7] text-[#555E6F] flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <MdSearch className="text-xl" />
-          </button>
+          <SearchIconButton onClick={() => setSearchInputOpen(true)} />
         )}
 
         {/* 2. FILTER: CustomButton with Badge + Rich Filter Popover */}
