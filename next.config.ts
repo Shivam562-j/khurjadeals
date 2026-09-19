@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         source: "/property/:slug*",
         destination: "/properties/:slug*",
       },
+      {
+        source: "/product/:slug*",
+        destination: "/products/:slug*",
+      },
     ];
   },
 };

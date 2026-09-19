@@ -12,18 +12,30 @@ export async function GET(request: Request) {
     const minPrice = searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : undefined;
     const maxPrice = searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : undefined;
     const location = searchParams.get("location") || undefined;
-    const search = searchParams.get("search") || undefined;
+    const search = searchParams.get("search") || searchParams.get("searchKey") || undefined;
+    const status = searchParams.get("status") || undefined;
+    const sortBy = searchParams.get("sortBy") || undefined;
+    const sortOrder = searchParams.get("sortOrder") || undefined;
+    const isAdmin = searchParams.get("isAdmin") === "true";
     const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
-    const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : 15;
+    const limit = searchParams.get("limit")
+      ? Number(searchParams.get("limit"))
+      : searchParams.get("size")
+      ? Number(searchParams.get("size"))
+      : 15;
     const cursor = searchParams.get("cursor") || undefined;
 
     const data = await getProducts({
       category,
       condition: condition as any,
+      status: status as any,
       minPrice,
       maxPrice,
       location,
       search,
+      sortBy,
+      sortOrder,
+      isAdmin,
       page,
       limit,
       cursor,
