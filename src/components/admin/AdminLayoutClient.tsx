@@ -38,8 +38,8 @@ export default function AdminLayoutClient({
           onToggleMobileMenu={() => setMobileOpen(!mobileOpen)}
         />
 
-        {/* Content Container (100vh - header with full width and generous padding) */}
-        <main className="flex-1 w-full overflow-y-auto p-6 lg:p-8 space-y-6 min-h-[calc(100vh-74px)]">
+        {/* Content Container (Full width, pages control inner padding with p-6 bg-[#f3f5f8] h-full) */}
+        <main className="flex-1 w-full flex flex-col min-h-[calc(100vh-74px)] lg:h-[calc(100vh-74px)] overflow-y-auto lg:overflow-hidden bg-[#f3f4f8]">
           {children}
         </main>
       </div>
