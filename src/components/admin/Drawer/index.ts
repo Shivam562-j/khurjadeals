@@ -12,3 +12,6 @@ export * from "./ProductDrawerDetails";
 
 export { default as QueryDrawerDetails } from "./QueryDrawerDetails";
 export * from "./QueryDrawerDetails";
+
+export { default as UserDrawerDetails } from "./UserDrawerDetails";
+export * from "./UserDrawerDetails";
