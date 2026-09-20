@@ -32,25 +32,25 @@ export default function AdminLayoutClient({
 
   return (
     <div
-      className="flex min-h-screen lg:h-screen lg:overflow-hidden w-full bg-[#f3f4f8] text-gray-900 font-sans selection:bg-[#10b981] selection:text-white"
-      style={{ backgroundColor: "#f3f4f8", color: "#111827" }}
+      className="flex min-h-screen lg:h-screen lg:overflow-hidden w-full bg-[#0d0d0d] text-white font-sans selection:bg-[#e8590c] selection:text-white"
+      style={{ backgroundColor: "#0d0d0d", color: "#ffffff" }}
     >
       {/* ── LEFT SIDEBAR ── */}
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       {/* ── RIGHT CONTENT (Width: 100% - Sidebar) ── */}
       <div
-        className="flex-1 w-full min-w-0 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-[#f3f4f8]"
-        style={{ backgroundColor: "#f3f4f8" }}
+        className="flex-1 w-full min-w-0 flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-[#0d0d0d]"
+        style={{ backgroundColor: "#0d0d0d" }}
       >
-        {/* White Header matching reference */}
+        {/* Sleek Dark Header */}
         <AdminHeader
           mobileMenuOpen={mobileOpen}
           onToggleMobileMenu={() => setMobileOpen(!mobileOpen)}
         />
 
         {/* Content Container (Full width, zero outer scroll on desktop view) */}
-        <main className="flex-1 w-full flex flex-col min-h-0 overflow-y-auto lg:overflow-hidden bg-[#f3f4f8]">
+        <main className="flex-1 w-full flex flex-col min-h-0 overflow-y-auto lg:overflow-hidden bg-[#0d0d0d] custom-dark-scrollbar">
           {children}
         </main>
       </div>

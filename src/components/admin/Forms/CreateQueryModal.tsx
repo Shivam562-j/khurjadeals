@@ -224,7 +224,7 @@ export default function CreateQueryModal({
 
       {/* ── MODAL CONTAINER (Split 2-column layout) ── */}
       <div
-        className="relative z-10 w-full max-w-4xl h-full max-h-[85vh] bg-[#FCFCFC] rounded-lg shadow-2xl border border-[#E5E9F0] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="relative z-10 w-full max-w-4xl h-full max-h-[85vh] bg-[#171717] rounded-xl shadow-2xl border border-[#2e2e2e] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -234,39 +234,39 @@ export default function CreateQueryModal({
           badgeText={editQuery ? editQuery.status : undefined}
           badgeBgColor={
             editQuery?.status === "resolved"
-              ? "#DAF5ED"
+              ? "#0a2e1d"
               : editQuery?.status === "contacted"
-              ? "#E5EBFD"
+              ? "#2e1d09"
               : editQuery?.status === "pending"
-              ? "#FEF3C7"
-              : "#D8DDE7"
+              ? "#2d1212"
+              : "#222222"
           }
           badgeTextColor={
             editQuery?.status === "resolved"
-              ? "#006C4D"
+              ? "#34d399"
               : editQuery?.status === "contacted"
-              ? "#1249ED"
+              ? "#fbbf24"
               : editQuery?.status === "pending"
-              ? "#B45309"
-              : "#565F70"
+              ? "#f87171"
+              : "#a3a3a3"
           }
         />
 
         {/* ── BODY SPLIT 2-COLUMN VIEW ── */}
         <div className="w-full flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
           {/* ── LEFT COLUMN: User Details & Type ── */}
-          <div className="w-full md:w-1/2 h-full border-r border-[#E5E9F0] p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-white">
-            <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
-              <MdPerson className="text-base text-[#008761]" /> Customer Details
+          <div className="w-full md:w-1/2 h-full border-r border-[#262626] p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#141414]">
+            <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
+              <MdPerson className="text-base text-[#e8590c]" /> Customer Details
             </h4>
 
             {/* Name */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Customer Name <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Customer Name <span className="text-[#f87171]">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-400">
+                <span className="absolute left-3 top-2.5 text-[#737373]">
                   <MdPerson className="text-sm" />
                 </span>
                 <input
@@ -275,15 +275,15 @@ export default function CreateQueryModal({
                   onChange={(e) => handleChange("name", e.target.value)}
                   onBlur={() => handleBlur("name")}
                   placeholder="e.g. Ramesh Kumar"
-                  className={`w-full pl-8 pr-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                     touched.name && validationErrors.name
-                      ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                      : "border-[#D8DDE6] focus:border-[#008761]"
+                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                   }`}
                 />
               </div>
               {touched.name && validationErrors.name && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.name}
                 </p>
               )}
@@ -291,11 +291,11 @@ export default function CreateQueryModal({
 
             {/* Phone Number */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Phone Number <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Phone Number <span className="text-[#f87171]">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-400">
+                <span className="absolute left-3 top-2.5 text-[#737373]">
                   <MdPhone className="text-sm" />
                 </span>
                 <input
@@ -305,15 +305,15 @@ export default function CreateQueryModal({
                   onChange={(e) => handleChange("phone", e.target.value)}
                   onBlur={() => handleBlur("phone")}
                   placeholder="10-digit mobile number"
-                  className={`w-full pl-8 pr-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                     touched.phone && validationErrors.phone
-                      ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                      : "border-[#D8DDE6] focus:border-[#008761]"
+                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                   }`}
                 />
               </div>
               {touched.phone && validationErrors.phone && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.phone}
                 </p>
               )}
@@ -321,11 +321,11 @@ export default function CreateQueryModal({
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Email Address <span className="text-gray-400 font-normal">(Optional)</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Email Address <span className="text-[#737373] font-normal">(Optional)</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-400">
+                <span className="absolute left-3 top-2.5 text-[#737373]">
                   <MdEmail className="text-sm" />
                 </span>
                 <input
@@ -334,15 +334,15 @@ export default function CreateQueryModal({
                   onChange={(e) => handleChange("email", e.target.value)}
                   onBlur={() => handleBlur("email")}
                   placeholder="e.g. customer@example.com"
-                  className={`w-full pl-8 pr-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                     touched.email && validationErrors.email
-                      ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                      : "border-[#D8DDE6] focus:border-[#008761]"
+                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                   }`}
                 />
               </div>
               {touched.email && validationErrors.email && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.email}
                 </p>
               )}
@@ -351,16 +351,16 @@ export default function CreateQueryModal({
             {/* Enquiry Type & Status */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Enquiry Type <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Enquiry Type <span className="text-[#f87171]">*</span>
                 </label>
                 <select
                   value={formData.type}
                   onChange={(e) => handleChange("type", e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761] cursor-pointer"
+                  className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] cursor-pointer"
                 >
                   {QUERY_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
+                    <option key={t.value} value={t.value} className="bg-[#171717] text-white">
                       {t.label}
                     </option>
                   ))}
@@ -368,16 +368,16 @@ export default function CreateQueryModal({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Status <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Status <span className="text-[#f87171]">*</span>
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => handleChange("status", e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761] cursor-pointer"
+                  className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] cursor-pointer"
                 >
                   {STATUS_OPTIONS.map((st) => (
-                    <option key={st.value} value={st.value}>
+                    <option key={st.value} value={st.value} className="bg-[#171717] text-white">
                       {st.label}
                     </option>
                   ))}
@@ -387,15 +387,15 @@ export default function CreateQueryModal({
           </div>
 
           {/* ── RIGHT COLUMN: Message & Reference ── */}
-          <div className="w-full md:w-1/2 h-full p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#FCFCFC]">
-            <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
-              <MdOutlineMessage className="text-base text-[#008761]" /> Message Content
+          <div className="w-full md:w-1/2 h-full p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#171717]">
+            <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
+              <MdOutlineMessage className="text-base text-[#e8590c]" /> Message Content
             </h4>
 
             {/* Message Body */}
             <div className="flex-1 flex flex-col min-h-[140px]">
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Enquiry Details / Notes <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Enquiry Details / Notes <span className="text-[#f87171]">*</span>
               </label>
               <textarea
                 rows={7}
@@ -403,14 +403,14 @@ export default function CreateQueryModal({
                 onChange={(e) => handleChange("message", e.target.value)}
                 onBlur={() => handleBlur("message")}
                 placeholder="Inquiry text, customer requirements, property/product inquiry context, lead notes..."
-                className={`w-full flex-1 px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                className={`w-full flex-1 px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                   touched.message && validationErrors.message
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-[#D8DDE6] focus:border-[#008761]"
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                 }`}
               />
               {touched.message && validationErrors.message && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.message}
                 </p>
               )}
@@ -418,27 +418,27 @@ export default function CreateQueryModal({
 
             {/* Reference ID */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Related Reference ID <span className="text-gray-400 font-normal">(Optional)</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Related Reference ID <span className="text-[#737373] font-normal">(Optional)</span>
               </label>
               <input
                 type="text"
                 value={formData.referenceId}
                 onChange={(e) => handleChange("referenceId", e.target.value)}
                 placeholder="Property or Product ID (if applicable)"
-                className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761]"
+                className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] placeholder-[#737373]"
               />
             </div>
           </div>
         </div>
 
         {/* ── FOOTER ACTIONS ── */}
-        <div className="w-full px-6 py-3 bg-white border-t border-[#E5E9F0] flex items-center justify-end gap-3 shrink-0">
+        <div className="w-full px-6 py-3.5 bg-[#141414] border-t border-[#262626] flex items-center justify-end gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-semibold text-[#555E6F] hover:text-[#252A34] bg-white border border-[#D8DDE6] rounded-md transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-[#a3a3a3] hover:text-white bg-[#1f1f1f] hover:bg-[#262626] border border-[#333333] rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -446,10 +446,10 @@ export default function CreateQueryModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSaveDisabled}
-            className={`px-5 py-2 text-xs font-semibold text-white rounded-md transition-all flex items-center gap-1.5 ${
+            className={`px-5 py-2 text-xs font-semibold text-white rounded-lg transition-all flex items-center gap-1.5 ${
               isSaveDisabled
-                ? "bg-[#A0C4BA] cursor-not-allowed opacity-70"
-                : "bg-[#008761] hover:bg-[#007050] shadow-xs cursor-pointer"
+                ? "bg-[#262626] text-[#666666] cursor-not-allowed opacity-60"
+                : "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] hover:from-[#d04a04] hover:to-[#e08e00] shadow-[0_4px_16px_rgba(232,89,12,0.35)] cursor-pointer"
             }`}
           >
             <MdCheck className="text-base" />

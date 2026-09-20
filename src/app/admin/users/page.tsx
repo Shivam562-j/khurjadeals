@@ -319,17 +319,17 @@ export default function UsersManager() {
 
         return (
           <div className="flex items-center gap-2.5 py-0.5">
-            <div className="w-8 h-8 rounded-full bg-[#008761] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e8590c] to-[#f59e0b] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
               {initials}
             </div>
             <div className="truncate">
               <span
-                className="font-semibold text-gray-900 block truncate"
+                className="font-semibold text-white block truncate"
                 title={item.name}
               >
                 {item.name}
               </span>
-              <span className="text-[11px] text-gray-500 block truncate font-mono">
+              <span className="text-[11px] text-[#a3a3a3] block truncate font-mono">
                 {item.email}
               </span>
             </div>
@@ -344,7 +344,7 @@ export default function UsersManager() {
       isSortable: true,
       minWidth: "180px",
       render: (item) => (
-        <span className="font-mono text-xs text-gray-700 font-medium">
+        <span className="font-mono text-xs text-[#d4d4d4] font-medium">
           {item.email}
         </span>
       ),
@@ -359,10 +359,10 @@ export default function UsersManager() {
         const isAdmin = item.role === "admin";
         return (
           <span
-            className={`inline-flex items-center gap-1 capitalize font-bold text-xs px-2.5 py-0.5 rounded ${
+            className={`inline-flex items-center gap-1 capitalize font-bold text-xs px-2.5 py-0.5 rounded-full border ${
               isAdmin
-                ? "bg-amber-50 text-amber-800 border border-amber-200"
-                : "bg-blue-50 text-blue-800 border border-blue-200"
+                ? "bg-amber-950/60 text-amber-400 border-amber-800/60"
+                : "bg-blue-950/60 text-blue-400 border-blue-800/60"
             }`}
           >
             <MdShield className="text-xs" />
@@ -381,13 +381,13 @@ export default function UsersManager() {
         const s = String(item.status || "").toLowerCase();
         if (s === "active") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
               Active
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
             {item.status || "Inactive"}
           </span>
         );
@@ -409,7 +409,7 @@ export default function UsersManager() {
               setSelectedUser(item);
               setIsDrawerOpen(true);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="View Details in Drawer"
           >
             <MdOpenInNew className="text-base" />
@@ -422,7 +422,7 @@ export default function UsersManager() {
               e.stopPropagation();
               handleEditClick(item);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="Edit User"
           >
             <MdEdit className="text-base" />
@@ -435,7 +435,7 @@ export default function UsersManager() {
               e.stopPropagation();
               handleOpenDelete(item);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-red-950/50 hover:text-red-400 transition-colors cursor-pointer"
             title="Delete User"
           >
             <MdDeleteOutline className="text-base" />
@@ -453,10 +453,10 @@ export default function UsersManager() {
       : "No administrators found. Click '+ New Administrator' to add one!";
 
   return (
-    <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
-      {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
-      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
-        {/* TopHeader with title: Administrators, search onEnter, filters, green 'New Administrator' button, and CSV Export */}
+    <div className="p-4 sm:p-6 bg-[#0d0d0d] h-full w-full flex flex-col min-h-0">
+      {/* ── MAIN DATA TABLE CARD ── */}
+      <div className="bg-[#171717] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-xl border border-[#262626] overflow-hidden shadow-2xl">
+        {/* TopHeader with title: Administrators, search onEnter, filters, orange 'New Administrator' button, and CSV Export */}
         <TopHeader
           title="Administrators"
           searchInput={searchInput}

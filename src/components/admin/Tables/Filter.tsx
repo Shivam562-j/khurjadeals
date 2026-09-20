@@ -43,14 +43,14 @@ export function CustomCheckBox({
   onChange,
 }: CustomCheckBoxProps) {
   return (
-    <label className="inline-flex items-center gap-2 cursor-pointer text-left select-none py-1 w-full">
+    <label className="inline-flex items-center gap-2.5 cursor-pointer text-left select-none py-1.5 w-full">
       <input
         type="checkbox"
         checked={isChecked}
         onChange={onChange}
-        className="w-4 h-4 rounded border-gray-300 text-[#009E71] focus:ring-[#009E71] cursor-pointer accent-[#009E71] shrink-0"
+        className="w-4 h-4 rounded border-[#333333] text-[#e8590c] focus:ring-[#e8590c] cursor-pointer accent-[#e8590c] shrink-0 bg-[#0d0d0d]"
       />
-      <span className="text-[#252A34] text-xs font-medium leading-tight select-none">
+      <span className="text-[#d4d4d4] text-xs font-medium leading-tight select-none">
         {label}
       </span>
     </label>
@@ -99,14 +99,14 @@ export function FilterTabContentHeader({
   handleClearFilter?: () => void;
 }) {
   return (
-    <div className="w-full h-9 px-3.5 sm:px-4 inline-flex justify-between items-center border-b border-[#E5E9F0] bg-white shrink-0">
-      <div className="text-[#565F70] text-[11px] sm:text-xs font-semibold leading-4 select-none">
+    <div className="w-full h-9 px-3.5 sm:px-4 inline-flex justify-between items-center border-b border-[#262626] bg-[#141414] shrink-0">
+      <div className="text-[#a3a3a3] text-[11px] sm:text-xs font-semibold leading-4 select-none">
         {`${selected}/${total}`} item selected
       </div>
 
       {Boolean(selected) && (
         <span
-          className="cursor-pointer text-[11px] sm:text-xs font-medium text-[#006c4d] hover:underline transition-all select-none"
+          className="cursor-pointer text-[11px] sm:text-xs font-medium text-[#f59e0b] hover:text-[#e8590c] hover:underline transition-all select-none"
           onClick={handleClearFilter}
         >
           Clear
@@ -322,15 +322,15 @@ export default function FilterUi({
 
   // Inner content of the Filter card
   const filterCardContent = (
-    <div className="w-full h-full flex flex-col select-none">
+    <div className="w-full h-full flex flex-col select-none bg-[#171717] text-[#ffffff]">
       {/* ── 1. POPUP HEADER ── */}
-      <div className="border-b border-[#E5E9F0] flex gap-2 justify-between items-center w-full px-4 py-2.5 bg-[#FCFCFC] shrink-0">
-        <h4 className="text-[#252a34] text-sm font-semibold">Filter</h4>
+      <div className="border-b border-[#262626] flex gap-2 justify-between items-center w-full px-4 py-2.5 bg-[#141414] shrink-0">
+        <h4 className="text-[#ffffff] text-sm font-semibold">Filter</h4>
 
         <div className="flex items-center gap-2">
           {localFilterCount !== 0 && (
             <span
-              className="mr-1 pr-1 cursor-pointer text-xs sm:text-sm font-medium text-[#006c4d] hover:underline transition-all select-none"
+              className="mr-1 pr-1 cursor-pointer text-xs sm:text-sm font-medium text-[#f59e0b] hover:text-[#e8590c] hover:underline transition-all select-none"
               onClick={handleClearAllFilter}
             >
               Clear All
@@ -341,7 +341,7 @@ export default function FilterUi({
             type="button"
             onClick={handleCloseFilter}
             title="Close filter"
-            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#E5E9F0] text-[#555E6F] transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#222222] text-[#a3a3a3] hover:text-white transition-colors cursor-pointer"
           >
             <MdClose className="text-base" />
           </button>
@@ -351,7 +351,7 @@ export default function FilterUi({
       {/* ── 2. TWO-COLUMN TABBED BODY ── */}
       <div className="w-full flex flex-row flex-1 min-h-0">
         {/* Left: Tab Navigation list */}
-        <div className="w-[130px] sm:w-[160px] h-full border-r border-[#E5E9F0] bg-white overflow-y-auto shrink-0">
+        <div className="w-[130px] sm:w-[160px] h-full border-r border-[#262626] bg-[#121212] overflow-y-auto shrink-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const showDot = hasTabActiveFilter(tab.key);
@@ -360,14 +360,14 @@ export default function FilterUi({
               <div
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative cursor-pointer flex items-center py-3 pl-3 sm:pl-4 pr-2 border-b border-[#E5E9F0] transition-all duration-200 select-none ${
+                className={`relative cursor-pointer flex items-center py-3 pl-3 sm:pl-4 pr-2 border-b border-[#1f1f1f] transition-all duration-200 select-none ${
                   isActive
-                    ? "bg-[#EEF8F5] text-[#0F7E64] font-semibold"
-                    : "bg-white text-[#565F70] hover:bg-gray-50 font-normal"
+                    ? "bg-[#1c1c1c] text-[#f59e0b] font-semibold"
+                    : "bg-transparent text-[#a3a3a3] hover:bg-[#181818] hover:text-white font-normal"
                 }`}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-0 h-full w-[3px] bg-[#0F7E64] rounded-tr-[10px] rounded-br-[10px]" />
+                  <div className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-[#e8590c] to-[#f59e0b] rounded-tr-[10px] rounded-br-[10px]" />
                 )}
 
                 <span className="text-[11px] sm:text-xs leading-4 truncate max-w-[90px] sm:max-w-[120px]">
@@ -375,7 +375,7 @@ export default function FilterUi({
                 </span>
 
                 {showDot && (
-                  <span className="w-[5px] h-[5px] sm:w-[6px] sm:h-[6px] rounded-full absolute top-1/2 -translate-y-1/2 right-2.5 sm:right-3.5 bg-[#0F7E64]" />
+                  <span className="w-[5px] h-[5px] sm:w-[6px] sm:h-[6px] rounded-full absolute top-1/2 -translate-y-1/2 right-2.5 sm:right-3.5 bg-[#e8590c] shadow-[0_0_6px_#e8590c]" />
                 )}
               </div>
             );
@@ -383,7 +383,7 @@ export default function FilterUi({
         </div>
 
         {/* Right: Tab Content (Header + Checkbox list) */}
-        <div className="flex-1 h-full flex flex-col bg-[#FCFCFC] min-w-0">
+        <div className="flex-1 h-full flex flex-col bg-[#171717] min-w-0">
           {currentTabObj && (
             <>
               <FilterTabContentHeader
@@ -402,7 +402,7 @@ export default function FilterUi({
 
                   return (
                     <div
-                      className="px-3 sm:px-4 py-1.5 w-full hover:bg-gray-50/70 rounded transition-colors"
+                      className="px-3 sm:px-4 py-1.5 w-full hover:bg-[#1f1f1f] rounded transition-colors"
                       key={index}
                     >
                       <CustomCheckBox
@@ -422,15 +422,15 @@ export default function FilterUi({
       </div>
 
       {/* ── 3. POPUP FOOTER ── */}
-      <div className="p-3 sm:p-3.5 px-4 border-t border-[#E5E9F0] flex gap-3 w-full justify-end items-center bg-[#FCFCFC] shrink-0">
+      <div className="p-3 sm:p-3.5 px-4 border-t border-[#262626] flex gap-3 w-full justify-end items-center bg-[#141414] shrink-0">
         <button
           type="button"
           onClick={handleApply}
           disabled={!isFilterChanged}
-          className={`px-5 py-2 text-xs font-semibold rounded transition-all select-none shadow-xs ${
+          className={`px-5 py-2 text-xs font-semibold rounded-lg transition-all select-none shadow-xs ${
             isFilterChanged
-              ? "bg-[#008760] hover:bg-[#007050] text-white cursor-pointer"
-              : "bg-[#A0C4BA] text-white cursor-not-allowed opacity-70"
+              ? "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] hover:from-[#d04a04] hover:to-[#e08e00] text-white cursor-pointer shadow-[0_4px_12px_rgba(232,89,12,0.35)]"
+              : "bg-[#262626] text-[#666666] cursor-not-allowed opacity-60"
           }`}
         >
           Apply
@@ -442,11 +442,11 @@ export default function FilterUi({
   // ── Render on Mobile as centered modal with dimmed backdrop ──
   if (isMobile) {
     return createPortal(
-      <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 animate-fadeIn">
+      <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
         <div
           ref={popoverRef}
           id="admin-filter-popover"
-          className="w-full max-w-[420px] h-[460px] max-h-[85vh] rounded-lg shadow-2xl border border-[#E5E9F0] flex flex-col overflow-hidden bg-[#FCFCFC] font-sans"
+          className="w-full max-w-[420px] h-[460px] max-h-[85vh] rounded-xl shadow-2xl border border-[#2e2e2e] flex flex-col overflow-hidden bg-[#171717] font-sans"
         >
           {filterCardContent}
         </div>
@@ -468,7 +468,7 @@ export default function FilterUi({
         maxHeight: "460px",
         zIndex: 9999,
       }}
-      className="h-[450px] rounded-lg shadow-[0px_8px_36px_0px_rgba(14,17,24,0.16)] border border-[#D8DDE7] flex flex-col overflow-hidden bg-[#FCFCFC] font-sans transition-all duration-75"
+      className="h-[450px] rounded-xl shadow-[0px_16px_40px_0px_rgba(0,0,0,0.6)] border border-[#2e2e2e] flex flex-col overflow-hidden bg-[#171717] font-sans transition-all duration-75"
     >
       {filterCardContent}
     </div>,

@@ -381,7 +381,7 @@ export default function CreatePropertyModal({
 
       {/* ── MODAL CONTAINER (Matching Vecmocon Split Full-Height Card) ── */}
       <div
-        className="relative z-10 w-full max-w-5xl h-full max-h-[92vh] bg-[#FCFCFC] rounded-lg shadow-2xl border border-[#E5E9F0] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="relative z-10 w-full max-w-5xl h-full max-h-[92vh] bg-[#171717] rounded-xl shadow-2xl border border-[#2e2e2e] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -391,36 +391,36 @@ export default function CreatePropertyModal({
           badgeText={editProperty ? editProperty.status : undefined}
           badgeBgColor={
             editProperty?.status === "active"
-              ? "#DAF5ED"
+              ? "#0a2e1d"
               : editProperty?.status === "sold"
-              ? "#FDE9E7"
+              ? "#2d1212"
               : editProperty?.status === "rented"
-              ? "#E5EBFD"
-              : "#D8DDE7"
+              ? "#2e1d09"
+              : "#222222"
           }
           badgeTextColor={
             editProperty?.status === "active"
-              ? "#006C4D"
+              ? "#34d399"
               : editProperty?.status === "sold"
-              ? "#D51D10"
+              ? "#f87171"
               : editProperty?.status === "rented"
-              ? "#1249ED"
-              : "#565F70"
+              ? "#fbbf24"
+              : "#a3a3a3"
           }
         />
 
         {/* ── BODY SPLIT 2-COLUMN VIEW ── */}
         <div className="w-full flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
           {/* ── LEFT COLUMN: Core Details ── */}
-          <div className="w-full md:w-1/2 lg:w-[480px] h-full border-r border-[#E5E9F0] p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-white">
-            <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
-              <MdTune className="text-base text-[#008761]" /> Basic Information
+          <div className="w-full md:w-1/2 lg:w-[480px] h-full border-r border-[#262626] p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#141414]">
+            <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
+              <MdTune className="text-base text-[#e8590c]" /> Basic Information
             </h4>
 
             {/* Title */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Property Title <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Property Title <span className="text-[#f87171]">*</span>
               </label>
               <input
                 type="text"
@@ -428,14 +428,14 @@ export default function CreatePropertyModal({
                 onChange={(e) => handleChange("title", e.target.value)}
                 onBlur={() => handleBlur("title")}
                 placeholder="e.g. 100 Gaj Commercial Shop on G.T. Road"
-                className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                   touched.title && validationErrors.title
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-[#D8DDE6] focus:border-[#008761]"
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                 }`}
               />
               {touched.title && validationErrors.title && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.title}
                 </p>
               )}
@@ -443,8 +443,8 @@ export default function CreatePropertyModal({
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Description <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Description <span className="text-[#f87171]">*</span>
               </label>
               <textarea
                 rows={3}
@@ -452,14 +452,14 @@ export default function CreatePropertyModal({
                 onChange={(e) => handleChange("description", e.target.value)}
                 onBlur={() => handleBlur("description")}
                 placeholder="Key highlights, surroundings, nearby landmarks..."
-                className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                   touched.description && validationErrors.description
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-[#D8DDE6] focus:border-[#008761]"
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                 }`}
               />
               {touched.description && validationErrors.description && (
-                <p className="text-[11px] text-red-500 mt-0.5">
+                <p className="text-[11px] text-[#f87171] mt-0.5">
                   {validationErrors.description}
                 </p>
               )}
@@ -467,19 +467,19 @@ export default function CreatePropertyModal({
 
             {/* Purpose Tabs (Sell / Rent / Lease) */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Listing Purpose <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Listing Purpose <span className="text-[#f87171]">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-2 bg-[#F3F5F8] p-1 rounded-md border border-[#E5E9F0]">
+              <div className="grid grid-cols-3 gap-2 bg-[#0d0d0d] p-1 rounded-lg border border-[#262626]">
                 {LISTING_PURPOSES.map((purpose) => (
                   <button
                     key={purpose.value}
                     type="button"
                     onClick={() => handleChange("listingType", purpose.value)}
-                    className={`py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
+                    className={`py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
                       formData.listingType === purpose.value
-                        ? "bg-white text-[#008761] shadow-xs"
-                        : "text-[#555E6F] hover:text-[#252A34]"
+                        ? "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] text-white shadow-xs"
+                        : "text-[#a3a3a3] hover:text-white"
                     }`}
                   >
                     For {purpose.label}
@@ -491,16 +491,16 @@ export default function CreatePropertyModal({
             {/* Property Type & Status */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Type <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Type <span className="text-[#f87171]">*</span>
                 </label>
                 <select
                   value={formData.type}
                   onChange={(e) => handleChange("type", e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761]"
+                  className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c]"
                 >
                   {PROPERTY_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
+                    <option key={t.value} value={t.value} className="bg-[#171717] text-white">
                       {t.label}
                     </option>
                   ))}
@@ -508,16 +508,16 @@ export default function CreatePropertyModal({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Status <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Status <span className="text-[#f87171]">*</span>
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => handleChange("status", e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761]"
+                  className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c]"
                 >
                   {STATUS_OPTIONS.map((s) => (
-                    <option key={s.value} value={s.value}>
+                    <option key={s.value} value={s.value} className="bg-[#171717] text-white">
                       {s.label}
                     </option>
                   ))}
@@ -528,11 +528,11 @@ export default function CreatePropertyModal({
             {/* Price (₹) & Formatted Preview */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-[#252A34]">
-                  Asking Price (₹) <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-[#d4d4d4]">
+                  Asking Price (₹) <span className="text-[#f87171]">*</span>
                 </label>
                 {formData.price && Number(formData.price) > 0 && (
-                  <span className="text-xs font-bold text-[#008761]">
+                  <span className="text-xs font-bold text-[#f59e0b]">
                     ₹{Number(formData.price).toLocaleString("en-IN")}
                   </span>
                 )}
@@ -543,14 +543,14 @@ export default function CreatePropertyModal({
                 onChange={(e) => handleChange("price", e.target.value)}
                 onBlur={() => handleBlur("price")}
                 placeholder="e.g. 2500000"
-                className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                   touched.price && validationErrors.price
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-[#D8DDE6] focus:border-[#008761]"
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                 }`}
               />
               {touched.price && validationErrors.price && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.price}
                 </p>
               )}
@@ -559,8 +559,8 @@ export default function CreatePropertyModal({
             {/* Area Size & Area Unit */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Area Size <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Area Size <span className="text-[#f87171]">*</span>
                 </label>
                 <input
                   type="number"
@@ -568,25 +568,25 @@ export default function CreatePropertyModal({
                   onChange={(e) => handleChange("area", e.target.value)}
                   onBlur={() => handleBlur("area")}
                   placeholder="e.g. 100"
-                  className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                  className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                     touched.area && validationErrors.area
-                      ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                      : "border-[#D8DDE6] focus:border-[#008761]"
+                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                   }`}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Unit <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Unit <span className="text-[#f87171]">*</span>
                 </label>
                 <select
                   value={formData.areaUnit}
                   onChange={(e) => handleChange("areaUnit", e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761]"
+                  className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c]"
                 >
                   {AREA_UNITS.map((u) => (
-                    <option key={u.value} value={u.value}>
+                    <option key={u.value} value={u.value} className="bg-[#171717] text-white">
                       {u.label}
                     </option>
                   ))}
@@ -595,15 +595,15 @@ export default function CreatePropertyModal({
             </div>
 
             {/* Featured Checkbox Toggle */}
-            <div className="pt-2 border-t border-[#E5E9F0]">
+            <div className="pt-2 border-t border-[#262626]">
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.isFeatured}
                   onChange={(e) => handleChange("isFeatured", e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-[#008760] focus:ring-[#008760] accent-[#008760] cursor-pointer"
+                  className="w-4 h-4 rounded border-[#333333] text-[#e8590c] focus:ring-[#e8590c] accent-[#e8590c] cursor-pointer bg-[#0d0d0d]"
                 />
-                <span className="text-xs font-semibold text-[#252A34]">
+                <span className="text-xs font-semibold text-white">
                   Mark as Featured Listing (Promoted on Homepage)
                 </span>
               </label>
@@ -611,18 +611,18 @@ export default function CreatePropertyModal({
           </div>
 
           {/* ── RIGHT COLUMN: Location, Contact, Amenities & Images ── */}
-          <div className="flex-1 h-full p-5 sm:p-6 overflow-y-auto flex flex-col gap-5 bg-[#FAFAFA]">
+          <div className="flex-1 h-full p-5 sm:p-6 overflow-y-auto flex flex-col gap-5 bg-[#171717]">
             {/* Location & Address */}
-            <div className="flex flex-col gap-3 bg-white p-4 rounded-lg border border-[#E5E9F0]">
-              <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5">
-                <MdLocationOn className="text-base text-[#008761]" /> Location &
+            <div className="flex flex-col gap-3 bg-[#141414] p-4 rounded-xl border border-[#262626]">
+              <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5">
+                <MdLocationOn className="text-base text-[#e8590c]" /> Location &
                 Address
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                    City / Locality <span className="text-red-500">*</span>
+                  <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                    City / Locality <span className="text-[#f87171]">*</span>
                   </label>
                   <input
                     type="text"
@@ -630,21 +630,21 @@ export default function CreatePropertyModal({
                     onChange={(e) => handleChange("location", e.target.value)}
                     onBlur={() => handleBlur("location")}
                     placeholder="e.g. GT Road, Junction"
-                    className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                    className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                       touched.location && validationErrors.location
-                        ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                        : "border-[#D8DDE6] focus:border-[#008761]"
+                        ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                        : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                     }`}
                   />
                   {touched.location && validationErrors.location && (
-                    <p className="text-[11px] text-red-500 mt-1">
+                    <p className="text-[11px] text-[#f87171] mt-1">
                       {validationErrors.location}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#252A34] mb-1">
+                  <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
                     Exact Address (Optional)
                   </label>
                   <input
@@ -652,23 +652,23 @@ export default function CreatePropertyModal({
                     value={formData.address}
                     onChange={(e) => handleChange("address", e.target.value)}
                     placeholder="e.g. Shop 14, Main Bazaar"
-                    className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761]"
+                    className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] placeholder-[#737373]"
                   />
                 </div>
               </div>
             </div>
 
             {/* Owner / Contact Details */}
-            <div className="flex flex-col gap-3 bg-white p-4 rounded-lg border border-[#E5E9F0]">
-              <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5">
-                <MdPerson className="text-base text-[#008761]" /> Owner / Agent
+            <div className="flex flex-col gap-3 bg-[#141414] p-4 rounded-xl border border-[#262626]">
+              <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5">
+                <MdPerson className="text-base text-[#e8590c]" /> Owner / Agent
                 Contact
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                    Contact Person Name <span className="text-red-500">*</span>
+                  <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                    Contact Person Name <span className="text-[#f87171]">*</span>
                   </label>
                   <input
                     type="text"
@@ -678,22 +678,22 @@ export default function CreatePropertyModal({
                     }
                     onBlur={() => handleBlur("contactName")}
                     placeholder="e.g. Ramesh Sharma"
-                    className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                    className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                       touched.contactName && validationErrors.contactName
-                        ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                        : "border-[#D8DDE6] focus:border-[#008761]"
+                        ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                        : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                     }`}
                   />
                   {touched.contactName && validationErrors.contactName && (
-                    <p className="text-[11px] text-red-500 mt-1">
+                    <p className="text-[11px] text-[#f87171] mt-1">
                       {validationErrors.contactName}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                    Contact Mobile Phone <span className="text-red-500">*</span>
+                  <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                    Contact Mobile Phone <span className="text-[#f87171]">*</span>
                   </label>
                   <input
                     type="tel"
@@ -703,14 +703,14 @@ export default function CreatePropertyModal({
                     }
                     onBlur={() => handleBlur("contactPhone")}
                     placeholder="e.g. 9876543210"
-                    className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                    className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                       touched.contactPhone && validationErrors.contactPhone
-                        ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                        : "border-[#D8DDE6] focus:border-[#008761]"
+                        ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                        : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                     }`}
                   />
                   {touched.contactPhone && validationErrors.contactPhone && (
-                    <p className="text-[11px] text-red-500 mt-1">
+                    <p className="text-[11px] text-[#f87171] mt-1">
                       {validationErrors.contactPhone}
                     </p>
                   )}
@@ -719,12 +719,12 @@ export default function CreatePropertyModal({
             </div>
 
             {/* Amenities & Features */}
-            <div className="flex flex-col gap-3 bg-white p-4 rounded-lg border border-[#E5E9F0]">
+            <div className="flex flex-col gap-3 bg-[#141414] p-4 rounded-xl border border-[#262626]">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider">
                   Features & Amenities
                 </h4>
-                <span className="text-[11px] text-[#555E6F]">
+                <span className="text-[11px] text-[#a3a3a3]">
                   {formData.features.length} selected
                 </span>
               </div>
@@ -738,10 +738,10 @@ export default function CreatePropertyModal({
                       key={item}
                       type="button"
                       onClick={() => toggleFeature(item)}
-                      className={`px-2.5 py-1 text-xs rounded-full border transition-all cursor-pointer flex items-center gap-1 ${
+                      className={`px-3 py-1.5 text-xs rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSelected
-                          ? "bg-[#DAF5ED] border-[#008761] text-[#006C4D] font-semibold"
-                          : "bg-[#F3F5F8] border-[#D8DDE6] text-[#555E6F] hover:border-gray-400"
+                          ? "bg-[#2a170d] border-[#e8590c] text-[#f59e0b] font-semibold shadow-xs"
+                          : "bg-[#0d0d0d] border-[#333333] text-[#a3a3a3] hover:text-white hover:border-[#555555]"
                       }`}
                     >
                       {isSelected && <MdCheck className="text-xs" />}
@@ -764,12 +764,12 @@ export default function CreatePropertyModal({
                     }
                   }}
                   placeholder="Add custom feature & press enter..."
-                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#D8DDE6] rounded outline-none focus:border-[#008761]"
+                  className="flex-1 px-3 py-2 text-xs bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] placeholder-[#737373]"
                 />
                 <button
                   type="button"
                   onClick={handleAddCustomFeature}
-                  className="px-3 py-1.5 bg-[#F3F5F8] hover:bg-[#E5E9F0] border border-[#D8DDE6] text-xs font-semibold text-[#252A34] rounded transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-3 py-2 bg-[#1f1f1f] hover:bg-[#262626] border border-[#333333] text-xs font-semibold text-white rounded-lg transition-colors cursor-pointer flex items-center gap-1"
                 >
                   <MdAdd className="text-sm" /> Add
                 </button>
@@ -777,17 +777,17 @@ export default function CreatePropertyModal({
             </div>
 
             {/* Photos & Images Upload */}
-            <div className="flex flex-col gap-3 bg-white p-4 rounded-lg border border-[#E5E9F0]">
+            <div className="flex flex-col gap-3 bg-[#141414] p-4 rounded-xl border border-[#262626]">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5">
-                  <MdPhotoLibrary className="text-base text-[#008761]" /> Property
+                <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5">
+                  <MdPhotoLibrary className="text-base text-[#e8590c]" /> Property
                   Images ({formData.images.length})
                 </h4>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="text-xs font-semibold text-[#008761] hover:underline cursor-pointer flex items-center gap-1"
+                  className="text-xs font-semibold text-[#f59e0b] hover:underline cursor-pointer flex items-center gap-1"
                 >
                   <MdCloudUpload className="text-sm" /> Upload Images
                 </button>
@@ -806,20 +806,20 @@ export default function CreatePropertyModal({
               {/* Drag/Drop Box */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-[#D8DDE6] hover:border-[#008761] rounded-lg p-5 flex flex-col items-center justify-center gap-2 text-center bg-[#FBFBFB] hover:bg-emerald-50/20 transition-all cursor-pointer"
+                className="w-full border-2 border-dashed border-[#333333] hover:border-[#e8590c] bg-[#0d0d0d] hover:bg-[#e8590c]/5 rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-center transition-all cursor-pointer"
               >
-                <MdCloudUpload className="text-3xl text-gray-400" />
+                <MdCloudUpload className="text-3xl text-[#e8590c]" />
                 <div>
-                  <p className="text-xs font-semibold text-[#252A34]">
+                  <p className="text-xs font-semibold text-white">
                     Click to browse or drop images here
                   </p>
-                  <p className="text-[11px] text-[#555E6F]">
+                  <p className="text-[11px] text-[#a3a3a3]">
                     Supports JPG, PNG, WEBP (Max 5MB each)
                   </p>
                 </div>
                 {isUploading && (
-                  <div className="flex items-center gap-2 text-xs text-[#008761] font-semibold mt-1">
-                    <div className="w-3.5 h-3.5 border-2 border-[#008761] border-t-transparent rounded-full animate-spin" />
+                  <div className="flex items-center gap-2 text-xs text-[#f59e0b] font-semibold mt-1">
+                    <div className="w-3.5 h-3.5 border-2 border-[#e8590c] border-t-transparent rounded-full animate-spin" />
                     Uploading photos...
                   </div>
                 )}
@@ -831,7 +831,7 @@ export default function CreatePropertyModal({
                   {formData.images.map((img, idx) => (
                     <div
                       key={idx}
-                      className="group relative aspect-4/3 rounded-md overflow-hidden bg-gray-100 border border-[#E5E9F0]"
+                      className="group relative aspect-4/3 rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#262626]"
                     >
                       <Image
                         src={img}
@@ -844,7 +844,7 @@ export default function CreatePropertyModal({
                         type="button"
                         onClick={() => handleRemoveImage(idx)}
                         title="Remove image"
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
                       >
                         <MdDeleteOutline className="text-sm" />
                       </button>
@@ -856,13 +856,13 @@ export default function CreatePropertyModal({
           </div>
         </div>
 
-        {/* ── MODAL FOOTER (Matching user's exact buttons) ── */}
-        <div className="p-4 px-6 border-t border-[#E5E9F0] flex items-center justify-end gap-3 w-full bg-[#FCFCFC] shrink-0">
+        {/* ── MODAL FOOTER ── */}
+        <div className="p-4 px-6 border-t border-[#262626] flex items-center justify-end gap-3 w-full bg-[#141414] shrink-0">
           <button
             type="button"
             disabled={isSubmitting}
             onClick={onClose}
-            className="px-5 py-2.5 rounded-md bg-[#F3F5F8] border border-[#D8DDE6] text-[#252A34] hover:bg-[#E5E9F0] transition-colors text-sm font-medium cursor-pointer disabled:opacity-50"
+            className="px-5 py-2.5 rounded-lg bg-[#1f1f1f] border border-[#333333] text-[#a3a3a3] hover:text-white hover:bg-[#262626] transition-colors text-sm font-medium cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
@@ -871,7 +871,7 @@ export default function CreatePropertyModal({
             type="button"
             disabled={isSaveDisabled}
             onClick={handleSubmit}
-            className="px-6 py-2.5 rounded-md bg-[#008760] text-white hover:bg-[#006C4D] transition-colors text-sm font-semibold cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#e8590c] to-[#f59e0b] text-white hover:from-[#d04a04] hover:to-[#e08e00] shadow-[0_4px_16px_rgba(232,89,12,0.35)] transition-all text-sm font-semibold cursor-pointer disabled:bg-[#262626] disabled:text-[#666666] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSubmitting ? (
               <>

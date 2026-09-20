@@ -69,21 +69,21 @@ export default function RightDrawer({
 
       {/* ── RIGHT DRAWER PANEL ── */}
       <div
-        className={`relative z-10 h-full ${widthClass} bg-[#FCFCFC] shadow-[-8px_0px_32px_rgba(14,17,24,0.14)] border-l border-[#E5E9F0] flex flex-col font-sans animate-in slide-in-from-right duration-250`}
+        className={`relative z-10 h-full ${widthClass} bg-[#141414] shadow-[-8px_0px_32px_rgba(0,0,0,0.6)] border-l border-[#262626] flex flex-col font-sans animate-in slide-in-from-right duration-250`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── DRAWER HEADER ── */}
-        <div className="p-4 sm:p-5 border-b border-[#E5E9F0] bg-[#FCFCFC] flex items-center justify-between gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-b border-[#262626] bg-[#121212] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="min-w-0">
               <h3
-                className="text-[#252A34] text-base font-bold leading-tight truncate"
+                className="text-[#ffffff] text-base font-bold leading-tight truncate"
                 title={headingText}
               >
                 {headingText}
               </h3>
               {subheadingText && (
-                <p className="text-xs text-[#555E6F] truncate mt-0.5">
+                <p className="text-xs text-[#a3a3a3] truncate mt-0.5">
                   {subheadingText}
                 </p>
               )}
@@ -92,10 +92,10 @@ export default function RightDrawer({
             {/* Status Badge */}
             {badgeText && (
               <span
-                className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0"
+                className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider shrink-0 border border-[#e8590c]/30"
                 style={{
-                  backgroundColor: badgeBgColor,
-                  color: badgeTextColor,
+                  backgroundColor: badgeBgColor || "#2a170d",
+                  color: badgeTextColor || "#f59e0b",
                 }}
               >
                 {badgeText}
@@ -110,7 +110,7 @@ export default function RightDrawer({
                 type="button"
                 onClick={handleEditClick}
                 title="Edit"
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[#555E6F] hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#1f1f1f] hover:text-[#f59e0b] transition-colors cursor-pointer"
               >
                 <MdEdit className="text-lg" />
               </button>
@@ -121,7 +121,7 @@ export default function RightDrawer({
                 type="button"
                 onClick={handleDeleteClick}
                 title="Delete"
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[#555E6F] hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#2d1212] hover:text-[#f87171] transition-colors cursor-pointer"
               >
                 <MdDeleteOutline className="text-lg" />
               </button>
@@ -131,15 +131,15 @@ export default function RightDrawer({
               type="button"
               onClick={handleCloseRightModal}
               title="Close drawer"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[#555E6F] hover:bg-[#E5E9F0] transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#1f1f1f] hover:text-white transition-colors cursor-pointer"
             >
               <MdClose className="text-xl" />
             </button>
           </div>
         </div>
 
-        {/* ── DRAWER CONTENT (Directly details, no tabs as requested) ── */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-4">
+        {/* ── DRAWER CONTENT ── */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-4 bg-[#141414] text-white">
           {children}
         </div>
       </div>

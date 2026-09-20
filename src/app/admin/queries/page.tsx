@@ -344,13 +344,13 @@ export default function QueriesManager() {
       render: (item) => (
         <div className="truncate py-0.5">
           <span
-            className="font-semibold text-gray-900 block truncate"
+            className="font-semibold text-white block truncate"
             title={item.name}
           >
             {item.name}
           </span>
           {item.email && (
-            <span className="text-[11px] text-gray-500 block truncate">
+            <span className="text-[11px] text-[#a3a3a3] block truncate">
               {item.email}
             </span>
           )}
@@ -366,7 +366,7 @@ export default function QueriesManager() {
         <a
           href={`tel:${item.phone}`}
           onClick={(e) => e.stopPropagation()}
-          className="font-mono text-xs text-[#008761] hover:underline font-semibold"
+          className="font-mono text-xs text-[#f59e0b] hover:underline font-semibold"
         >
           {item.phone}
         </a>
@@ -379,7 +379,7 @@ export default function QueriesManager() {
       isSortable: true,
       minWidth: "120px",
       render: (item) => (
-        <span className="capitalize font-semibold text-xs px-2.5 py-1 rounded bg-[#F3F5F8] border border-[#D8DDE7] text-gray-800">
+        <span className="capitalize font-semibold text-xs px-2.5 py-1 rounded-full bg-[#262626] border border-[#333333] text-white">
           {item.type}
         </span>
       ),
@@ -391,7 +391,7 @@ export default function QueriesManager() {
       minWidth: "260px",
       render: (item) => (
         <span
-          className="text-xs text-gray-600 block truncate max-w-sm"
+          className="text-xs text-[#d4d4d4] block truncate max-w-sm"
           title={item.message}
         >
           {item.message}
@@ -408,27 +408,27 @@ export default function QueriesManager() {
         const s = String(item.status || "").toLowerCase();
         if (s === "resolved") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
               Resolved
             </span>
           );
         }
         if (s === "contacted") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E5EBFD] text-[#1249ED]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-950/60 text-blue-400 border border-blue-800/60">
               Contacted
             </span>
           );
         }
         if (s === "pending") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FEF3C7] text-[#B45309]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-950/60 text-amber-400 border border-amber-800/60">
               Pending
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
             {item.status || "Closed"}
           </span>
         );
@@ -441,13 +441,13 @@ export default function QueriesManager() {
       type: "action",
       minWidth: "190px",
       render: (item) => (
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-1.5">
           {/* Quick Convert link if property */}
           {item.type === "property" && (
             <Link
               href={`/admin/properties?add=true&title=${encodeURIComponent("Listing from " + item.name)}&description=${encodeURIComponent(item.message)}&contactName=${encodeURIComponent(item.name)}&contactPhone=${encodeURIComponent(item.phone)}`}
               onClick={(e) => e.stopPropagation()}
-              className="text-[11px] font-bold text-[#008761] bg-[#DAF5ED] hover:bg-[#c2edd0] px-2 py-1 rounded transition-colors"
+              className="text-[11px] font-bold text-[#f59e0b] bg-[#2a170d] border border-[#e8590c]/40 hover:bg-[#e8590c] hover:text-white px-2.5 py-1 rounded-lg transition-all"
               title="Convert to Property Listing"
             >
               + Property
@@ -459,8 +459,8 @@ export default function QueriesManager() {
             <Link
               href={`/admin/products?add=true&title=${encodeURIComponent("Listing from " + item.name)}&description=${encodeURIComponent(item.message)}&contactName=${encodeURIComponent(item.name)}&contactPhone=${encodeURIComponent(item.phone)}`}
               onClick={(e) => e.stopPropagation()}
-              className="text-[11px] font-bold text-blue-600 bg-[#E5EBFD] hover:bg-[#d0ddfc] px-2 py-1 rounded transition-colors"
-              title="Convert to Bazaar Product"
+              className="text-[11px] font-bold text-blue-400 bg-[#1a2234] border border-blue-500/40 hover:bg-blue-600 hover:text-white px-2.5 py-1 rounded-lg transition-all"
+              title="Convert to Product"
             >
               + Product
             </Link>
@@ -474,7 +474,7 @@ export default function QueriesManager() {
               setSelectedQuery(item);
               setIsDrawerOpen(true);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="View Details in Drawer"
           >
             <MdOpenInNew className="text-base" />
@@ -487,7 +487,7 @@ export default function QueriesManager() {
               e.stopPropagation();
               handleEditClick(item);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="Edit Query"
           >
             <MdEdit className="text-base" />
@@ -500,7 +500,7 @@ export default function QueriesManager() {
               e.stopPropagation();
               handleOpenDelete(item);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-red-950/50 hover:text-red-400 transition-colors cursor-pointer"
             title="Delete Query"
           >
             <MdDeleteOutline className="text-base" />
@@ -518,10 +518,10 @@ export default function QueriesManager() {
       : "No queries found. Click '+ New Query' to log an enquiry!";
 
   return (
-    <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
-      {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
-      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
-        {/* TopHeader with title: Customer Queries, search onEnter, filters, green 'New Query' button, and CSV Export */}
+    <div className="p-4 sm:p-6 bg-[#0d0d0d] h-full w-full flex flex-col min-h-0">
+      {/* ── MAIN DATA TABLE CARD ── */}
+      <div className="bg-[#171717] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-xl border border-[#262626] overflow-hidden shadow-2xl">
+        {/* TopHeader with title: Customer Queries, search onEnter, filters, orange 'New Query' button, and CSV Export */}
         <TopHeader
           title="Customer Queries"
           searchInput={searchInput}
