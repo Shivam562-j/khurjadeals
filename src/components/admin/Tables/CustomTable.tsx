@@ -60,26 +60,26 @@ export function StatusBadge({ status }: { status: string }) {
     case "pending":
     case "offline":
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FDE9E7] text-[#D51D10]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#2d1212] text-[#f87171] border border-[#7f1d1d]/60">
           Offline
         </span>
       );
     case "contacted":
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FFF0E3] text-[#80440C]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#2e1d09] text-[#fbbf24] border border-[#78350f]/60">
           Contacted
         </span>
       );
     case "resolved":
     case "online":
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#DAF5ED] text-[#006C4D]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#0a2e1d] text-[#34d399] border border-[#065f46]/60">
           Online
         </span>
       );
     default:
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#D8DDE7] text-[#565F70]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#222222] text-[#a3a3a3] border border-[#333333]">
           {status || "Closed"}
         </span>
       );
@@ -131,16 +131,16 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
     typeof sortOrder === "boolean" ? sortOrder : sortOrder === "asc";
 
   return (
-    <div className="h-full w-full flex flex-col min-h-0 bg-white">
-      {/* Scrollable Container with sticky header */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto w-full">
+    <div className="h-full w-full flex flex-col min-h-0 bg-[#171717]">
+      {/* Scrollable Container with sticky header & custom dark scrollbar */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto w-full custom-dark-scrollbar">
         <table className="w-full text-left border-collapse">
-          {/* ── STICKY TABLE HEADER (bg: #E5E9F0, text: #252A34, font-weight: 500, height: 44px) ── */}
-          <thead className="sticky top-0 z-20 bg-[#E5E9F0]">
-            <tr className="border-b border-[#D8DDE7]">
+          {/* ── STICKY TABLE HEADER ── */}
+          <thead className="sticky top-0 z-20 bg-[#121212]">
+            <tr className="border-b border-[#262626]">
               {/* Checkbox Column */}
               {isCheckBox && (
-                <th className="w-12 px-4 py-3 bg-[#E5E9F0] text-center">
+                <th className="w-12 px-4 py-3.5 bg-[#121212] text-center">
                   <input
                     type="checkbox"
                     checked={isAllSelected}
@@ -151,14 +151,14 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                       e.stopPropagation();
                       handleSelectAllClick && handleSelectAllClick();
                     }}
-                    className="w-4 h-4 rounded border-gray-300 text-[#009E71] focus:ring-[#009E71] cursor-pointer accent-[#009E71]"
+                    className="w-4 h-4 rounded border-[#333333] text-[#e8590c] focus:ring-[#e8590c] cursor-pointer accent-[#e8590c] bg-[#0d0d0d]"
                   />
                 </th>
               )}
 
               {/* S.No Column */}
               {isSno && (
-                <th className="w-16 px-4 py-3 text-xs font-semibold text-[#252A34] uppercase tracking-wider bg-[#E5E9F0]">
+                <th className="w-16 px-4 py-3.5 text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider bg-[#121212]">
                   S. No.
                 </th>
               )}
@@ -176,13 +176,13 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                       minWidth: column.minWidth,
                       width: column.width,
                     }}
-                    className={`px-4 py-3 text-xs font-semibold text-[#252A34] uppercase tracking-wider bg-[#E5E9F0] ${
+                    className={`px-4 py-3.5 text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider bg-[#121212] ${
                       column.isSortable
-                        ? "cursor-pointer hover:bg-[#d8dde7] transition-colors"
+                        ? "cursor-pointer hover:bg-[#1a1a1a] hover:text-white transition-colors"
                         : "cursor-default"
                     } ${
                       isAction
-                        ? "sticky right-0 z-20 shadow-[-4px_0px_16px_rgba(0,0,0,0.06)] text-right"
+                        ? "sticky right-0 z-20 shadow-[-4px_0px_16px_rgba(0,0,0,0.4)] text-right"
                         : ""
                     }`}
                   >
@@ -196,7 +196,7 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                       {/* Sort Indicator Arrow */}
                       {column.isSortable && isCurrentSort && (
                         <span
-                          className={`inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#009E71]/15 text-[#009E71] transition-transform duration-200 ${
+                          className={`inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#e8590c]/20 text-[#f59e0b] transition-transform duration-200 ${
                             !isAscending ? "rotate-180" : ""
                           }`}
                         >
@@ -211,18 +211,18 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
           </thead>
 
           {/* ── TABLE BODY ── */}
-          <tbody className="divide-y divide-gray-100 bg-white text-xs text-[#252A34]">
+          <tbody className="divide-y divide-[#222222] bg-[#171717] text-xs text-[#e5e5e5]">
             {loading ? (
               <tr>
                 <td
                   colSpan={
                     columns.length + (isCheckBox ? 1 : 0) + (isSno ? 1 : 0)
                   }
-                  className="py-24 text-center text-sm font-medium text-[#555e6f]"
+                  className="py-24 text-center text-sm font-medium text-[#737373]"
                 >
                   <div className="flex flex-col items-center justify-center gap-3">
-                    <div className="w-8 h-8 border-3 border-[#009E71] border-t-transparent rounded-full animate-spin" />
-                    <span>Loading data records...</span>
+                    <div className="w-8 h-8 border-3 border-[#e8590c] border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[#a3a3a3]">Loading data records...</span>
                   </div>
                 </td>
               </tr>
@@ -232,7 +232,7 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                   colSpan={
                     columns.length + (isCheckBox ? 1 : 0) + (isSno ? 1 : 0)
                   }
-                  className="py-24 text-center text-sm font-medium text-[#555e6f]"
+                  className="py-24 text-center text-sm font-medium text-[#737373]"
                 >
                   {emptyText}
                 </td>
@@ -246,10 +246,10 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                   <tr
                     key={rowId}
                     onClick={() => handleItemClick && handleItemClick(item)}
-                    className={`transition-colors cursor-pointer ${
+                    className={`transition-colors cursor-pointer group ${
                       isSelected
-                        ? "bg-[#ebfaf6]"
-                        : "hover:bg-[#ebfaf6] bg-white"
+                        ? "bg-[#26170d] hover:bg-[#2e1c10]"
+                        : "hover:bg-[#1f1f1f] bg-[#171717]"
                     }`}
                   >
                     {/* Checkbox Cell */}
@@ -264,14 +264,14 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                           onChange={() =>
                             handleRowSelect && handleRowSelect(rowId)
                           }
-                          className="w-4 h-4 rounded border-gray-300 text-[#009E71] focus:ring-[#009E71] cursor-pointer accent-[#009E71]"
+                          className="w-4 h-4 rounded border-[#333333] text-[#e8590c] focus:ring-[#e8590c] cursor-pointer accent-[#e8590c] bg-[#0d0d0d]"
                         />
                       </td>
                     )}
 
                     {/* S.No Cell */}
                     {isSno && (
-                      <td className="w-16 px-4 py-3.5 font-medium text-gray-500 whitespace-nowrap">
+                      <td className="w-16 px-4 py-3.5 font-medium text-[#737373] whitespace-nowrap">
                         {index + 1}
                       </td>
                     )}
@@ -286,7 +286,7 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                             key={column.id}
                             className={`px-4 py-3.5 whitespace-nowrap ${
                               isAction
-                                ? "sticky right-0 z-10 bg-white/95 backdrop-blur-xs shadow-[-4px_0px_16px_rgba(0,0,0,0.06)] text-right"
+                                ? "sticky right-0 z-10 bg-[#171717] group-hover:bg-[#1f1f1f] shadow-[-4px_0px_16px_rgba(0,0,0,0.4)] text-right"
                                 : ""
                             }`}
                           >
@@ -316,7 +316,7 @@ export default function CustomTable<T extends { id?: string; _id?: string }>({
                           key={column.id}
                           className={`px-4 py-3.5 max-w-xs truncate ${
                             isAction
-                              ? "sticky right-0 z-10 bg-white/95 backdrop-blur-xs shadow-[-4px_0px_16px_rgba(0,0,0,0.06)] text-right"
+                              ? "sticky right-0 z-10 bg-[#171717] group-hover:bg-[#1f1f1f] shadow-[-4px_0px_16px_rgba(0,0,0,0.4)] text-right"
                               : ""
                           }`}
                         >

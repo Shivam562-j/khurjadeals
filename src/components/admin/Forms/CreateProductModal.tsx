@@ -324,7 +324,7 @@ export default function CreateProductModal({
 
       {/* ── MODAL CONTAINER (Split 2-column layout) ── */}
       <div
-        className="relative z-10 w-full max-w-5xl h-full max-h-[92vh] bg-[#FCFCFC] rounded-lg shadow-2xl border border-[#E5E9F0] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="relative z-10 w-full max-w-5xl h-full max-h-[92vh] bg-[#171717] rounded-xl shadow-2xl border border-[#2e2e2e] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -334,32 +334,32 @@ export default function CreateProductModal({
           badgeText={editProduct ? editProduct.status : undefined}
           badgeBgColor={
             editProduct?.status === "active"
-              ? "#DAF5ED"
+              ? "#0a2e1d"
               : editProduct?.status === "sold"
-              ? "#FDE9E7"
-              : "#D8DDE7"
+              ? "#2d1212"
+              : "#222222"
           }
           badgeTextColor={
             editProduct?.status === "active"
-              ? "#006C4D"
+              ? "#34d399"
               : editProduct?.status === "sold"
-              ? "#D51D10"
-              : "#565F70"
+              ? "#f87171"
+              : "#a3a3a3"
           }
         />
 
         {/* ── BODY SPLIT 2-COLUMN VIEW ── */}
         <div className="w-full flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
           {/* ── LEFT COLUMN: Core Details ── */}
-          <div className="w-full md:w-1/2 lg:w-[480px] h-full border-r border-[#E5E9F0] p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-white">
-            <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
-              <MdTune className="text-base text-[#008761]" /> Basic Information
+          <div className="w-full md:w-1/2 lg:w-[480px] h-full border-r border-[#262626] p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#141414]">
+            <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-0.5">
+              <MdTune className="text-base text-[#e8590c]" /> Basic Information
             </h4>
 
             {/* Title */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Product Title <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Product Title <span className="text-[#f87171]">*</span>
               </label>
               <input
                 type="text"
@@ -367,14 +367,14 @@ export default function CreateProductModal({
                 onChange={(e) => handleChange("title", e.target.value)}
                 onBlur={() => handleBlur("title")}
                 placeholder="e.g. Royal Enfield Classic 350 (2021 Model)"
-                className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                   touched.title && validationErrors.title
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-[#D8DDE6] focus:border-[#008761]"
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                 }`}
               />
               {touched.title && validationErrors.title && (
-                <p className="text-[11px] text-red-500 mt-1">
+                <p className="text-[11px] text-[#f87171] mt-1">
                   {validationErrors.title}
                 </p>
               )}
@@ -382,8 +382,8 @@ export default function CreateProductModal({
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Description <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Description <span className="text-[#f87171]">*</span>
               </label>
               <textarea
                 rows={3}
@@ -391,14 +391,14 @@ export default function CreateProductModal({
                 onChange={(e) => handleChange("description", e.target.value)}
                 onBlur={() => handleBlur("description")}
                 placeholder="Product condition, purchase year, specifications, included accessories..."
-                className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                   touched.description && validationErrors.description
-                    ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                    : "border-[#D8DDE6] focus:border-[#008761]"
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                 }`}
               />
               {touched.description && validationErrors.description && (
-                <p className="text-[11px] text-red-500 mt-0.5">
+                <p className="text-[11px] text-[#f87171] mt-0.5">
                   {validationErrors.description}
                 </p>
               )}
@@ -406,16 +406,16 @@ export default function CreateProductModal({
 
             {/* Category Dropdown */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Category <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Category <span className="text-[#f87171]">*</span>
               </label>
               <select
                 value={formData.category}
                 onChange={(e) => handleChange("category", e.target.value as ProductCategory)}
-                className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761] cursor-pointer"
+                className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] cursor-pointer"
               >
                 {PRODUCT_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
+                  <option key={c} value={c} className="bg-[#171717] text-white">
                     {c}
                   </option>
                 ))}
@@ -424,19 +424,19 @@ export default function CreateProductModal({
 
             {/* Condition Pills */}
             <div>
-              <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                Item Condition <span className="text-red-500">*</span>
+              <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                Item Condition <span className="text-[#f87171]">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-2 bg-[#F3F5F8] p-1 rounded-md border border-[#E5E9F0]">
+              <div className="grid grid-cols-3 gap-2 bg-[#0d0d0d] p-1 rounded-lg border border-[#262626]">
                 {PRODUCT_CONDITIONS.map((cond) => (
                   <button
                     key={cond.value}
                     type="button"
                     onClick={() => handleChange("condition", cond.value)}
-                    className={`py-1.5 text-xs font-semibold rounded transition-all cursor-pointer ${
+                    className={`py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
                       formData.condition === cond.value
-                        ? "bg-white text-[#008761] shadow-xs"
-                        : "text-[#555E6F] hover:text-[#252A34]"
+                        ? "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] text-white shadow-xs"
+                        : "text-[#a3a3a3] hover:text-white"
                     }`}
                   >
                     {cond.label}
@@ -448,11 +448,11 @@ export default function CreateProductModal({
             {/* Price & Status */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Price (₹) <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Price (₹) <span className="text-[#f87171]">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-2 text-sm text-gray-500 font-semibold">
+                  <span className="absolute left-3 top-2 text-sm text-[#a3a3a3] font-semibold">
                     ₹
                   </span>
                   <input
@@ -461,36 +461,36 @@ export default function CreateProductModal({
                     onChange={(e) => handleChange("price", e.target.value)}
                     onBlur={() => handleBlur("price")}
                     placeholder="0"
-                    className={`w-full pl-7 pr-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                    className={`w-full pl-7 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                       touched.price && validationErrors.price
-                        ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                        : "border-[#D8DDE6] focus:border-[#008761]"
+                        ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                        : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                     }`}
                   />
                 </div>
                 {formData.price && Number(formData.price) > 0 && (
-                  <p className="text-[11px] text-[#008761] font-semibold mt-0.5">
+                  <p className="text-[11px] text-[#f59e0b] font-semibold mt-0.5">
                     ₹{Number(formData.price).toLocaleString("en-IN")}
                   </p>
                 )}
                 {touched.price && validationErrors.price && (
-                  <p className="text-[11px] text-red-500 mt-1">
+                  <p className="text-[11px] text-[#f87171] mt-1">
                     {validationErrors.price}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                  Listing Status <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                  Listing Status <span className="text-[#f87171]">*</span>
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => handleChange("status", e.target.value as ProductStatus)}
-                  className="w-full px-3 py-2 text-sm bg-white border border-[#D8DDE6] rounded-md outline-none focus:border-[#008761] cursor-pointer"
+                  className="w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border border-[#333333] rounded-lg outline-none focus:border-[#e8590c] cursor-pointer"
                 >
                   {STATUS_OPTIONS.map((st) => (
-                    <option key={st.value} value={st.value}>
+                    <option key={st.value} value={st.value} className="bg-[#171717] text-white">
                       {st.label}
                     </option>
                   ))}
@@ -499,19 +499,19 @@ export default function CreateProductModal({
             </div>
 
             {/* Featured Product Toggle */}
-            <div className="pt-2 border-t border-[#E5E9F0]">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
+            <div className="pt-2 border-t border-[#262626]">
+              <label className="flex items-center gap-2.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={formData.isFeatured}
                   onChange={(e) => handleChange("isFeatured", e.target.checked)}
-                  className="w-4 h-4 rounded text-[#008761] focus:ring-[#008761] accent-[#008761] cursor-pointer"
+                  className="w-4 h-4 rounded text-[#e8590c] focus:ring-[#e8590c] accent-[#e8590c] cursor-pointer bg-[#0d0d0d] border-[#333333]"
                 />
                 <div>
-                  <span className="text-xs font-bold text-[#252A34] block">
+                  <span className="text-xs font-bold text-white block">
                     Featured Bazaar Listing
                   </span>
-                  <span className="text-[11px] text-[#555E6F]">
+                  <span className="text-[11px] text-[#a3a3a3]">
                     Highlight this item on the Bazaar homepage
                   </span>
                 </div>
@@ -520,18 +520,18 @@ export default function CreateProductModal({
           </div>
 
           {/* ── RIGHT COLUMN: Location, Contact & Media ── */}
-          <div className="w-full md:w-1/2 lg:flex-1 h-full p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#FCFCFC]">
+          <div className="w-full md:w-1/2 lg:flex-1 h-full p-5 sm:p-6 overflow-y-auto flex flex-col gap-4 bg-[#171717]">
             {/* Location & Seller Section */}
             <div>
-              <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                <MdLocationOn className="text-base text-[#008761]" /> Location & Seller Details
+              <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <MdLocationOn className="text-base text-[#e8590c]" /> Location & Seller Details
               </h4>
 
               <div className="flex flex-col gap-3">
                 {/* Location */}
                 <div>
-                  <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                    Locality / Area <span className="text-red-500">*</span>
+                  <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                    Locality / Area <span className="text-[#f87171]">*</span>
                   </label>
                   <input
                     type="text"
@@ -539,14 +539,14 @@ export default function CreateProductModal({
                     onChange={(e) => handleChange("location", e.target.value)}
                     onBlur={() => handleBlur("location")}
                     placeholder="e.g. Subhash Road, Khurja"
-                    className={`w-full px-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                    className={`w-full px-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                       touched.location && validationErrors.location
-                        ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                        : "border-[#D8DDE6] focus:border-[#008761]"
+                        ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                        : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                     }`}
                   />
                   {touched.location && validationErrors.location && (
-                    <p className="text-[11px] text-red-500 mt-1">
+                    <p className="text-[11px] text-[#f87171] mt-1">
                       {validationErrors.location}
                     </p>
                   )}
@@ -555,11 +555,11 @@ export default function CreateProductModal({
                 {/* Contact Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                      Seller Name <span className="text-red-500">*</span>
+                    <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                      Seller Name <span className="text-[#f87171]">*</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-gray-400">
+                      <span className="absolute left-3 top-2.5 text-[#737373]">
                         <MdPerson className="text-sm" />
                       </span>
                       <input
@@ -568,26 +568,26 @@ export default function CreateProductModal({
                         onChange={(e) => handleChange("contactName", e.target.value)}
                         onBlur={() => handleBlur("contactName")}
                         placeholder="Seller Name"
-                        className={`w-full pl-8 pr-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                        className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                           touched.contactName && validationErrors.contactName
-                            ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                            : "border-[#D8DDE6] focus:border-[#008761]"
+                            ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                            : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                         }`}
                       />
                     </div>
                     {touched.contactName && validationErrors.contactName && (
-                      <p className="text-[11px] text-red-500 mt-1">
+                      <p className="text-[11px] text-[#f87171] mt-1">
                         {validationErrors.contactName}
                       </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#252A34] mb-1">
-                      Phone Number <span className="text-red-500">*</span>
+                    <label className="block text-xs font-semibold text-[#d4d4d4] mb-1">
+                      Phone Number <span className="text-[#f87171]">*</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-gray-400">
+                      <span className="absolute left-3 top-2.5 text-[#737373]">
                         <MdPhone className="text-sm" />
                       </span>
                       <input
@@ -597,15 +597,15 @@ export default function CreateProductModal({
                         onChange={(e) => handleChange("contactPhone", e.target.value)}
                         onBlur={() => handleBlur("contactPhone")}
                         placeholder="10-digit number"
-                        className={`w-full pl-8 pr-3 py-2 text-sm bg-white border rounded-md outline-none transition-colors ${
+                        className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
                           touched.contactPhone && validationErrors.contactPhone
-                            ? "border-red-400 focus:border-red-500 bg-red-50/30"
-                            : "border-[#D8DDE6] focus:border-[#008761]"
+                            ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                            : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
                         }`}
                       />
                     </div>
                     {touched.contactPhone && validationErrors.contactPhone && (
-                      <p className="text-[11px] text-red-500 mt-1">
+                      <p className="text-[11px] text-[#f87171] mt-1">
                         {validationErrors.contactPhone}
                       </p>
                     )}
@@ -615,15 +615,15 @@ export default function CreateProductModal({
             </div>
 
             {/* Images Upload Section */}
-            <div className="pt-2 border-t border-[#E5E9F0] flex-1 flex flex-col min-h-0">
-              <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                <MdPhotoLibrary className="text-base text-[#008761]" /> Product Photos ({formData.images.length})
+            <div className="pt-2 border-t border-[#262626] flex-1 flex flex-col min-h-0">
+              <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <MdPhotoLibrary className="text-base text-[#e8590c]" /> Product Photos ({formData.images.length})
               </h4>
 
               {/* Upload Drop Zone */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed border-[#D8DDE7] hover:border-[#008761] hover:bg-[#008761]/5 rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                className={`border-2 border-dashed border-[#333333] hover:border-[#e8590c] hover:bg-[#e8590c]/5 bg-[#0d0d0d] rounded-xl p-4 text-center cursor-pointer transition-all ${
                   isUploading ? "opacity-50 pointer-events-none" : ""
                 }`}
               >
@@ -635,11 +635,11 @@ export default function CreateProductModal({
                   onChange={handleImageUpload}
                   className="hidden"
                 />
-                <MdCloudUpload className="mx-auto text-3xl text-[#008761] mb-1" />
-                <p className="text-xs font-semibold text-[#252A34]">
+                <MdCloudUpload className="mx-auto text-3xl text-[#e8590c] mb-1" />
+                <p className="text-xs font-semibold text-white">
                   {isUploading ? "Uploading photos..." : "Click or drag images to upload"}
                 </p>
-                <p className="text-[11px] text-[#555E6F] mt-0.5">
+                <p className="text-[11px] text-[#a3a3a3] mt-0.5">
                   PNG, JPG, WEBP up to 10MB each
                 </p>
               </div>
@@ -650,7 +650,7 @@ export default function CreateProductModal({
                   {formData.images.map((img, idx) => (
                     <div
                       key={idx}
-                      className="relative group rounded-md overflow-hidden aspect-square border border-[#E5E9F0] bg-gray-100"
+                      className="relative group rounded-lg overflow-hidden aspect-square border border-[#262626] bg-[#0d0d0d]"
                     >
                       <Image
                         src={img}
@@ -665,7 +665,7 @@ export default function CreateProductModal({
                           e.stopPropagation();
                           handleRemoveImage(idx);
                         }}
-                        className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
                         title="Remove photo"
                       >
                         <MdDeleteOutline className="text-xs" />
@@ -679,12 +679,12 @@ export default function CreateProductModal({
         </div>
 
         {/* ── FOOTER ACTIONS ── */}
-        <div className="w-full px-6 py-3 bg-white border-t border-[#E5E9F0] flex items-center justify-end gap-3 shrink-0">
+        <div className="w-full px-6 py-3.5 bg-[#141414] border-t border-[#262626] flex items-center justify-end gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 text-xs font-semibold text-[#555E6F] hover:text-[#252A34] bg-white border border-[#D8DDE6] rounded-md transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-[#a3a3a3] hover:text-white bg-[#1f1f1f] hover:bg-[#262626] border border-[#333333] rounded-lg transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -692,10 +692,10 @@ export default function CreateProductModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSaveDisabled}
-            className={`px-5 py-2 text-xs font-semibold text-white rounded-md transition-all flex items-center gap-1.5 ${
+            className={`px-5 py-2 text-xs font-semibold text-white rounded-lg transition-all flex items-center gap-1.5 ${
               isSaveDisabled
-                ? "bg-[#A0C4BA] cursor-not-allowed opacity-70"
-                : "bg-[#008761] hover:bg-[#007050] shadow-xs cursor-pointer"
+                ? "bg-[#262626] text-[#666666] cursor-not-allowed opacity-60"
+                : "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] hover:from-[#d04a04] hover:to-[#e08e00] shadow-[0_4px_16px_rgba(232,89,12,0.35)] cursor-pointer"
             }`}
           >
             <MdCheck className="text-base" />

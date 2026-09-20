@@ -159,28 +159,28 @@ export default function AppSidebar({
 
     return (
       <div
-        className="flex flex-col h-full bg-[#252A34] text-[#E5E9F0] font-sans"
+        className="flex flex-col h-full bg-[#121212] text-[#f5f5f5] font-sans border-r border-[#262626]"
         style={{
           width: isEffectivelyCollapsed ? "80px" : "260px",
-          transition: "width 0.3s ease",
+          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
-        {/* ── TOP HEADER / BRANDING (h-[86px], matching provided code) ── */}
+        {/* ── TOP HEADER / BRANDING ── */}
         <div
-          className={`flex px-4 py-5 items-center gap-2.5 self-stretch h-[86px] my-1 ${
+          className={`flex px-4 py-5 items-center gap-2.5 self-stretch h-[86px] my-1 border-b border-[#1f1f1f] ${
             isEffectivelyCollapsed ? "justify-center" : "justify-between"
           }`}
         >
           {/* Logo circle */}
           <Link
             href="/admin/dashboard"
-            className="flex items-center gap-2.5 min-w-0"
+            className="flex items-center gap-3 min-w-0 group"
           >
             <div
-              className="flex w-8 h-8 flex-col justify-center items-center rounded-full bg-[#3F4653] shrink-0 text-white font-black text-xs shadow"
-              style={{ width: "32px", height: "32px" }}
+              className="flex w-9 h-9 justify-center items-center rounded-xl bg-gradient-to-br from-[#e8590c] to-[#f59e0b] shrink-0 text-white font-black text-xs shadow-[0_4px_12px_rgba(232,89,12,0.35)] group-hover:scale-105 transition-transform"
+              style={{ width: "36px", height: "36px" }}
             >
-              <span className="text-[#00be88] font-black tracking-tighter text-sm">
+              <span className="text-white font-black tracking-tighter text-sm">
                 KD
               </span>
             </div>
@@ -188,25 +188,28 @@ export default function AppSidebar({
             {/* Brand Title */}
             {!isEffectivelyCollapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-[#e5e9f0] text-sm font-semibold leading-tight truncate">
+                <p className="text-[#ffffff] text-[15px] font-bold leading-tight truncate tracking-tight">
                   Khurja Deals
+                </p>
+                <p className="text-[#e8590c] text-[11px] font-medium tracking-wide">
+                  Admin Console
                 </p>
               </div>
             )}
           </Link>
 
-          {/* Desktop Collapse Button (Matching TbLayoutSidebarLeftCollapse / RightCollapse) */}
+          {/* Desktop Collapse Button */}
           {!isMobile && (
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="text-[#D8DDE7] p-[6px] rounded-[4px] hover:bg-[#2e3542] transition-colors cursor-pointer"
+              className="text-[#a3a3a3] p-[6px] rounded-lg hover:text-white hover:bg-[#1f1f1f] transition-all cursor-pointer"
               title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
               aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
               {!collapsed ? (
-                <TbLayoutSidebarLeftCollapse fontSize={24} />
+                <TbLayoutSidebarLeftCollapse fontSize={22} />
               ) : (
-                <TbLayoutSidebarRightCollapse fontSize={24} />
+                <TbLayoutSidebarRightCollapse fontSize={22} />
               )}
             </button>
           )}
@@ -215,15 +218,15 @@ export default function AppSidebar({
           {isMobile && (
             <button
               onClick={() => setMobileOpen(false)}
-              className="text-[#D8DDE7] p-[6px] rounded-[4px] hover:bg-[#2e3542] transition-colors"
+              className="text-[#a3a3a3] p-[6px] rounded-lg hover:text-white hover:bg-[#1f1f1f] transition-all"
             >
               <FaTimes className="text-sm" />
             </button>
           )}
         </div>
 
-        {/* ── MENU ITEMS CONTAINER (h-[calc(100vh-154px)] matching provided code) ── */}
-        <div className="h-[calc(100vh-154px)] no-scrollbar overflow-y-auto flex-1 py-1">
+        {/* ── MENU ITEMS CONTAINER ── */}
+        <div className="h-[calc(100vh-154px)] no-scrollbar overflow-y-auto flex-1 py-3 px-2">
           {menuSections.map((section, sectionIndex) => {
             // Filter section items by role if needed
             const visibleItems = section.items.filter((item) => {
@@ -254,56 +257,58 @@ export default function AppSidebar({
                           href={menuItem.link}
                           target={menuItem.external ? "_blank" : undefined}
                           onClick={() => isMobile && setMobileOpen(false)}
-                          className={`w-full px-4 py-2 flex items-center gap-3 rounded-lg transition-all duration-200 no-underline cursor-pointer ${
+                          className={`w-full flex items-center gap-3 rounded-xl transition-all duration-200 no-underline cursor-pointer ${
                             isEffectivelyCollapsed
-                              ? "justify-center !px-2.5"
-                              : "justify-start"
+                              ? "justify-center !px-2.5 py-2.5"
+                              : "justify-start px-3.5 py-2.5"
+                          } ${
+                            isActive
+                              ? "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] text-white shadow-[0_4px_16px_rgba(232,89,12,0.35)] font-semibold"
+                              : isHovered
+                              ? "bg-[#1c1c1c] text-white"
+                              : "text-[#a3a3a3] hover:text-white"
                           }`}
-                          style={{
-                            color: isActive ? "#00be88" : "#B0B7C5",
-                            fontWeight: isActive ? 600 : 500,
-                            backgroundColor:
-                              isActive || isHovered ? "#2e3542" : "transparent",
-                            padding: isEffectivelyCollapsed
-                              ? "8px 10px"
-                              : "8px 16px",
-                          }}
                         >
                           {/* Icon Container */}
                           <span
-                            className="icon-container flex items-center justify-center shrink-0 text-xl transition-colors"
-                            style={{
-                              color:
-                                isActive || isHovered ? "#00be88" : "#B0B7C5",
-                            }}
+                            className={`flex items-center justify-center shrink-0 text-lg transition-colors ${
+                              isActive
+                                ? "text-white"
+                                : isHovered
+                                ? "text-[#f59e0b]"
+                                : "text-[#8e8e8e]"
+                            }`}
                           >
                             {menuItem.icon}
                           </span>
 
-                          {/* Menu Item Text with increased font size */}
+                          {/* Menu Item Text */}
                           {!isEffectivelyCollapsed && (
                             <span
-                              className="menu-item-text text-[15px] font-semibold truncate flex-1 tracking-wide"
-                              style={{
-                                color:
-                                  isActive || isHovered
-                                    ? "#E5E9F0"
-                                    : "#B0B7C5",
-                                fontWeight: isActive ? 600 : 500,
-                              }}
+                              className={`text-[14px] truncate flex-1 tracking-normal ${
+                                isActive
+                                  ? "text-white font-semibold"
+                                  : isHovered
+                                  ? "text-white font-medium"
+                                  : "text-[#a3a3a3] font-medium"
+                              }`}
                             >
                               {menuItem.item}
                             </span>
                           )}
 
                           {!isEffectivelyCollapsed && menuItem.external && (
-                            <FaExternalLinkAlt className="text-xs opacity-60 ml-auto" />
+                            <FaExternalLinkAlt
+                              className={`text-xs ml-auto ${
+                                isActive ? "text-white/80" : "text-[#737373]"
+                              }`}
+                            />
                           )}
                         </Link>
 
                         {/* Collapsed Tooltip */}
                         {isEffectivelyCollapsed && (
-                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-1.5 bg-[#565f70] text-[#fcfcfc] text-xs font-semibold rounded-md shadow-xl pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-opacity z-50 whitespace-nowrap">
+                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-[#1e1e1e] text-white text-xs font-medium rounded-lg shadow-2xl border border-[#2e2e2e] pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-opacity z-50 whitespace-nowrap">
                             {menuItem.item}
                           </div>
                         )}
@@ -312,13 +317,13 @@ export default function AppSidebar({
                   })}
                 </div>
 
-                {/* Section Divider (height 2px, background #2E3542, margin 24px 0 matching provided code) */}
+                {/* Section Divider */}
                 {sectionIndex < menuSections.length - 1 && (
                   <div
-                    className="my-4 mx-3"
+                    className="my-3 mx-2"
                     style={{
-                      height: "2px",
-                      backgroundColor: "#2E3542",
+                      height: "1px",
+                      backgroundColor: "#222222",
                     }}
                   />
                 )}
@@ -327,23 +332,23 @@ export default function AppSidebar({
           })}
         </div>
 
-        {/* ── FOOTER (h-[56px] matching provided code: Powered by SaasOrgName) ── */}
-        <div className="p-4 px-3 border-t border-[#0000001f] bg-[#252a34] h-[56px] shrink-0 flex items-center">
+        {/* ── FOOTER ── */}
+        <div className="p-4 px-3 border-t border-[#222222] bg-[#0e0e0e] h-[60px] shrink-0 flex items-center">
           <div
             className={`flex flex-row items-center gap-2.5 w-full ${
               isEffectivelyCollapsed ? "justify-center" : "justify-start"
             }`}
           >
-            <div className="w-5 h-5 rounded-full bg-[#3F4653] flex items-center justify-center text-[10px] text-[#00be88] font-black shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#e8590c] to-[#f59e0b] flex items-center justify-center text-[10px] text-white font-black shrink-0 shadow-[0_2px_8px_rgba(232,89,12,0.3)]">
               KD
             </div>
 
             {!isEffectivelyCollapsed && (
               <div className="flex flex-col gap-0.5 min-w-0">
-                <div className="text-[#717b8c] text-[10px] font-medium leading-3">
+                <div className="text-[#737373] text-[10px] font-medium leading-3">
                   Powered by
                 </div>
-                <div className="text-[#717b8c] text-xs font-semibold leading-none truncate">
+                <div className="text-[#a3a3a3] text-xs font-semibold leading-none truncate">
                   Khurja Deals
                 </div>
               </div>

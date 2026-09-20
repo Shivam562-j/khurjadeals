@@ -336,11 +336,11 @@ export default function DashboardView({
       minWidth: "200px",
       render: (item) => (
         <div className="truncate py-0.5">
-          <span className="font-semibold text-gray-900 block truncate" title={item.name}>
+          <span className="font-semibold text-white block truncate" title={item.name}>
             {item.name}
           </span>
           {item.email && (
-            <span className="text-[11px] text-gray-500 block truncate">
+            <span className="text-[11px] text-[#a3a3a3] block truncate">
               {item.email}
             </span>
           )}
@@ -356,7 +356,7 @@ export default function DashboardView({
         <a
           href={`tel:${item.phone}`}
           onClick={(e) => e.stopPropagation()}
-          className="font-mono text-xs text-[#008761] hover:underline font-semibold"
+          className="font-mono text-xs text-[#f59e0b] hover:underline font-semibold"
         >
           {item.phone}
         </a>
@@ -369,7 +369,7 @@ export default function DashboardView({
       isSortable: true,
       minWidth: "110px",
       render: (item) => (
-        <span className="capitalize font-semibold text-xs px-2.5 py-1 rounded bg-[#F3F5F8] border border-[#D8DDE7] text-gray-800">
+        <span className="capitalize font-semibold text-xs px-2.5 py-1 rounded-full bg-[#262626] border border-[#333333] text-white">
           {item.type}
         </span>
       ),
@@ -381,7 +381,7 @@ export default function DashboardView({
       minWidth: "260px",
       render: (item) => (
         <span
-          className="text-xs text-gray-600 block max-w-sm truncate"
+          className="text-xs text-[#d4d4d4] block max-w-sm truncate"
           title={item.message}
         >
           {item.message}
@@ -398,27 +398,27 @@ export default function DashboardView({
         const s = String(item.status || "").toLowerCase();
         if (s === "resolved") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
               Resolved
             </span>
           );
         }
         if (s === "contacted") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E5EBFD] text-[#1249ED]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-950/60 text-blue-400 border border-blue-800/60">
               Contacted
             </span>
           );
         }
         if (s === "pending") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FEF3C7] text-[#B45309]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-950/60 text-amber-400 border border-amber-800/60">
               Pending
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
             {item.status || "Closed"}
           </span>
         );
@@ -436,7 +436,7 @@ export default function DashboardView({
           <a
             href={`tel:${item.phone}`}
             onClick={(e) => e.stopPropagation()}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5EBFD] hover:text-blue-600 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#1a2234] hover:text-blue-400 transition-colors"
             title="Call Customer"
           >
             <MdPhone className="text-base" />
@@ -448,7 +448,7 @@ export default function DashboardView({
             target="_blank"
             rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-green-600 transition-colors"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-emerald-950/40 hover:text-emerald-400 transition-colors"
             title="WhatsApp Customer"
           >
             <FaWhatsapp className="text-base" />
@@ -462,7 +462,7 @@ export default function DashboardView({
               setSelectedQuery(item);
               setIsDrawerOpen(true);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="View Details in Drawer"
           >
             <MdOpenInNew className="text-base" />
@@ -476,7 +476,7 @@ export default function DashboardView({
               setEditQuery(item);
               setOpenForm(true);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="Edit Query"
           >
             <MdEdit className="text-base" />
@@ -490,7 +490,7 @@ export default function DashboardView({
               setQueryToDelete(item);
               setDeleteOpen(true);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-red-950/50 hover:text-red-400 transition-colors cursor-pointer"
             title="Delete Query"
           >
             <MdDeleteOutline className="text-base" />
@@ -507,29 +507,29 @@ export default function DashboardView({
       : "No customer queries found.";
 
   return (
-    <div className="space-y-6 p-6 flex flex-col h-full min-h-0">
+    <div className="space-y-6 p-6 flex flex-col h-full min-h-0 bg-[#0d0d0d]">
       {/* ── 1. KPI STATS CARDS ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
         {/* Card 1: Total Properties */}
-        <div className="bg-white border border-gray-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-3">
+        <div className="bg-[#171717] border border-[#262626] p-5 rounded-2xl shadow-xl hover:border-[#e8590c]/40 transition-all flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <p className="text-xs font-bold text-[#a3a3a3] uppercase tracking-wider">
                 TOTAL PROPERTIES
               </p>
-              <h3 className="text-3xl font-black text-gray-900 mt-1">
+              <h3 className="text-3xl font-black text-white mt-1">
                 {stats.propertyCount}
               </h3>
             </div>
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-[#008761] flex items-center justify-center text-lg font-bold border border-emerald-100 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-[#2a170d] text-[#f59e0b] flex items-center justify-center text-lg font-bold border border-[#e8590c]/30 shadow-[0_0_12px_rgba(232,89,12,0.2)] shrink-0">
               <FaHome />
             </div>
           </div>
-          <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
+          <div className="pt-2.5 border-t border-[#262626] flex items-center justify-between text-xs text-[#a3a3a3] font-medium">
             <span>Active Listings</span>
             <Link
               href="/admin/properties"
-              className="text-[#008761] font-bold hover:underline"
+              className="text-[#f59e0b] font-bold hover:underline"
             >
               Manage ➔
             </Link>
@@ -537,25 +537,25 @@ export default function DashboardView({
         </div>
 
         {/* Card 2: Bazaar Items */}
-        <div className="bg-white border border-gray-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-3">
+        <div className="bg-[#171717] border border-[#262626] p-5 rounded-2xl shadow-xl hover:border-[#e8590c]/40 transition-all flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <p className="text-xs font-bold text-[#a3a3a3] uppercase tracking-wider">
                 BAZAAR PRODUCTS
               </p>
-              <h3 className="text-3xl font-black text-gray-900 mt-1">
+              <h3 className="text-3xl font-black text-white mt-1">
                 {stats.productCount}
               </h3>
             </div>
-            <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold border border-amber-100 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-[#2a170d] text-[#f59e0b] flex items-center justify-center text-lg font-bold border border-[#e8590c]/30 shadow-[0_0_12px_rgba(232,89,12,0.2)] shrink-0">
               <FaBox />
             </div>
           </div>
-          <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
+          <div className="pt-2.5 border-t border-[#262626] flex items-center justify-between text-xs text-[#a3a3a3] font-medium">
             <span>Ceramics & Store</span>
             <Link
               href="/admin/products"
-              className="text-amber-600 font-bold hover:underline"
+              className="text-[#f59e0b] font-bold hover:underline"
             >
               View All ➔
             </Link>
@@ -563,25 +563,25 @@ export default function DashboardView({
         </div>
 
         {/* Card 3: Pending Inquiries */}
-        <div className="bg-white border border-gray-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-3">
+        <div className="bg-[#171717] border border-[#262626] p-5 rounded-2xl shadow-xl hover:border-rose-500/40 transition-all flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <p className="text-xs font-bold text-[#a3a3a3] uppercase tracking-wider">
                 PENDING INQUIRIES
               </p>
-              <h3 className="text-3xl font-black text-gray-900 mt-1">
+              <h3 className="text-3xl font-black text-white mt-1">
                 {stats.pendingQueryCount}
               </h3>
             </div>
-            <div className="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg font-bold border border-rose-100 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-rose-950/40 text-rose-400 flex items-center justify-center text-lg font-bold border border-rose-800/40 shadow-[0_0_12px_rgba(244,63,94,0.15)] shrink-0">
               <FaEnvelopeOpenText />
             </div>
           </div>
-          <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
-            <span className="text-rose-600 font-bold">Needs Action</span>
+          <div className="pt-2.5 border-t border-[#262626] flex items-center justify-between text-xs text-[#a3a3a3] font-medium">
+            <span className="text-rose-400 font-bold">Needs Action</span>
             <Link
               href="/admin/queries"
-              className="text-rose-600 font-bold hover:underline"
+              className="text-rose-400 font-bold hover:underline"
             >
               Review ➔
             </Link>
@@ -589,25 +589,25 @@ export default function DashboardView({
         </div>
 
         {/* Card 4: Platform Admins */}
-        <div className="bg-white border border-gray-200/90 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-3">
+        <div className="bg-[#171717] border border-[#262626] p-5 rounded-2xl shadow-xl hover:border-[#e8590c]/40 transition-all flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <p className="text-xs font-bold text-[#a3a3a3] uppercase tracking-wider">
                 PLATFORM ADMINS
               </p>
-              <h3 className="text-3xl font-black text-gray-900 mt-1">
+              <h3 className="text-3xl font-black text-white mt-1">
                 {stats.userCount}
               </h3>
             </div>
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold border border-emerald-100 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-[#2a170d] text-[#f59e0b] flex items-center justify-center text-lg font-bold border border-[#e8590c]/30 shadow-[0_0_12px_rgba(232,89,12,0.2)] shrink-0">
               <FaUserShield />
             </div>
           </div>
-          <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
+          <div className="pt-2.5 border-t border-[#262626] flex items-center justify-between text-xs text-[#a3a3a3] font-medium">
             <span>System Access</span>
             <Link
               href="/admin/users"
-              className="text-emerald-600 font-bold hover:underline"
+              className="text-[#f59e0b] font-bold hover:underline"
             >
               Admins ➔
             </Link>
@@ -615,8 +615,8 @@ export default function DashboardView({
         </div>
       </div>
 
-      {/* ── 2. MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
-      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
+      {/* ── 2. MAIN DATA TABLE CARD ── */}
+      <div className="bg-[#171717] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-xl border border-[#262626] overflow-hidden shadow-2xl">
         {/* TopHeader: Title: Customer Queries List, search onEnter, filters, New Query action, and Export CSV */}
         <TopHeader
           title="Customer Queries List"

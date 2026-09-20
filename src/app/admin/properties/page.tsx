@@ -346,13 +346,13 @@ export default function PropertiesManager() {
       render: (item) => (
         <div className="truncate py-0.5">
           <span
-            className="font-semibold text-gray-900 block truncate"
+            className="font-semibold text-white block truncate"
             title={item.title}
           >
             {item.title}
           </span>
           {item.location && (
-            <span className="text-[11px] text-gray-500 block truncate">
+            <span className="text-[11px] text-[#a3a3a3] block truncate">
               {item.location}
             </span>
           )}
@@ -366,7 +366,7 @@ export default function PropertiesManager() {
       isSortable: true,
       minWidth: "120px",
       render: (item) => (
-        <span className="capitalize font-medium text-gray-700">
+        <span className="capitalize font-medium text-[#d4d4d4]">
           {item.type}
         </span>
       ),
@@ -378,7 +378,7 @@ export default function PropertiesManager() {
       isSortable: true,
       minWidth: "100px",
       render: (item) => (
-        <span className="capitalize font-semibold text-gray-800">
+        <span className="capitalize font-semibold text-white">
           {item.listingType}
         </span>
       ),
@@ -390,7 +390,7 @@ export default function PropertiesManager() {
       isSortable: true,
       minWidth: "130px",
       render: (item) => (
-        <span className="font-bold text-[#008761]">
+        <span className="font-bold text-[#f59e0b]">
           ₹{Number(item.price).toLocaleString("en-IN")}
         </span>
       ),
@@ -402,7 +402,7 @@ export default function PropertiesManager() {
       isSortable: true,
       minWidth: "120px",
       render: (item) => (
-        <span className="text-gray-600 font-medium">
+        <span className="text-[#a3a3a3] font-medium">
           {item.area} {item.areaUnit}
         </span>
       ),
@@ -414,10 +414,10 @@ export default function PropertiesManager() {
       minWidth: "150px",
       render: (item) => (
         <div className="truncate text-xs">
-          <span className="font-medium text-gray-800 block truncate">
+          <span className="font-medium text-white block truncate">
             {item.contactName || "—"}
           </span>
-          <span className="text-gray-500 font-mono text-[11px]">
+          <span className="text-[#a3a3a3] font-mono text-[11px]">
             {item.contactPhone || ""}
           </span>
         </div>
@@ -433,27 +433,27 @@ export default function PropertiesManager() {
         const s = String(item.status || "").toLowerCase();
         if (s === "active") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DAF5ED] text-[#006C4D]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
               Active
             </span>
           );
         }
         if (s === "sold") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FDE9E7] text-[#D51D10]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-950/60 text-red-400 border border-red-800/60">
               Sold
             </span>
           );
         }
         if (s === "rented") {
           return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E5EBFD] text-[#1249ED]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-950/60 text-blue-400 border border-blue-800/60">
               Rented
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D8DDE7] text-[#565F70]">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
             {item.status || "Inactive"}
           </span>
         );
@@ -475,20 +475,20 @@ export default function PropertiesManager() {
               setSelectedProperty(item);
               setIsDrawerOpen(true);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="View Details in Drawer"
           >
             <MdOpenInNew className="text-base" />
           </button>
 
-          {/* Edit Action (matching screenshot pencil) */}
+          {/* Edit Action */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               handleEditClick(item);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#E5E9F0] hover:text-[#008761] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-[#262626] hover:text-[#f59e0b] transition-colors cursor-pointer"
             title="Edit Property"
           >
             <MdEdit className="text-base" />
@@ -501,7 +501,7 @@ export default function PropertiesManager() {
               e.stopPropagation();
               handleOpenDelete(item);
             }}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-[#FDE9E7] hover:text-[#D51D10] transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#a3a3a3] hover:bg-red-950/50 hover:text-red-400 transition-colors cursor-pointer"
             title="Delete Property"
           >
             <MdDeleteOutline className="text-base" />
@@ -519,10 +519,10 @@ export default function PropertiesManager() {
       : "No properties found. Click '+ New Property' to create your first listing!";
 
   return (
-    <div className="p-4 sm:p-6 bg-[#f3f5f8] h-full w-full flex flex-col min-h-0">
-      {/* ── MAIN DATA TABLE CARD (Exact layout: bg-[#fcfcfc] flex flex-col h-full rounded-lg) ── */}
-      <div className="bg-[#fcfcfc] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-lg border border-[#E5E9F0] overflow-hidden shadow-xs">
-        {/* TopHeader with title: Property List, search onEnter, filters, green 'New Property' button, and CSV Export */}
+    <div className="p-4 sm:p-6 bg-[#0d0d0d] h-full w-full flex flex-col min-h-0">
+      {/* ── MAIN DATA TABLE CARD ── */}
+      <div className="bg-[#171717] flex flex-col h-[600px] lg:h-full lg:flex-1 min-h-0 rounded-xl border border-[#262626] overflow-hidden shadow-2xl">
+        {/* TopHeader with title: Property List, search onEnter, filters, orange 'New Property' button, and CSV Export */}
         <TopHeader
           title="Property List"
           searchInput={searchInput}

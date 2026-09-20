@@ -51,7 +51,7 @@ export default function Table<T extends { id?: string; _id?: string }>({
 }: TableProps<T>) {
   return (
     <div
-      className={`flex-1 min-h-0 w-full flex flex-col bg-[#FCFCFC] overflow-hidden ${className}`}
+      className={`flex-1 min-h-0 w-full flex flex-col bg-[#171717] overflow-hidden ${className}`}
     >
       {/* ── TABLE CONTAINER (Takes full flex height) ── */}
       <div className="flex-1 min-h-0 w-full overflow-hidden">

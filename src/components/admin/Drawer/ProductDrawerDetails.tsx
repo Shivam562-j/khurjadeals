@@ -64,11 +64,11 @@ export default function ProductDrawerDetails({
   };
 
   return (
-    <div className="w-full flex flex-col gap-5 pb-6">
+    <div className="w-full flex flex-col gap-5 pb-6 text-white">
       {/* ── IMAGE SHOWCASE (if available) ── */}
       {images.length > 0 && (
-        <div className="flex flex-col gap-2 bg-[#F3F5F8] p-3 rounded-lg border border-[#E5E9F0]">
-          <div className="relative w-full h-52 rounded-md overflow-hidden bg-gray-200">
+        <div className="flex flex-col gap-2 bg-[#1a1a1a] p-3 rounded-xl border border-[#262626]">
+          <div className="relative w-full h-52 rounded-lg overflow-hidden bg-[#0d0d0d]">
             <Image
               src={currentImage}
               alt={product.title}
@@ -77,7 +77,7 @@ export default function ProductDrawerDetails({
               sizes="(max-width: 768px) 100vw, 500px"
               unoptimized
             />
-            <span className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[11px] px-2 py-0.5 rounded font-medium">
+            <span className="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[11px] px-2 py-0.5 rounded-md font-medium border border-white/10">
               {selectedImageIndex + 1} / {images.length}
             </span>
           </div>
@@ -90,10 +90,10 @@ export default function ProductDrawerDetails({
                   key={idx}
                   type="button"
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`relative w-14 h-12 rounded shrink-0 overflow-hidden border-2 transition-all cursor-pointer ${
+                  className={`relative w-14 h-12 rounded-lg shrink-0 overflow-hidden border-2 transition-all cursor-pointer ${
                     selectedImageIndex === idx
-                      ? "border-[#008761] ring-1 ring-[#008761]"
-                      : "border-transparent opacity-70 hover:opacity-100"
+                      ? "border-[#e8590c] ring-1 ring-[#e8590c]"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
                   <Image
@@ -111,20 +111,20 @@ export default function ProductDrawerDetails({
       )}
 
       {/* ── KEY SPECS GRID ── */}
-      <div className="grid grid-cols-2 gap-2 bg-[#F3F5F8] p-3.5 rounded-lg border border-[#E5E9F0]">
+      <div className="grid grid-cols-2 gap-2 bg-[#1a1a1a] p-3.5 rounded-xl border border-[#262626]">
         <div>
-          <span className="text-xs text-[#555E6F] block font-normal">
+          <span className="text-xs text-[#a3a3a3] block font-normal">
             Asking Price
           </span>
-          <span className="text-lg font-bold text-[#008761] leading-tight mt-0.5 block">
+          <span className="text-lg font-bold text-[#f59e0b] leading-tight mt-0.5 block">
             ₹{Number(product.price || 0).toLocaleString("en-IN")}
           </span>
         </div>
         <div>
-          <span className="text-xs text-[#555E6F] block font-normal">
+          <span className="text-xs text-[#a3a3a3] block font-normal">
             Condition
           </span>
-          <span className="text-base font-bold capitalize text-[#252A34] leading-tight mt-0.5 block">
+          <span className="text-base font-bold capitalize text-white leading-tight mt-0.5 block">
             {product.condition || "Used"}
           </span>
         </div>
@@ -135,7 +135,7 @@ export default function ProductDrawerDetails({
         <InfoRow
           label="Category"
           value={
-            <span className="capitalize font-semibold text-[#252A34] px-2 py-0.5 rounded bg-[#F3F5F8] border border-[#D8DDE7] text-xs">
+            <span className="capitalize font-semibold text-white px-2.5 py-0.5 rounded-md bg-[#1f1f1f] border border-[#333333] text-xs">
               {product.category || "─"}
             </span>
           }
@@ -144,7 +144,7 @@ export default function ProductDrawerDetails({
         <InfoRow
           label="Condition"
           value={
-            <span className="capitalize font-semibold text-[#008761] px-2 py-0.5 rounded bg-[#DAF5ED] text-xs">
+            <span className="capitalize font-semibold text-[#f59e0b] px-2.5 py-0.5 rounded-md bg-[#2a170d] border border-[#e8590c]/30 text-xs">
               {product.condition || "Used"}
             </span>
           }
@@ -154,11 +154,11 @@ export default function ProductDrawerDetails({
           label="Featured Listing"
           value={
             product.isFeatured ? (
-              <span className="px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[#2a170d] text-[#f59e0b] border border-[#e8590c]/40">
                 ★ Featured
               </span>
             ) : (
-              <span className="text-xs text-[#555E6F]">Standard</span>
+              <span className="text-xs text-[#a3a3a3]">Standard</span>
             )
           }
         />
@@ -167,12 +167,12 @@ export default function ProductDrawerDetails({
           label="Status"
           value={
             <span
-              className={`capitalize px-2 py-0.5 rounded-full text-xs font-bold ${
+              className={`capitalize px-2.5 py-0.5 rounded-full text-xs font-bold border ${
                 product.status === "active"
-                  ? "bg-[#DAF5ED] text-[#006C4D]"
+                  ? "bg-[#0a2e1d] text-[#34d399] border-[#065f46]"
                   : product.status === "sold"
-                  ? "bg-[#FDE9E7] text-[#D51D10]"
-                  : "bg-[#D8DDE7] text-[#565F70]"
+                  ? "bg-[#2d1212] text-[#f87171] border-[#7f1d1d]"
+                  : "bg-[#222222] text-[#a3a3a3] border-[#333333]"
               }`}
             >
               {product.status || "Inactive"}
@@ -181,23 +181,23 @@ export default function ProductDrawerDetails({
         />
       </div>
 
-      <div className="border-b border-[#E5E9F0]" />
+      <div className="border-b border-[#262626]" />
 
       {/* ── LOCATION INFORMATION ── */}
       <div className="flex flex-col gap-1">
-        <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-          <MdLocationOn className="text-base text-[#008761]" /> Location Details
+        <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <MdLocationOn className="text-base text-[#e8590c]" /> Location Details
         </h4>
 
         <InfoRow label="Locality / Area" value={product.location || "─"} />
       </div>
 
-      <div className="border-b border-[#E5E9F0]" />
+      <div className="border-b border-[#262626]" />
 
       {/* ── SELLER INFORMATION ── */}
       <div className="flex flex-col gap-1">
-        <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-          <MdPhone className="text-base text-[#008761]" /> Seller Contact
+        <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <MdPhone className="text-base text-[#e8590c]" /> Seller Contact
         </h4>
 
         <InfoRow label="Seller Name" value={product.contactName || "─"} />
@@ -207,7 +207,7 @@ export default function ProductDrawerDetails({
           value={
             product.contactPhone ? (
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm text-[#252A34]">
+                <span className="font-mono text-sm text-white">
                   {product.contactPhone}
                 </span>
 
@@ -215,10 +215,10 @@ export default function ProductDrawerDetails({
                   type="button"
                   onClick={() => handleCopyPhone(product.contactPhone)}
                   title="Copy Phone"
-                  className="p-1 text-gray-500 hover:text-[#008761] hover:bg-[#E5E9F0] rounded transition cursor-pointer"
+                  className="p-1 text-[#a3a3a3] hover:text-[#f59e0b] hover:bg-[#222222] rounded transition cursor-pointer"
                 >
                   {copied ? (
-                    <MdCheck className="text-sm text-green-600" />
+                    <MdCheck className="text-sm text-green-400" />
                   ) : (
                     <MdContentCopy className="text-sm" />
                   )}
@@ -227,7 +227,7 @@ export default function ProductDrawerDetails({
                 <a
                   href={`tel:${product.contactPhone}`}
                   title="Call"
-                  className="p-1 text-gray-500 hover:text-blue-600 hover:bg-[#E5EBFD] rounded transition"
+                  className="p-1 text-[#a3a3a3] hover:text-blue-400 hover:bg-[#222222] rounded transition"
                 >
                   <MdPhone className="text-sm" />
                 </a>
@@ -237,7 +237,7 @@ export default function ProductDrawerDetails({
                   target="_blank"
                   rel="noreferrer"
                   title="WhatsApp"
-                  className="p-1 text-green-600 hover:bg-emerald-50 rounded transition"
+                  className="p-1 text-green-400 hover:bg-emerald-950/40 rounded transition"
                 >
                   <FaWhatsapp className="text-sm" />
                 </a>
@@ -249,29 +249,29 @@ export default function ProductDrawerDetails({
         />
       </div>
 
-      <div className="border-b border-[#E5E9F0]" />
+      <div className="border-b border-[#262626]" />
 
       {/* ── DESCRIPTION BOX ── */}
       {product.description && (
         <div className="flex flex-col gap-2">
-          <h4 className="text-xs font-bold text-[#252A34] uppercase tracking-wider">
+          <h4 className="text-xs font-bold text-white uppercase tracking-wider">
             Description
           </h4>
-          <div className="p-3 bg-[#F3F5F8] rounded-md border border-[#E5E9F0] text-sm text-[#252A34] leading-relaxed whitespace-pre-wrap">
+          <div className="p-3 bg-[#1a1a1a] rounded-xl border border-[#262626] text-sm text-[#d4d4d4] leading-relaxed whitespace-pre-wrap">
             {product.description}
           </div>
         </div>
       )}
 
-      <div className="border-b border-[#E5E9F0]" />
+      <div className="border-b border-[#262626]" />
 
       {/* ── METADATA & STATS ── */}
       <div className="flex flex-col gap-1">
         <InfoRow
           label="Total Views"
           value={
-            <span className="flex items-center gap-1.5 text-xs text-[#555E6F]">
-              <MdVisibility className="text-sm text-[#008761]" />
+            <span className="flex items-center gap-1.5 text-xs text-[#a3a3a3]">
+              <MdVisibility className="text-sm text-[#f59e0b]" />
               {product.views || 0} views
             </span>
           }
@@ -292,7 +292,7 @@ export default function ProductDrawerDetails({
           href={`/products/${product.slug || product._id}`}
           target="_blank"
           rel="noreferrer"
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#FCFCFC] border border-[#008761] text-[#008761] hover:bg-[#008761] hover:text-white rounded-md text-sm font-semibold transition-colors shadow-xs"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#1f1f1f] border border-[#e8590c] text-[#f59e0b] hover:bg-[#e8590c] hover:text-white rounded-lg text-sm font-semibold transition-all shadow-xs"
         >
           <MdOpenInNew className="text-base" />
           Open Public Listing

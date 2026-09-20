@@ -57,9 +57,9 @@ const CustomSearch = memo(function CustomSearch({
   };
 
   return (
-    <div className="relative flex items-center h-9 bg-white border border-[#008761] ring-2 ring-[#008761]/15 rounded-md px-3 transition-all duration-200 w-56 sm:w-72 shadow-xs">
+    <div className="relative flex items-center h-9 bg-[#0d0d0d] border border-[#333333] focus-within:border-[#e8590c] ring-1 ring-[#e8590c]/20 rounded-lg px-3 transition-all duration-200 w-56 sm:w-72 shadow-inner">
       {/* Search Icon */}
-      <MdSearch className="text-[#565F70] text-lg mr-2 shrink-0" />
+      <MdSearch className="text-[#a3a3a3] text-lg mr-2 shrink-0" />
 
       {/* Input */}
       <input
@@ -70,12 +70,12 @@ const CustomSearch = memo(function CustomSearch({
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         autoComplete="off"
-        className="w-full bg-transparent text-xs sm:text-sm text-[#252A34] font-normal leading-tight outline-none placeholder-[#949CAC]"
+        className="w-full bg-transparent text-xs sm:text-sm text-[#ffffff] font-normal leading-tight outline-none placeholder-[#737373]"
       />
 
       {/* Helper pill indicating Enter to search */}
       {searchText?.trim().length > 0 && (
-        <span className="hidden sm:inline-flex items-center text-[10px] font-medium text-[#008761] bg-[#DAF5ED] px-1.5 py-0.5 rounded mr-1.5 shrink-0 select-none">
+        <span className="hidden sm:inline-flex items-center text-[10px] font-medium text-[#f59e0b] bg-[#2a170d] border border-[#e8590c]/30 px-1.5 py-0.5 rounded mr-1.5 shrink-0 select-none">
           ↵ Enter
         </span>
       )}
@@ -86,7 +86,7 @@ const CustomSearch = memo(function CustomSearch({
           type="button"
           onClick={handleClose}
           title="Clear search"
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[#555E6F] hover:text-[#252A34] bg-[#F3F5F8] hover:bg-[#E5E9F0] transition-colors cursor-pointer shrink-0 ml-0.5"
+          className="w-6 h-6 rounded-full flex items-center justify-center text-[#a3a3a3] hover:text-white bg-[#1f1f1f] hover:bg-[#2a2a2a] transition-colors cursor-pointer shrink-0 ml-0.5"
         >
           <MdClose className="text-xs" />
         </button>
