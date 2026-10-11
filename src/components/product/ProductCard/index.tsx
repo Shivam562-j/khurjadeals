@@ -24,12 +24,17 @@ export default function ProductCard({ product }: ProductCardProps) {
       })
     : "Recently";
 
+  const formatBadge = (str?: string) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <div className="listing-card">
       {/* Image */}
       <div className="listing-card-media" style={{ aspectRatio: "1 / 1" }}>
         {isFeatured && <span className="listing-badge">Featured</span>}
-        <span className="listing-type-badge">{condition}</span>
+        <span className="listing-type-badge">{formatBadge(condition)}</span>
         <img
           src={displayImage}
           alt={title}
@@ -44,7 +49,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Body */}
       <div className="listing-card-body">
         <div className="listing-tags">
-          <span className="listing-tag">{category}</span>
+          <span className="listing-tag">{formatBadge(category)}</span>
         </div>
 
         <Link href={`/products/${slug}`} className="listing-title" title={title}>

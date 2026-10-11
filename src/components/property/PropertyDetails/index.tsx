@@ -97,7 +97,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         {/* Title Card */}
         <div className="det-card">
           <div className="det-badge">
-            For {listingType}
+            For {listingType ? listingType.charAt(0).toUpperCase() + listingType.slice(1) : ""}
           </div>
           <div className="det-title-row">
             <div>

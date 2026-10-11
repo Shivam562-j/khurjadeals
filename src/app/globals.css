@@ -3144,7 +3144,7 @@ svg,
   color: #ffffff;
   font-size: 0.7rem;
   font-weight: 700;
-  text-transform: capitalize;
+  text-transform: capitalize !important;
   padding: 3px 10px;
   border-radius: 50px;
 }
