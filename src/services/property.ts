@@ -1,6 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Property, { IProperty } from "@/models/Property";
 import { PropertyFilter, PaginatedPropertyResponse } from "@/types/property";
+import { deleteImagesByUrls } from "@/lib/cloudinary";
 
 /** Get paginated and filtered properties with cursor & lightweight DTO projection */
 export async function getProperties(filters: PropertyFilter = {}): Promise<PaginatedPropertyResponse> {
@@ -173,14 +174,65 @@ export async function createProperty(data: Partial<IProperty>) {
 /** Update property */
 export async function updateProperty(id: string, data: Partial<IProperty>) {
   await connectDB();
+  if (data.images && Array.isArray(data.images)) {
+    try {
+      const existing = await Property.findById(id).select("images").lean();
+      if (existing && Array.isArray(existing.images)) {
+        const removedImages = existing.images.filter((img) => !data.images!.includes(img));
+        if (removedImages.length > 0) {
+          deleteImagesByUrls(removedImages).catch((err) =>
+            console.error("Failed to delete removed property images from Cloudinary:", err)
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error checking removed property images:", err);
+    }
+  }
   const property = await Property.findByIdAndUpdate(id, data, { returnDocument: "after" }).lean();
   if (!property) return null;
   return JSON.parse(JSON.stringify(property));
 }
 
-/** Delete property */
+/** Delete property and its Cloudinary images */
 export async function deleteProperty(id: string) {
   await connectDB();
   const property = await Property.findByIdAndDelete(id).lean();
-  return !!property;
+  if (!property) return false;
+  if (Array.isArray(property.images) && property.images.length > 0) {
+    try {
+      await deleteImagesByUrls(property.images);
+    } catch (err) {
+      console.error("Failed to delete property images from Cloudinary:", err);
+    }
+  }
+  return true;
+}
+
+/** Bulk delete properties by IDs with Cloudinary cleanup */
+export async function deletePropertiesByIds(ids: string[]) {
+  await connectDB();
+  const properties = await Property.find({ _id: { $in: ids } }).select("images").lean();
+  const allImages = properties.flatMap((p: any) => (Array.isArray(p.images) ? p.images : []));
+  if (allImages.length > 0) {
+    await deleteImagesByUrls(allImages);
+  }
+  const result = await Property.deleteMany({ _id: { $in: ids } });
+  return result.deletedCount;
+}
+
+/** Drop or clear all properties and delete all their Cloudinary images */
+export async function dropAllProperties() {
+  await connectDB();
+  const allProperties = await Property.find({}).select("images").lean();
+  const allImages = allProperties.flatMap((p: any) => (Array.isArray(p.images) ? p.images : []));
+  if (allImages.length > 0) {
+    await deleteImagesByUrls(allImages);
+  }
+  try {
+    await Property.collection.drop();
+  } catch {
+    await Property.deleteMany({});
+  }
+  return { deletedImages: allImages.length, count: allProperties.length };
 }

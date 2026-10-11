@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import { deleteImagesByUrls } from "@/lib/cloudinary";
 
 export interface IProperty extends Document {
   title:        string;
@@ -48,6 +49,43 @@ const PropertySchema = new Schema<IProperty>(
 PropertySchema.index({ type: 1, listingType: 1, status: 1, createdAt: -1 });
 PropertySchema.index({ _id: -1, createdAt: -1 });
 PropertySchema.index({ status: 1, isFeatured: -1, createdAt: -1 });
+
+// Clean up Cloudinary images when a single property is deleted via findOneAndDelete / findByIdAndDelete
+PropertySchema.post("findOneAndDelete", async function (doc) {
+  if (doc && Array.isArray(doc.images) && doc.images.length > 0) {
+    try {
+      await deleteImagesByUrls(doc.images);
+    } catch (error) {
+      console.error("Cloudinary cleanup error on Property findOneAndDelete:", error);
+    }
+  }
+});
+
+// Clean up Cloudinary images when a property document is deleted via doc.deleteOne()
+PropertySchema.post("deleteOne", { document: true, query: false }, async function (doc: any) {
+  const images = doc?.images || (this as any)?.images;
+  if (Array.isArray(images) && images.length > 0) {
+    try {
+      await deleteImagesByUrls(images);
+    } catch (error) {
+      console.error("Cloudinary cleanup error on Property deleteOne:", error);
+    }
+  }
+});
+
+// Clean up Cloudinary images when properties are deleted in bulk via Property.deleteMany(...)
+PropertySchema.pre("deleteMany", async function () {
+  try {
+    const filter = this.getFilter();
+    const docs = await this.model.find(filter).select("images").lean();
+    const allImages = docs.flatMap((d: any) => (Array.isArray(d.images) ? d.images : []));
+    if (allImages.length > 0) {
+      await deleteImagesByUrls(allImages);
+    }
+  } catch (error) {
+    console.error("Cloudinary cleanup error on Property deleteMany:", error);
+  }
+});
 
 const Property: Model<IProperty> =
   mongoose.models.Property || mongoose.model<IProperty>("Property", PropertySchema);
