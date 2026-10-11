@@ -5,9 +5,11 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { FaDownload, FaTimes, FaShareSquare } from "react-icons/fa";
 
+const TWO_HOURS_MS = 2 * 60 * 60 * 1000; // 2 hours in ms
+
 export default function InstallBanner() {
   const pathname = usePathname();
-  const isAdmin = pathname?.startsWith("/admin");
+  const isHomePage = pathname === "/";
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState<boolean>(false);
@@ -15,46 +17,84 @@ export default function InstallBanner() {
   const [showIOSModal, setShowIOSModal] = useState<boolean>(false);
 
   useEffect(() => {
-    // Never run PWA service worker or install prompt inside admin panel
-    if (isAdmin) return;
+    if (typeof window === "undefined") return;
 
     // 1. Register PWA Service Worker (Public website only)
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
         .then(() => console.log("PWA Service Worker registered successfully."))
         .catch((err) => console.log("PWA Service Worker registration failed:", err));
     }
 
-    // 2. Check if user dismissed banner recently
-    const dismissed = localStorage.getItem("khurjadeals_install_dismissed");
-    if (dismissed && Date.now() - Number(dismissed) < 86400000 * 3) {
-      // Don't show if dismissed within 3 days
+    // 2. Agar already phone me installed hai toh nahi aayega:
+    // (a) LocalStorage check
+    const isAlreadyInstalledStorage = localStorage.getItem("khurjadeals_app_installed") === "true";
+    if (isAlreadyInstalledStorage) return;
+
+    // (b) Display mode standalone check (Android / Desktop PWA)
+    const isStandaloneDisplay = window.matchMedia("(display-mode: standalone)").matches;
+    // (c) iOS Safari standalone check
+    const isIOSStandalone = (window.navigator as any).standalone === true;
+    // (d) Android TWA / WebAPK referrer check
+    const isFromAppReferrer = document.referrer?.startsWith("android-app://");
+
+    if (isStandaloneDisplay || isIOSStandalone || isFromAppReferrer) {
+      localStorage.setItem("khurjadeals_app_installed", "true");
       return;
     }
 
-    // 3. Detect iOS
+    // (e) getInstalledRelatedApps check (if browser supports it)
+    if ("getInstalledRelatedApps" in navigator) {
+      (navigator as any)
+        .getInstalledRelatedApps()
+        .then((relatedApps: any[]) => {
+          if (relatedApps && relatedApps.length > 0) {
+            localStorage.setItem("khurjadeals_app_installed", "true");
+            setShowBanner(false);
+          }
+        })
+        .catch(() => {});
+    }
+
+    // 3. Check if user dismissed banner within 2 hours
+    const dismissed = localStorage.getItem("khurjadeals_install_dismissed");
+    if (dismissed && Date.now() - Number(dismissed) < TWO_HOURS_MS) {
+      // 2 hours tak dobara nahi aayega
+      return;
+    }
+
+    // 4. Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
 
-    if (isIosDevice && !isStandalone) {
+    if (isIosDevice) {
       setIsIOS(true);
       setShowBanner(true);
       return;
     }
 
-    // 4. Capture beforeinstallprompt for Android Chrome / Edge / Samsung Internet
+    // 5. Capture beforeinstallprompt for Android Chrome / Edge / Samsung Internet
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowBanner(true);
     };
 
+    // 6. Listen for appinstalled event
+    const handleAppInstalled = () => {
+      console.log("KhurjaDeals App successfully installed.");
+      localStorage.setItem("khurjadeals_app_installed", "true");
+      setShowBanner(false);
+      setDeferredPrompt(null);
+    };
+
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
 
@@ -72,6 +112,7 @@ export default function InstallBanner() {
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === "accepted") {
       console.log("User accepted the KhurjaDeals PWA installation.");
+      localStorage.setItem("khurjadeals_app_installed", "true");
     }
     setDeferredPrompt(null);
     setShowBanner(false);
@@ -80,10 +121,12 @@ export default function InstallBanner() {
   const handleDismiss = () => {
     setShowBanner(false);
     setShowIOSModal(false);
+    // User ne close kiya to 2 hours ke liye timestamp save karo
     localStorage.setItem("khurjadeals_install_dismissed", String(Date.now()));
   };
 
-  if (isAdmin || !showBanner) return null;
+  // Puri website me sirf aur sirf Home page ("/") par hi aayega
+  if (pathname !== "/" || !showBanner) return null;
 
   return (
     <>
