@@ -9,7 +9,6 @@ const TWO_HOURS_MS = 2 * 60 * 60 * 1000; // 2 hours in ms
 
 export default function InstallBanner() {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState<boolean>(false);
