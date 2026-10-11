@@ -68,9 +68,14 @@ export default function CreateProductModal({
   });
 
   const [initialFormData, setInitialFormData] = useState<typeof formData | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingText, setUploadingText] = useState("");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Local files pending upload on Create button click
+  const [selectedFiles, setSelectedFiles] = useState<{ file: File; preview: string }[]>([]);
+  // Existing images (from editProduct)
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,6 +83,7 @@ export default function CreateProductModal({
   useEffect(() => {
     if (isOpen) {
       if (editProduct && editProduct._id) {
+        const prodImages = Array.isArray(editProduct.images) ? [...editProduct.images] : [];
         const initial = {
           title: editProduct.title || "",
           description: editProduct.description || "",
@@ -89,11 +95,14 @@ export default function CreateProductModal({
           contactName: editProduct.contactName || "",
           contactPhone: editProduct.contactPhone || "",
           isFeatured: Boolean(editProduct.isFeatured),
-          images: Array.isArray(editProduct.images) ? [...editProduct.images] : [],
+          images: prodImages,
         };
         setFormData(initial);
         setInitialFormData(initial);
+        setExistingImages(prodImages);
+        setSelectedFiles([]);
       } else if (editProduct) {
+        const prodImages = Array.isArray(editProduct.images) ? [...editProduct.images] : [];
         const initial = {
           title: editProduct.title || "",
           description: editProduct.description || "",
@@ -105,10 +114,12 @@ export default function CreateProductModal({
           contactName: editProduct.contactName || "",
           contactPhone: editProduct.contactPhone || "",
           isFeatured: Boolean(editProduct.isFeatured),
-          images: Array.isArray(editProduct.images) ? [...editProduct.images] : [],
+          images: prodImages,
         };
         setFormData(initial);
         setInitialFormData(null);
+        setExistingImages(prodImages);
+        setSelectedFiles([]);
       } else {
         const initial = {
           title: "",
@@ -125,8 +136,15 @@ export default function CreateProductModal({
         };
         setFormData(initial);
         setInitialFormData(initial);
+        setExistingImages([]);
+        setSelectedFiles([]);
       }
       setTouched({});
+      setUploadingText("");
+    } else {
+      // Cleanup preview URLs when closing
+      selectedFiles.forEach((item) => URL.revokeObjectURL(item.preview));
+      setSelectedFiles([]);
     }
   }, [isOpen, editProduct]);
 
@@ -168,8 +186,11 @@ export default function CreateProductModal({
   // Check if form changed (for edit mode save button enable/disable)
   const hasFormChanged = useMemo(() => {
     if (!editProduct || !initialFormData) return true;
+    if (selectedFiles.length > 0) return true;
+    const initialImgs = Array.isArray(initialFormData.images) ? initialFormData.images : [];
+    if (JSON.stringify(existingImages) !== JSON.stringify(initialImgs)) return true;
     return JSON.stringify(formData) !== JSON.stringify(initialFormData);
-  }, [formData, initialFormData, editProduct]);
+  }, [formData, initialFormData, editProduct, selectedFiles.length, existingImages]);
 
   // Validation Logic
   const validationErrors = useMemo(() => {
@@ -204,8 +225,14 @@ export default function CreateProductModal({
       errors.contactPhone = "Enter a valid 10-digit phone number";
     }
 
+    // Image is required
+    const totalImages = existingImages.length + selectedFiles.length;
+    if (totalImages === 0) {
+      errors.images = "At least one product photo is required";
+    }
+
     return errors;
-  }, [formData]);
+  }, [formData, existingImages.length, selectedFiles.length]);
 
   const isValid = Object.keys(validationErrors).length === 0;
 
@@ -217,71 +244,128 @@ export default function CreateProductModal({
     return false;
   }, [isValid, editProduct, hasFormChanged, isSubmitting]);
 
-  // Image Upload handler
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  // Handle local file selection (shows preview below box, uploads to Cloudinary on Create)
+  const handleFilesSelected = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    setIsUploading(true);
-    const uploadedUrls: string[] = [];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+    const validAdditions: { file: File; preview: string }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const data = new FormData();
-      data.append("file", file);
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: data,
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.url) uploadedUrls.push(json.url);
-        }
-      } catch (err) {
-        console.error("Upload error:", err);
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`${file.name}: Invalid format. Only JPG, PNG, WEBP allowed.`);
+        continue;
       }
+      if (file.size > maxSizeBytes) {
+        toast.error(`${file.name} is larger than 5MB limit.`);
+        continue;
+      }
+      validAdditions.push({
+        file,
+        preview: URL.createObjectURL(file),
+      });
     }
 
-    if (uploadedUrls.length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...uploadedUrls],
-      }));
+    if (validAdditions.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...validAdditions]);
+      setTouched((prev) => ({ ...prev, images: true }));
     }
-    setIsUploading(false);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveImage = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, idx) => idx !== index),
-    }));
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFilesSelected(e.dataTransfer.files);
+    }
   };
 
-  // Form Submit
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, idx) => idx !== index));
+    setTouched((prev) => ({ ...prev, images: true }));
+  };
+
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => {
+      const item = prev[index];
+      if (item) URL.revokeObjectURL(item.preview);
+      return prev.filter((_, idx) => idx !== index);
+    });
+    setTouched((prev) => ({ ...prev, images: true }));
+  };
+
+  // Form Submit (Uploads selected images to Cloudinary here, then saves product)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({
+      title: true,
+      description: true,
+      price: true,
+      location: true,
+      contactName: true,
+      contactPhone: true,
+      images: true,
+    });
+
+    const totalImages = existingImages.length + selectedFiles.length;
+    if (totalImages === 0) {
+      toast.error("Please add at least one product photo.");
+      return;
+    }
+
     if (!isValid) return;
 
     setIsSubmitting(true);
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      category: formData.category,
-      condition: formData.condition,
-      status: formData.status,
-      price: Number(formData.price),
-      location: formData.location.trim(),
-      contactName: formData.contactName.trim(),
-      contactPhone: formData.contactPhone.trim(),
-      isFeatured: formData.isFeatured,
-      images: formData.images,
-    };
 
     try {
+      // 1. Upload new files to Cloudinary on Create button click
+      const uploadedUrls: string[] = [];
+      if (selectedFiles.length > 0) {
+        setUploadingText(`Uploading ${selectedFiles.length} photo${selectedFiles.length > 1 ? "s" : ""}...`);
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const item = selectedFiles[i];
+          const data = new FormData();
+          data.append("file", item.file);
+
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: data,
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `Failed to upload ${item.file.name}`);
+          }
+
+          const json = await res.json();
+          if (json.url) {
+            uploadedUrls.push(json.url);
+          }
+        }
+      }
+
+      setUploadingText(editProduct?._id ? "Saving product..." : "Creating product...");
+
+      const finalImages = [...existingImages, ...uploadedUrls];
+
+      const payload = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        category: formData.category,
+        condition: formData.condition,
+        status: formData.status,
+        price: Number(formData.price),
+        location: formData.location.trim(),
+        contactName: formData.contactName.trim(),
+        contactPhone: formData.contactPhone.trim(),
+        isFeatured: formData.isFeatured,
+        images: finalImages,
+      };
+
       const url = editProduct?._id
         ? `/api/products/${editProduct._id}`
         : "/api/products";
@@ -299,17 +383,21 @@ export default function CreateProductModal({
             ? "Product updated successfully."
             : "Product created successfully."
         );
+        selectedFiles.forEach((f) => URL.revokeObjectURL(f.preview));
+        setSelectedFiles([]);
         onSuccess();
         onClose();
       } else {
         const err = await res.json();
         toast.error(err.message || "Failed to save product.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Save error:", err);
-      toast.error("Failed to submit product form.");
+      toast.error(err.message || "Failed to submit product form.");
+    } finally {
+      setIsSubmitting(false);
+      setUploadingText("");
     }
-    setIsSubmitting(false);
   };
 
   if (!isOpen) return null;
@@ -615,41 +703,73 @@ export default function CreateProductModal({
             </div>
 
             {/* Images Upload Section */}
-            <div className="pt-2 border-t border-[#262626] flex-1 flex flex-col min-h-0">
-              <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                <MdPhotoLibrary className="text-base text-[#e8590c]" /> Product Photos ({formData.images.length})
-              </h4>
+            <div className={`pt-2 border-t border-[#262626] flex-1 flex flex-col min-h-0 p-3 rounded-xl border transition-colors ${
+              touched.images && validationErrors.images
+                ? "border-[#ef4444] bg-[#2d1212]/15"
+                : "border-transparent"
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5">
+                  <MdPhotoLibrary className="text-base text-[#e8590c]" /> Product Photos ({existingImages.length + selectedFiles.length})
+                  <span className="text-[#ef4444] text-xs font-semibold">*</span>
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isSubmitting}
+                  className="text-xs font-semibold text-[#f59e0b] hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <MdCloudUpload className="text-sm" /> Select Images
+                </button>
+              </div>
 
               {/* Upload Drop Zone */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed border-[#333333] hover:border-[#e8590c] hover:bg-[#e8590c]/5 bg-[#0d0d0d] rounded-xl p-4 text-center cursor-pointer transition-all ${
-                  isUploading ? "opacity-50 pointer-events-none" : ""
-                }`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                  touched.images && validationErrors.images
+                    ? "border-[#ef4444] bg-[#2d1212]/30 hover:border-[#ef4444]"
+                    : "border-[#333333] hover:border-[#e8590c] hover:bg-[#e8590c]/5 bg-[#0d0d0d]"
+                } ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <input
                   type="file"
                   ref={fileInputRef}
                   multiple
                   accept="image/*"
-                  onChange={handleImageUpload}
+                  onChange={(e) => handleFilesSelected(e.target.files)}
+                  disabled={isSubmitting}
                   className="hidden"
                 />
                 <MdCloudUpload className="mx-auto text-3xl text-[#e8590c] mb-1" />
                 <p className="text-xs font-semibold text-white">
-                  {isUploading ? "Uploading photos..." : "Click or drag images to upload"}
+                  Click to browse or drop images here
                 </p>
                 <p className="text-[11px] text-[#a3a3a3] mt-0.5">
-                  PNG, JPG, WEBP up to 10MB each
+                  PNG, JPG, WEBP up to 5MB each • <span className="text-[#ef4444] font-medium">Required</span>
                 </p>
               </div>
 
-              {/* Uploaded Thumbnails Grid */}
-              {formData.images.length > 0 && (
+              {/* Error Message */}
+              {touched.images && validationErrors.images && (
+                <p className="text-[11px] text-[#f87171] font-medium flex items-center gap-1 mt-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
+                  {validationErrors.images}
+                </p>
+              )}
+
+              {/* Thumbnails Grid BELOW the box */}
+              {(existingImages.length > 0 || selectedFiles.length > 0) && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3 overflow-y-auto max-h-48 p-1">
-                  {formData.images.map((img, idx) => (
+                  {/* Existing Images */}
+                  {existingImages.map((img, idx) => (
                     <div
-                      key={idx}
+                      key={`existing-${idx}`}
                       className="relative group rounded-lg overflow-hidden aspect-square border border-[#262626] bg-[#0d0d0d]"
                     >
                       <Image
@@ -663,7 +783,37 @@ export default function CreateProductModal({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleRemoveImage(idx);
+                          handleRemoveExistingImage(idx);
+                        }}
+                        className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
+                        title="Remove photo"
+                      >
+                        <MdDeleteOutline className="text-xs" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Selected Local Images (Uploads on Create) */}
+                  {selectedFiles.map((item, idx) => (
+                    <div
+                      key={`new-${idx}`}
+                      className="relative group rounded-lg overflow-hidden aspect-square border border-[#e8590c]/50 ring-1 ring-[#e8590c]/25 bg-[#0d0d0d]"
+                    >
+                      <Image
+                        src={item.preview}
+                        alt={`product-preview-${idx}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <span className="absolute bottom-1 left-1 bg-black/85 text-[10px] text-[#fb923c] font-semibold px-1.5 py-0.5 rounded shadow">
+                        Uploads on Create
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveSelectedFile(idx);
                         }}
                         className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
                         title="Remove photo"
@@ -698,12 +848,17 @@ export default function CreateProductModal({
                 : "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] hover:from-[#d04a04] hover:to-[#e08e00] shadow-[0_4px_16px_rgba(232,89,12,0.35)] cursor-pointer"
             }`}
           >
-            <MdCheck className="text-base" />
-            {isSubmitting
-              ? "Saving..."
-              : editProduct
-              ? "Update Product"
-              : "Create Product"}
+            {isSubmitting ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                {uploadingText || (editProduct ? "Saving..." : "Creating...")}
+              </>
+            ) : (
+              <>
+                <MdCheck className="text-base" />
+                {editProduct ? "Update Product" : "Create Product"}
+              </>
+            )}
           </button>
         </div>
       </div>

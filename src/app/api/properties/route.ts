@@ -58,9 +58,18 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    if (!body.title || !body.price || !body.location || !body.contactName || !body.contactPhone) {
+    if (
+      !body.title ||
+      !body.price ||
+      !body.location ||
+      !body.contactName ||
+      !body.contactPhone ||
+      !body.images ||
+      !Array.isArray(body.images) ||
+      body.images.length === 0
+    ) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "All required fields and at least one property image are required" },
         { status: 400 }
       );
     }

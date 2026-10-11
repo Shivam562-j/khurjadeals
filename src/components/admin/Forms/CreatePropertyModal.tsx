@@ -92,9 +92,14 @@ export default function CreatePropertyModal({
     null
   );
   const [newFeatureInput, setNewFeatureInput] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingText, setUploadingText] = useState("");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Local files pending upload on Create button click
+  const [selectedFiles, setSelectedFiles] = useState<{ file: File; preview: string }[]>([]);
+  // Existing images (from editProperty)
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,6 +107,9 @@ export default function CreatePropertyModal({
   useEffect(() => {
     if (isOpen) {
       if (editProperty && editProperty._id) {
+        const propImages = Array.isArray(editProperty.images)
+          ? [...editProperty.images]
+          : [];
         const initial = {
           title: editProperty.title || "",
           description: editProperty.description || "",
@@ -119,12 +127,12 @@ export default function CreatePropertyModal({
           features: Array.isArray(editProperty.features)
             ? [...editProperty.features]
             : [],
-          images: Array.isArray(editProperty.images)
-            ? [...editProperty.images]
-            : [],
+          images: propImages,
         };
         setFormData(initial);
         setInitialFormData(initial);
+        setExistingImages(propImages);
+        setSelectedFiles([]);
       } else {
         const initial = {
           title: "",
@@ -145,9 +153,16 @@ export default function CreatePropertyModal({
         };
         setFormData(initial);
         setInitialFormData(initial);
+        setExistingImages([]);
+        setSelectedFiles([]);
       }
       setTouched({});
       setNewFeatureInput("");
+      setUploadingText("");
+    } else {
+      // Cleanup preview URLs when closing
+      selectedFiles.forEach((item) => URL.revokeObjectURL(item.preview));
+      setSelectedFiles([]);
     }
   }, [isOpen, editProperty]);
 
@@ -189,8 +204,11 @@ export default function CreatePropertyModal({
   // Check if form changed (for edit mode save button enable/disable)
   const hasFormChanged = useMemo(() => {
     if (!editProperty || !initialFormData) return true;
+    if (selectedFiles.length > 0) return true;
+    const initialImgs = Array.isArray(initialFormData.images) ? initialFormData.images : [];
+    if (JSON.stringify(existingImages) !== JSON.stringify(initialImgs)) return true;
     return JSON.stringify(formData) !== JSON.stringify(initialFormData);
-  }, [formData, initialFormData, editProperty]);
+  }, [formData, initialFormData, editProperty, selectedFiles.length, existingImages]);
 
   // Validation Logic
   const validationErrors = useMemo(() => {
@@ -229,8 +247,14 @@ export default function CreatePropertyModal({
       errors.contactPhone = "Enter a valid 10-digit phone number";
     }
 
+    // Image is required
+    const totalImages = existingImages.length + selectedFiles.length;
+    if (totalImages === 0) {
+      errors.images = "At least one property image is required";
+    }
+
     return errors;
-  }, [formData]);
+  }, [formData, existingImages.length, selectedFiles.length]);
 
   const isValid = Object.keys(validationErrors).length === 0;
 
@@ -268,77 +292,133 @@ export default function CreatePropertyModal({
     setNewFeatureInput("");
   };
 
-  // Image Upload handler
-  const handleImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const files = e.target.files;
+  // Handle local file selection (shows preview below box, uploads to Cloudinary on Create)
+  const handleFilesSelected = (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    setIsUploading(true);
-    const uploadedUrls: string[] = [];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+    const validAdditions: { file: File; preview: string }[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const data = new FormData();
-      data.append("file", file);
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: data,
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.url) uploadedUrls.push(json.url);
-        }
-      } catch (err) {
-        console.error("Upload error:", err);
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`${file.name}: Invalid format. Only JPG, PNG, WEBP allowed.`);
+        continue;
       }
+      if (file.size > maxSizeBytes) {
+        toast.error(`${file.name} is larger than 5MB limit.`);
+        continue;
+      }
+      validAdditions.push({
+        file,
+        preview: URL.createObjectURL(file),
+      });
     }
 
-    if (uploadedUrls.length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...uploadedUrls],
-      }));
+    if (validAdditions.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...validAdditions]);
+      setTouched((prev) => ({ ...prev, images: true }));
     }
-    setIsUploading(false);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleRemoveImage = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, idx) => idx !== index),
-    }));
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFilesSelected(e.dataTransfer.files);
+    }
   };
 
-  // Form Submit
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, idx) => idx !== index));
+    setTouched((prev) => ({ ...prev, images: true }));
+  };
+
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles((prev) => {
+      const item = prev[index];
+      if (item) URL.revokeObjectURL(item.preview);
+      return prev.filter((_, idx) => idx !== index);
+    });
+    setTouched((prev) => ({ ...prev, images: true }));
+  };
+
+  // Form Submit (Uploads selected images to Cloudinary here, then saves property)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTouched({
+      title: true,
+      description: true,
+      price: true,
+      area: true,
+      location: true,
+      contactName: true,
+      contactPhone: true,
+      images: true,
+    });
+
+    const totalImages = existingImages.length + selectedFiles.length;
+    if (totalImages === 0) {
+      toast.error("Please add at least one property image.");
+      return;
+    }
+
     if (!isValid) return;
 
     setIsSubmitting(true);
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      type: formData.type,
-      listingType: formData.listingType,
-      status: formData.status,
-      price: Number(formData.price),
-      area: Number(formData.area),
-      areaUnit: formData.areaUnit,
-      location: formData.location.trim(),
-      address: formData.address.trim(),
-      contactName: formData.contactName.trim(),
-      contactPhone: formData.contactPhone.trim(),
-      isFeatured: formData.isFeatured,
-      features: formData.features,
-      images: formData.images,
-    };
 
     try {
+      // 1. Upload new files to Cloudinary on Create button click
+      const uploadedUrls: string[] = [];
+      if (selectedFiles.length > 0) {
+        setUploadingText(`Uploading ${selectedFiles.length} photo${selectedFiles.length > 1 ? "s" : ""}...`);
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const item = selectedFiles[i];
+          const data = new FormData();
+          data.append("file", item.file);
+
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: data,
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `Failed to upload ${item.file.name}`);
+          }
+
+          const json = await res.json();
+          if (json.url) {
+            uploadedUrls.push(json.url);
+          }
+        }
+      }
+
+      setUploadingText(editProperty?._id ? "Saving property..." : "Creating property...");
+
+      const finalImages = [...existingImages, ...uploadedUrls];
+
+      const payload = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        type: formData.type,
+        listingType: formData.listingType,
+        status: formData.status,
+        price: Number(formData.price),
+        area: Number(formData.area),
+        areaUnit: formData.areaUnit,
+        location: formData.location.trim(),
+        address: formData.address.trim(),
+        contactName: formData.contactName.trim(),
+        contactPhone: formData.contactPhone.trim(),
+        isFeatured: formData.isFeatured,
+        features: formData.features,
+        images: finalImages,
+      };
+
       const url = editProperty?._id
         ? `/api/properties/${editProperty._id}`
         : "/api/properties";
@@ -356,17 +436,21 @@ export default function CreatePropertyModal({
             ? "Property updated successfully."
             : "Property created successfully."
         );
+        selectedFiles.forEach((f) => URL.revokeObjectURL(f.preview));
+        setSelectedFiles([]);
         onSuccess();
         onClose();
       } else {
         const err = await res.json();
         toast.error(err.message || "Failed to save property.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Save error:", err);
-      toast.error("Failed to submit property form.");
+      toast.error(err.message || "Failed to submit property form.");
+    } finally {
+      setIsSubmitting(false);
+      setUploadingText("");
     }
-    setIsSubmitting(false);
   };
 
   if (!isOpen) return null;
@@ -777,19 +861,24 @@ export default function CreatePropertyModal({
             </div>
 
             {/* Photos & Images Upload */}
-            <div className="flex flex-col gap-3 bg-[#141414] p-4 rounded-xl border border-[#262626]">
+            <div className={`flex flex-col gap-3 bg-[#141414] p-4 rounded-xl border transition-colors ${
+              touched.images && validationErrors.images
+                ? "border-[#ef4444] bg-[#2d1212]/15"
+                : "border-[#262626]"
+            }`}>
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-[#ffffff] uppercase tracking-wider flex items-center gap-1.5">
                   <MdPhotoLibrary className="text-base text-[#e8590c]" /> Property
-                  Images ({formData.images.length})
+                  Images ({existingImages.length + selectedFiles.length})
+                  <span className="text-[#ef4444] text-xs font-semibold">*</span>
                 </h4>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
+                  disabled={isSubmitting}
                   className="text-xs font-semibold text-[#f59e0b] hover:underline cursor-pointer flex items-center gap-1"
                 >
-                  <MdCloudUpload className="text-sm" /> Upload Images
+                  <MdCloudUpload className="text-sm" /> Select Images
                 </button>
               </div>
 
@@ -798,39 +887,51 @@ export default function CreatePropertyModal({
                 type="file"
                 multiple
                 accept="image/*"
-                onChange={handleImageUpload}
-                disabled={isUploading}
+                onChange={(e) => handleFilesSelected(e.target.files)}
+                disabled={isSubmitting}
                 className="hidden"
               />
 
               {/* Drag/Drop Box */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-[#333333] hover:border-[#e8590c] bg-[#0d0d0d] hover:bg-[#e8590c]/5 rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-center transition-all cursor-pointer"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={handleDrop}
+                className={`w-full border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-center transition-all cursor-pointer ${
+                  touched.images && validationErrors.images
+                    ? "border-[#ef4444] bg-[#2d1212]/30 hover:border-[#ef4444]"
+                    : "border-[#333333] hover:border-[#e8590c] bg-[#0d0d0d] hover:bg-[#e8590c]/5"
+                } ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <MdCloudUpload className="text-3xl text-[#e8590c]" />
                 <div>
                   <p className="text-xs font-semibold text-white">
                     Click to browse or drop images here
                   </p>
-                  <p className="text-[11px] text-[#a3a3a3]">
-                    Supports JPG, PNG, WEBP (Max 5MB each)
+                  <p className="text-[11px] text-[#a3a3a3] mt-0.5">
+                    Supports JPG, PNG, WEBP (Max 5MB each) • <span className="text-[#ef4444] font-medium">Required</span>
                   </p>
                 </div>
-                {isUploading && (
-                  <div className="flex items-center gap-2 text-xs text-[#f59e0b] font-semibold mt-1">
-                    <div className="w-3.5 h-3.5 border-2 border-[#e8590c] border-t-transparent rounded-full animate-spin" />
-                    Uploading photos...
-                  </div>
-                )}
               </div>
 
-              {/* Uploaded Thumbnails Grid */}
-              {formData.images.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 pt-2">
-                  {formData.images.map((img, idx) => (
+              {/* Error Message */}
+              {touched.images && validationErrors.images && (
+                <p className="text-[11px] text-[#f87171] font-medium flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
+                  {validationErrors.images}
+                </p>
+              )}
+
+              {/* Thumbnails Grid BELOW the box */}
+              {(existingImages.length > 0 || selectedFiles.length > 0) && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 pt-1">
+                  {/* Existing Saved Images */}
+                  {existingImages.map((img, idx) => (
                     <div
-                      key={idx}
+                      key={`existing-${idx}`}
                       className="group relative aspect-4/3 rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#262626]"
                     >
                       <Image
@@ -842,9 +943,42 @@ export default function CreatePropertyModal({
                       />
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(idx)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveExistingImage(idx);
+                        }}
                         title="Remove image"
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
+                      >
+                        <MdDeleteOutline className="text-sm" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Selected Local Images (Uploads on Create) */}
+                  {selectedFiles.map((item, idx) => (
+                    <div
+                      key={`new-${idx}`}
+                      className="group relative aspect-4/3 rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#e8590c]/50 ring-1 ring-[#e8590c]/25"
+                    >
+                      <Image
+                        src={item.preview}
+                        alt={`property-preview-${idx}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <span className="absolute bottom-1 left-1 bg-black/85 text-[10px] text-[#fb923c] font-semibold px-1.5 py-0.5 rounded shadow">
+                        Uploads on Create
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveSelectedFile(idx);
+                        }}
+                        title="Remove image"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm cursor-pointer"
                       >
                         <MdDeleteOutline className="text-sm" />
                       </button>
@@ -876,10 +1010,10 @@ export default function CreatePropertyModal({
             {isSubmitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                {editProperty ? "Saving..." : "Creating..."}
+                {uploadingText || (editProperty ? "Saving..." : "Creating...")}
               </>
             ) : editProperty ? (
-              "Save"
+              "Save Changes"
             ) : (
               "Create"
             )}
