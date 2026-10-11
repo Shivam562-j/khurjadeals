@@ -133,7 +133,7 @@ export default function CreateProductModal({
           images: prodImages,
         };
         setFormData(initial);
-        setInitialFormData(null);
+        setInitialFormData(initial);
         setExistingImages(prodImages);
         setSelectedFiles([]);
       } else {
@@ -201,7 +201,8 @@ export default function CreateProductModal({
 
   // Check if form changed (for edit mode save button enable/disable)
   const hasFormChanged = useMemo(() => {
-    if (!editProduct || !initialFormData) return true;
+    if (!editProduct) return false;
+    if (!initialFormData) return false;
     if (selectedFiles.length > 0) return true;
     const initialImgs = Array.isArray(initialFormData.images) ? initialFormData.images : [];
     if (JSON.stringify(existingImages) !== JSON.stringify(initialImgs)) return true;
@@ -252,12 +253,13 @@ export default function CreateProductModal({
 
   const isValid = Object.keys(validationErrors).length === 0;
 
-  // Disabled Save button logic (enabled whenever all required fields validate and not submitting)
+  // Disabled Save button logic (in edit mode: disabled until form has changes; in create mode: disabled until valid)
   const isSaveDisabled = useMemo(() => {
     if (!isValid) return true;
     if (isSubmitting) return true;
+    if (editProduct && !hasFormChanged) return true;
     return false;
-  }, [isValid, isSubmitting]);
+  }, [isValid, isSubmitting, editProduct, hasFormChanged]);
 
   // Handle local file selection (shows preview below box, uploads to Cloudinary on Create)
   const handleFilesSelected = (files: FileList | null) => {

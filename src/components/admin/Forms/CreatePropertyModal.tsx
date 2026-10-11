@@ -218,7 +218,8 @@ export default function CreatePropertyModal({
 
   // Check if form changed (for edit mode save button enable/disable)
   const hasFormChanged = useMemo(() => {
-    if (!editProperty || !initialFormData) return true;
+    if (!editProperty) return false;
+    if (!initialFormData) return false;
     if (selectedFiles.length > 0) return true;
     const initialImgs = Array.isArray(initialFormData.images) ? initialFormData.images : [];
     if (JSON.stringify(existingImages) !== JSON.stringify(initialImgs)) return true;
@@ -273,12 +274,13 @@ export default function CreatePropertyModal({
 
   const isValid = Object.keys(validationErrors).length === 0;
 
-  // Disabled Save button logic (enabled whenever all required fields validate and not submitting)
+  // Disabled Save button logic (in edit mode: disabled until form has changes; in create mode: disabled until valid)
   const isSaveDisabled = useMemo(() => {
     if (!isValid) return true;
     if (isSubmitting) return true;
+    if (editProperty && !hasFormChanged) return true;
     return false;
-  }, [isValid, isSubmitting]);
+  }, [isValid, isSubmitting, editProperty, hasFormChanged]);
 
   // Feature / Amenity toggling
   const toggleFeature = (feat: string) => {
