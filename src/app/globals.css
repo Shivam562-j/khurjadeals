@@ -3454,6 +3454,33 @@ svg,
   color: var(--text-white);
 }
 
+.search-enter-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #f59e0b;
+  background-color: #2a170d;
+  border: 1px solid rgba(232, 89, 12, 0.4);
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 6px;
+  flex-shrink: 0;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.search-enter-badge:hover {
+  background-color: #3d2010;
+  border-color: #e8590c;
+  transform: scale(1.04);
+}
+
+.search-enter-badge:active {
+  transform: scale(0.96);
+}
+
 .search-submit-btn {
   display: inline-flex;
   align-items: center;

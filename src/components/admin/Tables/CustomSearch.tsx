@@ -73,11 +73,16 @@ const CustomSearch = memo(function CustomSearch({
         className="w-full bg-transparent text-xs sm:text-sm text-[#ffffff] font-normal leading-tight outline-none placeholder-[#737373]"
       />
 
-      {/* Helper pill indicating Enter to search */}
+      {/* Helper pill indicating Enter to search - clickable */}
       {searchText?.trim().length > 0 && (
-        <span className="hidden sm:inline-flex items-center text-[10px] font-medium text-[#f59e0b] bg-[#2a170d] border border-[#e8590c]/30 px-1.5 py-0.5 rounded mr-1.5 shrink-0 select-none">
+        <button
+          type="button"
+          onClick={() => onEnter(searchText)}
+          title="Click to search or press Enter"
+          className="inline-flex items-center text-[10px] font-medium text-[#f59e0b] bg-[#2a170d] hover:bg-[#3d2010] hover:border-[#e8590c] active:scale-95 border border-[#e8590c]/30 px-1.5 py-0.5 rounded mr-1.5 shrink-0 select-none cursor-pointer transition-all"
+        >
           ↵ Enter
-        </span>
+        </button>
       )}
 
       {/* Circular Rounded Close Button */}

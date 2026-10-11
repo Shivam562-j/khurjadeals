@@ -7,7 +7,6 @@ import { Property, PaginatedPropertyResponse } from "@/types/property";
 import PropertyCard from "@/components/property/PropertyCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
-import { useDebounce } from "@/hooks/useDebounce";
 import {
   FaSearch,
   FaFilter,
@@ -51,12 +50,10 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
   );
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [appliedSearch, setAppliedSearch] = useState(searchParams.get("search") || "");
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
-
-  // Debounce search query to prevent excessive API requests
-  const debouncedSearch = useDebounce(searchQuery, 350);
 
   // Local state for expanded filter card
   const [localTypes, setLocalTypes] = useState<string[]>(selectedTypes);
@@ -82,6 +79,7 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
     setSelectedListings(listingFromUrl);
     setLocalListings(listingFromUrl);
     setSearchQuery(searchFromUrl);
+    setAppliedSearch(searchFromUrl);
     setLocationInput(locFromUrl);
     setLocalLocation(locFromUrl);
     setMinPrice(minFromUrl);
@@ -101,7 +99,7 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
   } = useInfiniteQuery({
     queryKey: [
       "properties",
-      debouncedSearch,
+      appliedSearch,
       selectedTypes,
       selectedListings,
       locationInput,
@@ -110,7 +108,7 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
     ],
     queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       const q = new URLSearchParams();
-      if (debouncedSearch) q.set("search", debouncedSearch);
+      if (appliedSearch) q.set("search", appliedSearch);
       if (selectedTypes.length > 0) q.set("type", selectedTypes.join(","));
       if (selectedListings.length > 0) q.set("listingType", selectedListings.join(","));
       if (locationInput) q.set("location", locationInput);
@@ -125,7 +123,7 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
     },
     initialPageParam: 1,
     initialData:
-      initialData && !debouncedSearch && selectedTypes.length === 0 && selectedListings.length === 0 && !locationInput && !minPrice && !maxPrice
+      initialData && !appliedSearch && selectedTypes.length === 0 && selectedListings.length === 0 && !locationInput && !minPrice && !maxPrice
         ? {
             pages: [initialData],
             pageParams: [1],
@@ -182,9 +180,10 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
     setLocalListings(updated);
   };
 
-  // Search form submit
+  // Search form submit on Enter key press or Search button click
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setAppliedSearch(searchQuery.trim());
   };
 
   // Advanced Filter Card Apply
@@ -200,6 +199,7 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
 
   const clearAllFilters = () => {
     setSearchQuery("");
+    setAppliedSearch("");
     setSelectedTypes([]);
     setLocalTypes([]);
     setSelectedListings([]);
@@ -218,7 +218,7 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
     (locationInput ? 1 : 0) +
     (minPrice || maxPrice ? 1 : 0);
 
-  const hasSearch = searchQuery.trim().length > 0;
+  const hasSearch = searchQuery.trim().length > 0 || appliedSearch.trim().length > 0;
 
   const hasLocalFilters =
     localTypes.length > 0 ||
@@ -260,19 +260,41 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
                 placeholder="Search by title, GT Road, colony name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearchSubmit(e);
+                  }
+                }}
                 className="search-input"
               />
-              {searchQuery && (
+              {searchQuery?.trim().length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
+                  onClick={handleSearchSubmit}
+                  title="Click to search or press Enter"
+                  className="search-enter-badge"
+                >
+                  ↵ Enter
+                </button>
+              )}
+              {(searchQuery || appliedSearch) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setAppliedSearch("");
+                  }}
                   className="search-clear-btn"
                   title="Clear search"
                 >
                   <FaTimes />
                 </button>
               )}
-              <button type="submit" className="search-submit-btn" disabled={!hasSearch}>
+              <button
+                type="submit"
+                className="search-submit-btn"
+                disabled={!searchQuery.trim() && !appliedSearch}
+              >
                 <span>Search</span>
               </button>
             </form>
@@ -452,14 +474,19 @@ function PropertiesList({ initialData }: { initialData?: PaginatedPropertyRespon
           )}
 
           {/* Active Filter Chips */}
-          {(activeFilterCount > 0 || searchQuery) && (
+          {(activeFilterCount > 0 || appliedSearch) && (
             <div className="active-filter-tags">
               <span className="tags-label">Active Filters:</span>
 
-              {searchQuery && (
+              {appliedSearch && (
                 <span className="active-tag">
-                  Search: "{searchQuery}"
-                  <button onClick={() => setSearchQuery("")}>
+                  Search: "{appliedSearch}"
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setAppliedSearch("");
+                    }}
+                  >
                     <FaTimes />
                   </button>
                 </span>
