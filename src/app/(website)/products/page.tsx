@@ -230,14 +230,23 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
           {/* Main Search & Filter Action Bar */}
           <div className="prop-search-wrapper">
             <form onSubmit={handleSearchSubmit} className="prop-search-box">
-              <FaSearch className="search-icon" />
+              <button
+                type="button"
+                onClick={handleSearchSubmit}
+                className="search-icon-btn"
+                title="Search"
+                aria-label="Search"
+              >
+                <FaSearch className="search-icon" />
+              </button>
               <input
-                type="text"
-                placeholder="Search bikes, EVs, cars, mobiles, laptops, fridge, AC, cooler..."
+                type="search"
+                enterKeyHint="search"
+                placeholder="Search bikes, cars, mobiles, laptops..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" || e.keyCode === 13) {
                     handleSearchSubmit(e);
                   }
                 }}
@@ -259,6 +268,11 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
                   onClick={() => {
                     setSearchQuery("");
                     setAppliedSearch("");
+                    if (typeof window !== "undefined") {
+                      const params = new URLSearchParams(window.location.search);
+                      params.delete("search");
+                      window.history.replaceState(null, "", params.toString() ? `?${params.toString()}` : window.location.pathname);
+                    }
                   }}
                   className="search-clear-btn"
                   title="Clear search"
@@ -268,8 +282,8 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
               )}
               <button
                 type="submit"
+                onClick={handleSearchSubmit}
                 className="search-submit-btn"
-                disabled={!searchQuery.trim() && !appliedSearch}
               >
                 <span>Search</span>
               </button>
@@ -281,13 +295,15 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
                 activeFilterCount > 0 ? "has-active" : ""
               }`}
               onClick={() => setFilterOpen(!filterOpen)}
+              title="Filters"
+              aria-label="Toggle Filters"
             >
-              <FaSlidersH />
-              <span className="hidden sm:inline">Filter Panel</span>
+              <FaSlidersH className="text-base" />
+              <span className="hidden sm:inline">Filters</span>
               {activeFilterCount > 0 && (
                 <span className="filter-count-badge">{activeFilterCount}</span>
               )}
-              <FaChevronDown className={`chevron-icon ${filterOpen ? "rotate" : ""}`} />
+              <FaChevronDown className={`chevron-icon hidden sm:inline-block ${filterOpen ? "rotate" : ""}`} />
             </button>
           </div>
 
