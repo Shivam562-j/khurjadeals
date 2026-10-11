@@ -3333,7 +3333,7 @@ svg,
 .carousel-track {
   display: flex;
   gap: 20px;
-  overflow-x: auto;
+  /* overflow-x: auto; */
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
