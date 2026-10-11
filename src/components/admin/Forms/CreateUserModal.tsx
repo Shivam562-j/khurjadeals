@@ -266,11 +266,10 @@ export default function CreateUserModal({
                   onChange={(e) => handleChange("name", e.target.value)}
                   onBlur={() => handleBlur("name")}
                   placeholder="e.g. Rahul Sharma"
-                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
-                    touched.name && validationErrors.name
-                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
-                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
-                  }`}
+                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${touched.name && validationErrors.name
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
+                    }`}
                 />
               </div>
               {touched.name && validationErrors.name && (
@@ -294,12 +293,11 @@ export default function CreateUserModal({
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   onBlur={() => handleBlur("email")}
-                  placeholder="admin@khurjadeals.com"
-                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
-                    touched.email && validationErrors.email
-                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
-                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
-                  }`}
+                  placeholder="Please Enter Email Address"
+                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${touched.email && validationErrors.email
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
+                    }`}
                 />
               </div>
               {touched.email && validationErrors.email && (
@@ -324,11 +322,10 @@ export default function CreateUserModal({
                   onChange={(e) => handleChange("password", e.target.value)}
                   onBlur={() => handleBlur("password")}
                   placeholder={editUser ? "Leave blank to keep unchanged" : "At least 6 characters"}
-                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${
-                    touched.password && validationErrors.password
-                      ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
-                      : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
-                  }`}
+                  className={`w-full pl-8 pr-3 py-2 text-sm bg-[#0d0d0d] text-white border rounded-lg outline-none transition-colors placeholder-[#737373] ${touched.password && validationErrors.password
+                    ? "border-[#ef4444] focus:border-[#ef4444] bg-[#2d1212]/30"
+                    : "border-[#333333] focus:border-[#e8590c] focus:ring-1 focus:ring-[#e8590c]/30"
+                    }`}
                 />
               </div>
               {touched.password && validationErrors.password && (
@@ -355,18 +352,17 @@ export default function CreateUserModal({
                   <label
                     key={opt.value}
                     onClick={() => handleChange("role", opt.value)}
-                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                      formData.role === opt.value
-                        ? "border-[#e8590c] bg-[#2a170d] ring-1 ring-[#e8590c]/40"
-                        : "border-[#333333] bg-[#0d0d0d] hover:bg-[#1f1f1f]"
-                    }`}
+                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${formData.role === opt.value
+                      ? "border-[#e8590c] bg-[#2a170d] ring-1 ring-[#e8590c]/40"
+                      : "border-[#333333] bg-[#0d0d0d] hover:bg-[#1f1f1f]"
+                      }`}
                   >
                     <input
                       type="radio"
                       name="role"
                       value={opt.value}
                       checked={formData.role === opt.value}
-                      onChange={() => {}}
+                      onChange={() => { }}
                       className="mt-0.5 text-[#e8590c] focus:ring-[#e8590c] accent-[#e8590c]"
                     />
                     <div className="flex-1 min-w-0">
@@ -416,18 +412,17 @@ export default function CreateUserModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSaveDisabled}
-            className={`px-5 py-2 text-xs font-semibold text-white rounded-lg transition-all flex items-center gap-1.5 ${
-              isSaveDisabled
-                ? "bg-[#262626] text-[#666666] cursor-not-allowed opacity-60"
-                : "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] hover:from-[#d04a04] hover:to-[#e08e00] shadow-[0_4px_16px_rgba(232,89,12,0.35)] cursor-pointer"
-            }`}
+            className={`px-5 py-2 text-xs font-semibold text-white rounded-lg transition-all flex items-center gap-1.5 ${isSaveDisabled
+              ? "bg-[#262626] text-[#666666] cursor-not-allowed opacity-60"
+              : "bg-gradient-to-r from-[#e8590c] to-[#f59e0b] hover:from-[#d04a04] hover:to-[#e08e00] shadow-[0_4px_16px_rgba(232,89,12,0.35)] cursor-pointer"
+              }`}
           >
             <MdCheck className="text-base" />
             {isSubmitting
               ? "Saving..."
               : editUser
-              ? "Update Administrator"
-              : "Create Administrator"}
+                ? "Update Administrator"
+                : "Create Administrator"}
           </button>
         </div>
       </div>
