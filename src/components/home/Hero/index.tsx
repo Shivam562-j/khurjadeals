@@ -116,8 +116,9 @@ export default function Hero() {
 
         <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
           {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 bg-[#e8590c]/20 border border-[#e8590c]/40 text-[#f97316] px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-5 shadow-sm">
-            <span>Khurja ka Apna Marketplace</span>
+          <div className="inline-flex items-center gap-2 bg-black/60 border border-[#e8590c]/40 text-[#f97316] px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-5 shadow-md backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c] animate-pulse" />
+            <span>Khurja&apos;s #1 Local Marketplace</span>
           </div>
 
           {/* Heading */}
@@ -128,7 +129,7 @@ export default function Hero() {
 
           {/* Subtitle */}
           <p className="text-sm sm:text-base md:text-lg text-neutral-300 max-w-2xl mb-8 leading-relaxed">
-            Khurja mein bikes, cars, electric vehicles aur properties ki sabse fast platform.
+            The fastest marketplace to buy, sell, and rent vehicles and properties in Khurja.
           </p>
 
           {/* Mobile Search Bar (hidden on sm+) */}
@@ -138,7 +139,7 @@ export default function Hero() {
           >
             <input
               type="text"
-              placeholder="Khurja mein khojein..."
+              placeholder="Search bikes, cars, flats, plots in Khurja..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent px-3.5 py-2.5 text-xs text-white placeholder-neutral-400 outline-none"
@@ -163,36 +164,37 @@ export default function Hero() {
               }}
             >
               {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 group-hover:from-black/95 transition-colors" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 group-hover:from-black/95 transition-colors" />
 
               <div className="relative z-10 h-full p-5 sm:p-6 flex flex-col justify-end">
                 <div className="mb-2">
-                  <span className="inline-block bg-blue-600/40 backdrop-blur-md text-blue-300 border border-blue-400/30 text-[11px] font-bold px-2.5 py-0.5 rounded">
+                  <span className="inline-flex items-center gap-1.5 bg-black/75 border border-[#e8590c]/50 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-wider shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c]" />
                     Vehicles
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-1">
-                  Bike, Car &amp; EV
+                  Bikes, Cars &amp; EVs
                 </h2>
-                <p className="text-xs sm:text-sm text-neutral-300 mb-3">
-                  Sell ya Purchase
+                <p className="text-xs sm:text-sm text-neutral-300 mb-3.5">
+                  Buy &amp; Sell Verified Vehicles
                 </p>
 
-                {/* Action Pills */}
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/submit-query"
-                    className="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 text-xs font-semibold px-3 py-1 rounded transition-all active:scale-95"
-                  >
-                    Sell
-                  </Link>
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2.5">
                   <Link
                     href="/products"
                     onMouseEnter={prefetchProducts}
                     onTouchStart={prefetchProducts}
-                    className="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 text-xs font-semibold px-3 py-1 rounded transition-all active:scale-95"
+                    className="inline-flex items-center justify-center bg-gradient-to-r from-[#e8590c] to-[#f97316] hover:brightness-110 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl shadow-lg shadow-[#e8590c]/30 hover:scale-105 active:scale-95 transition-all duration-200"
                   >
-                    Purchase
+                    Buy
+                  </Link>
+                  <Link
+                    href="/submit-query"
+                    className="inline-flex items-center justify-center bg-black/70 hover:bg-[#e8590c]/20 text-white hover:text-[#fb923c] border border-white/30 hover:border-[#e8590c] text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl backdrop-blur-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+                  >
+                    Sell
                   </Link>
                 </div>
               </div>
@@ -208,36 +210,37 @@ export default function Hero() {
               }}
             >
               {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 group-hover:from-black/95 transition-colors" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 group-hover:from-black/95 transition-colors" />
 
               <div className="relative z-10 h-full p-5 sm:p-6 flex flex-col justify-end">
                 <div className="mb-2">
-                  <span className="inline-block bg-emerald-600/40 backdrop-blur-md text-emerald-300 border border-emerald-400/30 text-[11px] font-bold px-2.5 py-0.5 rounded">
+                  <span className="inline-flex items-center gap-1.5 bg-black/75 border border-[#e8590c]/50 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-wider shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c]" />
                     Properties
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-1">
-                  Flats, Plots &amp; More
+                  Plots, Flats &amp; Commercial
                 </h2>
-                <p className="text-xs sm:text-sm text-neutral-300 mb-3">
-                  Sale ya Rent
+                <p className="text-xs sm:text-sm text-neutral-300 mb-3.5">
+                  Buy &amp; Rent in Khurja
                 </p>
 
-                {/* Action Pills */}
-                <div className="flex items-center gap-2">
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2.5">
                   <Link
                     href="/properties?listingType=sell"
                     onMouseEnter={prefetchProperties}
                     onTouchStart={prefetchProperties}
-                    className="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 text-xs font-semibold px-3 py-1 rounded transition-all active:scale-95"
+                    className="inline-flex items-center justify-center bg-gradient-to-r from-[#e8590c] to-[#f97316] hover:brightness-110 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl shadow-lg shadow-[#e8590c]/30 hover:scale-105 active:scale-95 transition-all duration-200"
                   >
-                    Sale
+                    Buy
                   </Link>
                   <Link
                     href="/properties?listingType=rent"
                     onMouseEnter={prefetchProperties}
                     onTouchStart={prefetchProperties}
-                    className="inline-block bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/25 text-xs font-semibold px-3 py-1 rounded transition-all active:scale-95"
+                    className="inline-flex items-center justify-center bg-black/70 hover:bg-[#e8590c]/20 text-white hover:text-[#fb923c] border border-white/30 hover:border-[#e8590c] text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl backdrop-blur-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
                   >
                     Rent
                   </Link>
