@@ -133,6 +133,21 @@ export default function CreatePropertyModal({
         setInitialFormData(initial);
         setExistingImages(propImages);
         setSelectedFiles([]);
+
+        // Fallback fetch if description was not included in editProperty
+        if (!editProperty.description && editProperty._id) {
+          fetch(`/api/properties/${editProperty._id}`)
+            .then((r) => r.json())
+            .then((full) => {
+              if (full && full.description) {
+                setFormData((prev) => ({ ...prev, description: full.description }));
+                setInitialFormData((prev) =>
+                  prev ? { ...prev, description: full.description } : prev
+                );
+              }
+            })
+            .catch(() => {});
+        }
       } else {
         const initial = {
           title: "",
@@ -258,13 +273,12 @@ export default function CreatePropertyModal({
 
   const isValid = Object.keys(validationErrors).length === 0;
 
-  // Disabled Save button logic (matching user's isDisabledRuleSaveBtn)
+  // Disabled Save button logic (enabled whenever all required fields validate and not submitting)
   const isSaveDisabled = useMemo(() => {
     if (!isValid) return true;
-    if (editProperty && !hasFormChanged) return true;
     if (isSubmitting) return true;
     return false;
-  }, [isValid, editProperty, hasFormChanged, isSubmitting]);
+  }, [isValid, isSubmitting]);
 
   // Feature / Amenity toggling
   const toggleFeature = (feat: string) => {

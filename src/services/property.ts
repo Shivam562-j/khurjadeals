@@ -108,7 +108,7 @@ export async function getProperties(filters: PropertyFilter = {}): Promise<Pagin
   const totalPages = Math.ceil(totalCount / limit);
 
   const propertiesRaw = await Property.find(query)
-    .select("_id title slug price area areaUnit images type listingType location address features isFeatured views status contactName contactPhone createdAt updatedAt")
+    .select("_id title slug description price area areaUnit images type listingType location address features isFeatured views status contactName contactPhone createdAt updatedAt")
     .sort(sortObj)
     .skip(skip)
     .limit(limit)

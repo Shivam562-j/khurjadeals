@@ -102,6 +102,21 @@ export default function CreateProductModal({
         setInitialFormData(initial);
         setExistingImages(prodImages);
         setSelectedFiles([]);
+
+        // Fallback fetch if description was not included in editProduct
+        if (!editProduct.description && editProduct._id) {
+          fetch(`/api/products/${editProduct._id}`)
+            .then((r) => r.json())
+            .then((full) => {
+              if (full && full.description) {
+                setFormData((prev) => ({ ...prev, description: full.description }));
+                setInitialFormData((prev) =>
+                  prev ? { ...prev, description: full.description } : prev
+                );
+              }
+            })
+            .catch(() => {});
+        }
       } else if (editProduct) {
         const prodImages = Array.isArray(editProduct.images) ? [...editProduct.images] : [];
         const initial = {
@@ -237,13 +252,12 @@ export default function CreateProductModal({
 
   const isValid = Object.keys(validationErrors).length === 0;
 
-  // Disabled Save button logic
+  // Disabled Save button logic (enabled whenever all required fields validate and not submitting)
   const isSaveDisabled = useMemo(() => {
     if (!isValid) return true;
-    if (editProduct && !hasFormChanged) return true;
     if (isSubmitting) return true;
     return false;
-  }, [isValid, editProduct, hasFormChanged, isSubmitting]);
+  }, [isValid, isSubmitting]);
 
   // Handle local file selection (shows preview below box, uploads to Cloudinary on Create)
   const handleFilesSelected = (files: FileList | null) => {
@@ -724,6 +738,16 @@ export default function CreateProductModal({
                 </button>
               </div>
 
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => handleFilesSelected(e.target.files)}
+                disabled={isSubmitting}
+                className="hidden"
+              />
+
               {/* When NO images yet: Full Dashed Drop Zone */}
               {existingImages.length === 0 && selectedFiles.length === 0 ? (
                 <div
@@ -865,7 +889,7 @@ export default function CreateProductModal({
             ) : (
               <>
                 <MdCheck className="text-base" />
-                {editProduct ? "Update Product" : "Create Product"}
+                {editProduct ? "Save Changes" : "Create Product"}
               </>
             )}
           </button>
