@@ -11,6 +11,7 @@ import {
   FaKey,
   FaHandHoldingUsd,
   FaSearch,
+  FaTimes,
 } from "react-icons/fa";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -43,10 +44,22 @@ export default function Hero() {
     });
   };
 
-  const handleHeroSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+  const handleHeroSearch = (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) {
+      router.push("/products");
+      return;
+    }
+
+    const propKeywords = ["flat", "plot", "house", "shop", "rent", "land", "commercial", "kothi", "makan", "property", "bhk"];
+    const isProperty = propKeywords.some((kw) => q.toLowerCase().includes(kw));
+
+    if (isProperty) {
+      router.push(`/properties?search=${encodeURIComponent(q)}`);
+    } else {
+      router.push(`/products?search=${encodeURIComponent(q)}`);
+    }
   };
 
   const quickCategories = [
@@ -124,7 +137,7 @@ export default function Hero() {
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] mb-4 text-white">
             Vehicles &amp; Properties{" "}
-            <span className="text-[#e8590c]">Ek Jagah Par</span>
+            <span className="text-[#e8590c]">All in One Place</span>
           </h1>
 
           {/* Subtitle */}
@@ -132,23 +145,59 @@ export default function Hero() {
             The fastest marketplace to buy, sell, and rent vehicles and properties in Khurja.
           </p>
 
-          {/* Mobile Search Bar (hidden on sm+) */}
+          {/* Search Bar (Phone View & Responsive) */}
           <form
             onSubmit={handleHeroSearch}
-            className="sm:hidden w-full max-w-sm flex items-center bg-neutral-900/90 border border-neutral-700 focus-within:border-[#e8590c] rounded-xl overflow-hidden mb-6 shadow-lg"
+            className="w-full max-w-sm sm:max-w-md md:max-w-lg flex md:hidden items-center bg-neutral-900/90 border border-neutral-700/80 focus-within:border-[#e8590c] focus-within:ring-2 focus-within:ring-[#e8590c]/25 rounded-2xl overflow-hidden mb-7 sm:mb-8 shadow-xl backdrop-blur-md transition-all duration-200"
           >
+            {/* Left search icon button (Clicking search icon also triggers search) */}
+            <button
+              type="button"
+              onClick={handleHeroSearch}
+              title="Search"
+              aria-label="Search"
+              className="pl-3.5 pr-1.5 text-[#e8590c] hover:text-[#f97316] transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            >
+              <FaSearch className="text-sm" />
+            </button>
+
+            {/* Input field: Enter triggers search */}
             <input
-              type="text"
+              type="search"
+              enterKeyHint="search"
               placeholder="Search bikes, cars, flats, plots in Khurja..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent px-3.5 py-2.5 text-xs text-white placeholder-neutral-400 outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.keyCode === 13) {
+                  handleHeroSearch(e);
+                }
+              }}
+              className="flex-1 bg-transparent px-2 py-2.5 text-xs sm:text-sm text-white placeholder-neutral-400 outline-none"
             />
+
+            {/* Clear Button when text is entered */}
+            {searchQuery?.trim().length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="p-1.5 text-neutral-400 hover:text-white transition-colors mr-1 cursor-pointer shrink-0"
+                title="Clear"
+              >
+                <FaTimes className="text-xs" />
+              </button>
+            )}
+
+            {/* Right Search Button (Clicking icon/button triggers search) */}
             <button
               type="submit"
-              className="bg-[#e8590c] hover:bg-[#c2410c] text-white px-4 py-2.5 flex items-center justify-center transition-colors"
+              onClick={handleHeroSearch}
+              title="Search"
+              aria-label="Search"
+              className="bg-gradient-to-r from-[#e8590c] to-[#f97316] hover:brightness-110 active:scale-95 text-white px-3.5 sm:px-4 py-2.5 flex items-center justify-center transition-all cursor-pointer shrink-0 font-medium text-xs sm:text-sm gap-1.5"
             >
               <FaSearch className="text-xs" />
+              <span>Search</span>
             </button>
           </form>
 
