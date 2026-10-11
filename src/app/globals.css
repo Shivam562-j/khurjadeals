@@ -3144,7 +3144,7 @@ svg,
   color: #ffffff;
   font-size: 0.7rem;
   font-weight: 700;
-  text-transform: capitalize;
+  text-transform: capitalize !important;
   padding: 3px 10px;
   border-radius: 50px;
 }
@@ -3333,7 +3333,7 @@ svg,
 .carousel-track {
   display: flex;
   gap: 20px;
-  overflow-x: hidden;
+  overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -3405,12 +3405,14 @@ svg,
   display: flex;
   align-items: center;
   flex: 1;
+  min-width: 0;
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-color);
   border-radius: 14px;
-  padding: 4px 6px 4px 16px;
+  padding: 4px 6px 4px 14px;
   transition: all 0.25s ease;
   box-shadow: var(--card-shadow);
+  height: 50px;
 }
 
 .prop-search-box:focus-within {
@@ -3419,21 +3421,37 @@ svg,
   background-color: var(--bg-card-hover);
 }
 
-.search-icon {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  margin-right: 12px;
+.search-icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 10px;
   flex-shrink: 0;
+}
+
+.search-icon {
+  color: var(--primary);
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.search-icon-btn:hover .search-icon {
+  transform: scale(1.1);
 }
 
 .search-input {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
   color: var(--text-white);
-  font-size: 0.95rem;
-  padding: 10px 0;
+  font-size: 0.92rem;
+  padding: 8px 0;
 }
 
 .search-input::placeholder {
@@ -3444,14 +3462,15 @@ svg,
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 0.9rem;
-  padding: 8px;
+  font-size: 0.85rem;
+  padding: 6px;
   cursor: pointer;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: color 0.2s;
+  flex-shrink: 0;
 }
 
 .search-clear-btn:hover {
@@ -3461,12 +3480,12 @@ svg,
 .search-enter-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #f59e0b;
   background-color: #2a170d;
   border: 1px solid rgba(232, 89, 12, 0.4);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 6px;
   cursor: pointer;
   margin-right: 6px;
@@ -3489,40 +3508,40 @@ svg,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 24px;
+  gap: 6px;
+  padding: 8px 20px;
+  height: 40px;
   border-radius: 10px;
-  background: var(--accent-gradient);
+  background: linear-gradient(135deg, #e8590c 0%, #ff7a35 100%);
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   border: none;
   cursor: pointer;
-  transition: var(--transition-smooth);
-  box-shadow: 0 4px 14px var(--primary-glow);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(232, 89, 12, 0.35);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .search-submit-btn:hover {
   transform: translateY(-1px);
   filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(232, 89, 12, 0.45);
 }
 
-.search-submit-btn:disabled {
-  opacity: 0.45 !important;
-  cursor: not-allowed !important;
-  transform: none !important;
-  box-shadow: none !important;
-  filter: none !important;
-  pointer-events: none;
+.search-submit-btn:active {
+  transform: scale(0.97);
 }
 
 /* Filter Toggle Button */
 .prop-filter-toggle-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 0 20px;
-  height: 52px;
+  padding: 0 18px;
+  height: 50px;
   border-radius: 14px;
   background-color: var(--bg-card);
   border: 1.5px solid var(--border-color);
@@ -3544,8 +3563,42 @@ svg,
 
 .prop-filter-toggle-btn.has-active {
   border-color: var(--primary);
-  background-color: rgba(232, 89, 12, 0.1);
+  background-color: rgba(232, 89, 12, 0.12);
   color: var(--primary);
+}
+
+@media (max-width: 640px) {
+  .prop-search-wrapper {
+    gap: 8px;
+  }
+
+  .prop-search-box {
+    height: 46px;
+    padding: 3px 4px 3px 12px;
+    border-radius: 12px;
+  }
+
+  .search-icon-btn {
+    margin-right: 6px;
+  }
+
+  .search-input {
+    font-size: 0.84rem;
+  }
+
+  .search-submit-btn {
+    padding: 6px 12px;
+    height: 36px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .prop-filter-toggle-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0 !important;
+    border-radius: 12px;
+  }
 }
 
 .filter-count-badge {

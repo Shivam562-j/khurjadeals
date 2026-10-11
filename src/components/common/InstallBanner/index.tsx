@@ -53,7 +53,7 @@ export default function InstallBanner() {
             setShowBanner(false);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     // 3. Check if user dismissed banner within 2 hours
@@ -165,7 +165,7 @@ export default function InstallBanner() {
               className="install-close-btn p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors"
               aria-label="Close"
             >
-              <FaTimes className="text-xs" />
+              <FaTimes className="text-sm" />
             </button>
           </div>
         </div>

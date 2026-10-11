@@ -129,7 +129,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
         {/* Title & Specs */}
         <div className="det-card">
-          <div className="det-badge">{condition} Condition</div>
+          <div className="det-badge">{condition ? condition.charAt(0).toUpperCase() + condition.slice(1) : ""} Condition</div>
           <div className="det-title-row">
             <div>
               <h1 className="det-title">{title}</h1>

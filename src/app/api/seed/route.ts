@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { seedDatabase } from "@/lib/seed";
-import Property from "@/models/Property";
-import Product from "@/models/Product";
+import User from "@/models/User";
 
 export async function GET(request: Request) {
   try {
@@ -12,14 +11,12 @@ export async function GET(request: Request) {
 
     await seedDatabase(force);
 
-    const propertyCount = await Property.countDocuments();
-    const productCount = await Product.countDocuments();
+    const userCount = await User.countDocuments();
 
     return NextResponse.json({
       success: true,
-      message: "Database successfully seeded!",
-      propertyCount,
-      productCount,
+      message: "Admin seed verified.",
+      userCount,
     });
   } catch (error: any) {
     return NextResponse.json(

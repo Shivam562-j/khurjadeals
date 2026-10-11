@@ -24,12 +24,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       })
     : "Recently";
 
+  const formatBadge = (str?: string) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <div className="listing-card">
       {/* Image */}
       <div className="listing-card-media" style={{ aspectRatio: "16 / 10" }}>
         {isFeatured && <span className="listing-badge">Featured</span>}
-        <span className="listing-type-badge">For {listingType}</span>
+        <span className="listing-type-badge">For {formatBadge(listingType)}</span>
         <img
           src={displayImage}
           alt={title}
@@ -44,7 +49,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       {/* Body */}
       <div className="listing-card-body">
         <div className="listing-tags">
-          <span className="listing-tag">{type}</span>
+          <span className="listing-tag">{formatBadge(type)}</span>
           <span className="listing-tag">
             {area} {areaUnit}
           </span>

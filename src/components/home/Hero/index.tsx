@@ -129,10 +129,10 @@ export default function Hero() {
 
         <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
           {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 bg-black/60 border border-[#e8590c]/40 text-[#f97316] px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-5 shadow-md backdrop-blur-md">
+          {/* <div className="inline-flex items-center gap-2 bg-black/60 border border-[#e8590c]/40 text-[#f97316] px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-5 shadow-md backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c] animate-pulse" />
             <span>Khurja&apos;s #1 Local Marketplace</span>
-          </div>
+          </div> */}
 
           {/* Heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] mb-4 text-white">
