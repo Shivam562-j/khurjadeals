@@ -12,6 +12,10 @@ export async function handleImageUpload(
     throw new Error(`Invalid file type. Allowed: ${ALLOWED_TYPES.join(", ")}`);
   }
 
+  if (!file.size || file.size === 0) {
+    throw new Error("File is empty");
+  }
+
   const sizeMB = file.size / (1024 * 1024);
   if (sizeMB > MAX_SIZE_MB) {
     throw new Error(`File too large. Max size: ${MAX_SIZE_MB}MB`);

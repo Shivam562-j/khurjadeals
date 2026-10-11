@@ -7,7 +7,6 @@ import { Product, PaginatedProductResponse } from "@/types/product";
 import ProductCard from "@/components/product/ProductCard";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
-import { useDebounce } from "@/hooks/useDebounce";
 import {
   FaSearch,
   FaFilter,
@@ -54,12 +53,10 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
   );
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [appliedSearch, setAppliedSearch] = useState(searchParams.get("search") || "");
   const [locationInput, setLocationInput] = useState(searchParams.get("location") || "");
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
-
-  // Debounce search query to prevent excessive API requests
-  const debouncedSearch = useDebounce(searchQuery, 350);
 
   // Local state for expanded filter card
   const [localCategories, setLocalCategories] = useState<string[]>(selectedCategories);
@@ -85,6 +82,7 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
     setSelectedConditions(condFromUrl);
     setLocalConditions(condFromUrl);
     setSearchQuery(searchFromUrl);
+    setAppliedSearch(searchFromUrl);
     setLocationInput(locFromUrl);
     setLocalLocation(locFromUrl);
     setMinPrice(minFromUrl);
@@ -104,7 +102,7 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
   } = useInfiniteQuery({
     queryKey: [
       "products",
-      debouncedSearch,
+      appliedSearch,
       selectedCategories,
       selectedConditions,
       locationInput,
@@ -113,7 +111,7 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
     ],
     queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
       const q = new URLSearchParams();
-      if (debouncedSearch) q.set("search", debouncedSearch);
+      if (appliedSearch) q.set("search", appliedSearch);
       if (selectedCategories.length > 0) q.set("category", selectedCategories.join(","));
       if (selectedConditions.length > 0) q.set("condition", selectedConditions.join(","));
       if (locationInput) q.set("location", locationInput);
@@ -128,7 +126,7 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
     },
     initialPageParam: 1,
     initialData:
-      initialData && !debouncedSearch && selectedCategories.length === 0 && selectedConditions.length === 0 && !locationInput && !minPrice && !maxPrice
+      initialData && !appliedSearch && selectedCategories.length === 0 && selectedConditions.length === 0 && !locationInput && !minPrice && !maxPrice
         ? {
             pages: [initialData],
             pageParams: [1],
@@ -158,9 +156,10 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Search form submit
+  // Search form submit on Enter key press or Search button click
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setAppliedSearch(searchQuery.trim());
   };
 
   // Advanced Filter Card Apply
@@ -176,6 +175,7 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
 
   const clearAllFilters = () => {
     setSearchQuery("");
+    setAppliedSearch("");
     setSelectedCategories([]);
     setLocalCategories([]);
     setSelectedConditions([]);
@@ -194,7 +194,7 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
     (locationInput ? 1 : 0) +
     (minPrice || maxPrice ? 1 : 0);
 
-  const hasSearch = searchQuery.trim().length > 0;
+  const hasSearch = searchQuery.trim().length > 0 || appliedSearch.trim().length > 0;
 
   const hasLocalFilters =
     localCategories.length > 0 ||
@@ -236,19 +236,41 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
                 placeholder="Search bikes, EVs, cars, mobiles, laptops, fridge, AC, cooler..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearchSubmit(e);
+                  }
+                }}
                 className="search-input"
               />
-              {searchQuery && (
+              {searchQuery?.trim().length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
+                  onClick={handleSearchSubmit}
+                  title="Click to search or press Enter"
+                  className="search-enter-badge"
+                >
+                  ↵ Enter
+                </button>
+              )}
+              {(searchQuery || appliedSearch) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setAppliedSearch("");
+                  }}
                   className="search-clear-btn"
                   title="Clear search"
                 >
                   <FaTimes />
                 </button>
               )}
-              <button type="submit" className="search-submit-btn" disabled={!hasSearch}>
+              <button
+                type="submit"
+                className="search-submit-btn"
+                disabled={!searchQuery.trim() && !appliedSearch}
+              >
                 <span>Search</span>
               </button>
             </form>
@@ -428,14 +450,19 @@ function ProductsList({ initialData }: { initialData?: PaginatedProductResponse 
           )}
 
           {/* Active Filter Chips */}
-          {(activeFilterCount > 0 || searchQuery) && (
+          {(activeFilterCount > 0 || appliedSearch) && (
             <div className="active-filter-tags">
               <span className="tags-label">Active Filters:</span>
 
-              {searchQuery && (
+              {appliedSearch && (
                 <span className="active-tag">
-                  Search: "{searchQuery}"
-                  <button onClick={() => setSearchQuery("")}>
+                  Search: "{appliedSearch}"
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setAppliedSearch("");
+                    }}
+                  >
                     <FaTimes />
                   </button>
                 </span>
