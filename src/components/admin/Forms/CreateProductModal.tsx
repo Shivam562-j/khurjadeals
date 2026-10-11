@@ -13,6 +13,7 @@ import {
   MdPhone,
   MdPhotoLibrary,
   MdTune,
+  MdAdd,
 } from "react-icons/md";
 import { toast } from "react-toastify";
 
@@ -723,37 +724,107 @@ export default function CreateProductModal({
                 </button>
               </div>
 
-              {/* Upload Drop Zone */}
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
-                  touched.images && validationErrors.images
-                    ? "border-[#ef4444] bg-[#2d1212]/30 hover:border-[#ef4444]"
-                    : "border-[#333333] hover:border-[#e8590c] hover:bg-[#e8590c]/5 bg-[#0d0d0d]"
-                } ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => handleFilesSelected(e.target.files)}
-                  disabled={isSubmitting}
-                  className="hidden"
-                />
-                <MdCloudUpload className="mx-auto text-3xl text-[#e8590c] mb-1" />
-                <p className="text-xs font-semibold text-white">
-                  Click to browse or drop images here
-                </p>
-                <p className="text-[11px] text-[#a3a3a3] mt-0.5">
-                  PNG, JPG, WEBP up to 5MB each • <span className="text-[#ef4444] font-medium">Required</span>
-                </p>
-              </div>
+              {/* When NO images yet: Full Dashed Drop Zone */}
+              {existingImages.length === 0 && selectedFiles.length === 0 ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                    touched.images && validationErrors.images
+                      ? "border-[#ef4444] bg-[#2d1212]/30 hover:border-[#ef4444]"
+                      : "border-[#333333] hover:border-[#e8590c] hover:bg-[#e8590c]/5 bg-[#0d0d0d]"
+                  } ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
+                >
+                  <MdCloudUpload className="mx-auto text-3xl text-[#e8590c] mb-1" />
+                  <p className="text-xs font-semibold text-white">
+                    Click to browse or drop images here
+                  </p>
+                  <p className="text-[11px] text-[#a3a3a3] mt-0.5">
+                    PNG, JPG, WEBP up to 5MB each • <span className="text-[#ef4444] font-medium">Required</span>
+                  </p>
+                </div>
+              ) : (
+                /* When 1 or more images exist: Prominent Thumbnails Grid with '+ Add More' tile */
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={handleDrop}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {/* Existing Images */}
+                    {existingImages.map((img, idx) => (
+                      <div
+                        key={`existing-${idx}`}
+                        className="relative group rounded-lg overflow-hidden aspect-square min-h-[95px] border border-[#262626] bg-[#0d0d0d] shadow-sm"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={img}
+                          alt={`product-img-${idx}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveExistingImage(idx);
+                          }}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow z-10"
+                          title="Remove photo"
+                        >
+                          <MdDeleteOutline className="text-xs" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Selected Local Images (Uploads on Create) */}
+                    {selectedFiles.map((item, idx) => (
+                      <div
+                        key={`new-${idx}`}
+                        className="relative group rounded-lg overflow-hidden aspect-square min-h-[95px] border border-[#e8590c]/60 ring-1 ring-[#e8590c]/30 bg-[#0d0d0d] shadow-md"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.preview}
+                          alt={`product-preview-${idx}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-1 left-1 bg-black/85 text-[10px] text-[#fb923c] font-semibold px-1.5 py-0.5 rounded shadow backdrop-blur-sm">
+                          Uploads on Create
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveSelectedFile(idx);
+                          }}
+                          className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 hover:bg-red-600 text-white flex items-center justify-center opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow z-10"
+                          title="Remove photo"
+                        >
+                          <MdDeleteOutline className="text-xs" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* '+ Add More' Dashed Card */}
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="group aspect-square min-h-[95px] rounded-lg border-2 border-dashed border-[#333333] hover:border-[#e8590c] hover:bg-[#e8590c]/5 bg-[#0d0d0d] flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center p-2"
+                    >
+                      <MdAdd className="text-2xl text-[#e8590c] group-hover:scale-110 transition-transform" />
+                      <span className="text-[11px] font-semibold text-white">Add More</span>
+                      <span className="text-[9px] text-[#737373]">Drop or click</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Error Message */}
               {touched.images && validationErrors.images && (
@@ -761,68 +832,6 @@ export default function CreateProductModal({
                   <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
                   {validationErrors.images}
                 </p>
-              )}
-
-              {/* Thumbnails Grid BELOW the box */}
-              {(existingImages.length > 0 || selectedFiles.length > 0) && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3 overflow-y-auto max-h-48 p-1">
-                  {/* Existing Images */}
-                  {existingImages.map((img, idx) => (
-                    <div
-                      key={`existing-${idx}`}
-                      className="relative group rounded-lg overflow-hidden aspect-square border border-[#262626] bg-[#0d0d0d]"
-                    >
-                      <Image
-                        src={img}
-                        alt={`product-img-${idx}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveExistingImage(idx);
-                        }}
-                        className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
-                        title="Remove photo"
-                      >
-                        <MdDeleteOutline className="text-xs" />
-                      </button>
-                    </div>
-                  ))}
-
-                  {/* Selected Local Images (Uploads on Create) */}
-                  {selectedFiles.map((item, idx) => (
-                    <div
-                      key={`new-${idx}`}
-                      className="relative group rounded-lg overflow-hidden aspect-square border border-[#e8590c]/50 ring-1 ring-[#e8590c]/25 bg-[#0d0d0d]"
-                    >
-                      <Image
-                        src={item.preview}
-                        alt={`product-preview-${idx}`}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                      <span className="absolute bottom-1 left-1 bg-black/85 text-[10px] text-[#fb923c] font-semibold px-1.5 py-0.5 rounded shadow">
-                        Uploads on Create
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveSelectedFile(idx);
-                        }}
-                        className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow"
-                        title="Remove photo"
-                      >
-                        <MdDeleteOutline className="text-xs" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
               )}
             </div>
           </div>
