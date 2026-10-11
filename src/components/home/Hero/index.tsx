@@ -1,47 +1,24 @@
 "use client";
-import React from "react";
+
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
+  FaMotorcycle,
+  FaCar,
+  FaBolt,
   FaBuilding,
   FaKey,
-  FaMotorcycle,
-  FaMobileAlt,
-  FaLaptop,
-  FaTv,
-  FaHome,
-  FaBox,
-  FaCheckCircle,
+  FaHandHoldingUsd,
   FaSearch,
-  FaPhoneAlt,
-  FaCar,
+  FaTimes,
 } from "react-icons/fa";
-
 import { useQueryClient } from "@tanstack/react-query";
 
-const stats = [
-  { value: "500+",  label: "Active Listings" },
-  { value: "200+",  label: "Properties" },
-  { value: "1k+",   label: "Happy Buyers" },
-  { value: "100%",  label: "Verified" },
-];
-
-const hpoints = [
-  { icon: <FaHome />, label: "Properties", sub: "Buy, Sell & Rent" },
-  { icon: <FaBox />, label: "Used Items", sub: "Bikes, Cars & Tech" },
-  { icon: <FaTv />, label: "Appliances", sub: "Fridge, AC & Washer" },
-];
-
-const quickLinks = [
-  { label: "Buy Property",  href: "/properties?listingType=sell",   icon: <FaBuilding /> },
-  { label: "Rent Property", href: "/properties?listingType=rent",   icon: <FaKey /> },
-  { label: "Used Bikes & Cars", href: "/products?search=bike",      icon: <FaMotorcycle /> },
-  { label: "Mobiles",       href: "/products?search=phone",         icon: <FaMobileAlt /> },
-  { label: "Laptops",       href: "/products?search=laptop",        icon: <FaLaptop /> },
-  { label: "Appliances (AC/Fridge)", href: "/products?search=fridge", icon: <FaTv /> },
-];
-
 export default function Hero() {
+  const router = useRouter();
   const queryClient = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const prefetchProperties = () => {
     queryClient.prefetchInfiniteQuery({
@@ -66,185 +43,284 @@ export default function Hero() {
       staleTime: 1000 * 60 * 3,
     });
   };
+
+  const handleHeroSearch = (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) {
+      router.push("/products");
+      return;
+    }
+
+    const propKeywords = ["flat", "plot", "house", "shop", "rent", "land", "commercial", "kothi", "makan", "property", "bhk"];
+    const isProperty = propKeywords.some((kw) => q.toLowerCase().includes(kw));
+
+    if (isProperty) {
+      router.push(`/properties?search=${encodeURIComponent(q)}`);
+    } else {
+      router.push(`/products?search=${encodeURIComponent(q)}`);
+    }
+  };
+
+  const quickCategories = [
+    {
+      label: "Bikes",
+      href: "/products?search=bike",
+      icon: <FaMotorcycle />,
+      prefetch: prefetchProducts,
+    },
+    {
+      label: "Cars",
+      href: "/products?search=car",
+      icon: <FaCar />,
+      prefetch: prefetchProducts,
+    },
+    {
+      label: "Electric",
+      href: "/products?category=Electric%20Vehicles",
+      icon: <FaBolt />,
+      prefetch: prefetchProducts,
+    },
+    {
+      label: "Sale",
+      href: "/properties?listingType=sell",
+      icon: <FaBuilding />,
+      prefetch: prefetchProperties,
+    },
+    {
+      label: "Rent",
+      href: "/properties?listingType=rent",
+      icon: <FaKey />,
+      prefetch: prefetchProperties,
+    },
+    {
+      label: "Wanted",
+      href: "/submit-query",
+      icon: <FaHandHoldingUsd />,
+      prefetch: () => { },
+    },
+  ];
+
   return (
-    <>
-      <section className="hero bg-grid">
-        {/* Ambient glow */}
-        <div style={{
-          position: "absolute", top: "50%", left: "30%",
-          transform: "translate(-50%,-50%)",
-          width: 700, height: 700, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(232,89,12,0.13) 0%, transparent 65%)",
-          pointerEvents: "none", zIndex: 1,
-        }} />
+    <div className="w-full relative">
+      {/* ── Main Hero Section ── */}
+      <section
+        className="relative pt-32 pb-16 sm:pt-24 sm:pb-20 md:pt-28 md:pb-24 px-4 overflow-hidden text-center text-white"
+        style={{
+          background: "linear-gradient(135deg, #191411 0%, #2a160f 50%, #15110f 100%)",
+        }}
+      >
+        {/* Diagonal stripes texture overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(232, 89, 12, 0.08) 35px, rgba(232, 89, 12, 0.08) 70px)",
+          }}
+        />
 
-        <div className="container" style={{ position: "relative", zIndex: 2 }}>
-          <div className="hero-inner">
-            {/* ── Left: Copy ── */}
-            <div className="hero-copy animate-fade-up">
-              <div className="eyebrow animate-fade-up">
-                <span style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: "var(--primary)",
-                  display: "inline-block",
-                  boxShadow: "0 0 8px var(--primary)",
-                  animation: "blink 2s ease-in-out infinite",
-                }} />
-                Khurja&apos;s #1 Local Marketplace
-              </div>
+        {/* Ambient warm radial glow */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(232, 89, 12, 0.18) 0%, transparent 70%)",
+          }}
+        />
 
-              <h1 className="h1 animate-fade-up delay-100" style={{ marginBottom: 20 }}>
-                Buy, Sell &amp; Rent in{" "}
-                <span className="accent">Khurja</span>
-              </h1>
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          {/* Top Pill Badge */}
+          <div className="inline-flex items-center gap-2 bg-black/60 border border-[#e8590c]/40 text-[#f97316] px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-5 shadow-md backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c] animate-pulse" />
+            <span>Khurja&apos;s #1 Local Marketplace</span>
+          </div>
 
-              <p className="lead animate-fade-up delay-200">
-                Khurja ka apna local directory — verified commercial &amp; residential properties,
-                plots for sale/rent, used bikes, cars, EVs, laptops, mobiles, fridge, AC &amp; washing machines.
-                Sab kuch ek jagah.
-              </p>
+          {/* Heading */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] mb-4 text-white">
+            Vehicles &amp; Properties{" "}
+            <span className="text-[#e8590c]">All in One Place</span>
+          </h1>
 
-              <div className="hero-cta animate-fade-up delay-300">
-                <Link
-                  href="/properties"
-                  className="btn btn-primary btn-lg"
-                  onMouseEnter={prefetchProperties}
-                  onTouchStart={prefetchProperties}
-                  onFocus={prefetchProperties}
-                >
-                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                  </svg>
-                  Explore Properties
-                </Link>
-                <Link
-                  href="/products"
-                  className="btn btn-outline btn-lg"
-                  onMouseEnter={prefetchProducts}
-                  onTouchStart={prefetchProducts}
-                  onFocus={prefetchProducts}
-                >
-                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                  </svg>
-                  Browse Used Items
-                </Link>
-              </div>
+          {/* Subtitle */}
+          <p className="text-sm sm:text-base md:text-lg text-neutral-300 max-w-2xl mb-8 leading-relaxed">
+            The fastest marketplace to buy, sell, and rent vehicles and properties in Khurja.
+          </p>
 
-              {/* Hero points */}
-              <div className="hero-points animate-fade-up delay-400">
-                {hpoints.map((p) => (
-                  <div key={p.label} className="hpoint">
-                    <div className="hp-ic" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span className="flex items-center justify-center text-sm">{p.icon}</span>
-                    </div>
-                    <div className="hp-label">
-                      {p.label}
-                      <span>{p.sub}</span>
-                    </div>
-                  </div>
-                ))}
+          {/* Search Bar (Phone View & Responsive) */}
+          <form
+            onSubmit={handleHeroSearch}
+            className="w-full max-w-sm sm:max-w-md md:max-w-lg flex md:hidden items-center bg-neutral-900/90 border border-neutral-700/80 focus-within:border-[#e8590c] focus-within:ring-2 focus-within:ring-[#e8590c]/25 rounded-2xl overflow-hidden mb-7 sm:mb-8 shadow-xl backdrop-blur-md transition-all duration-200"
+          >
+            {/* Left search icon button (Clicking search icon also triggers search) */}
+            <button
+              type="button"
+              onClick={handleHeroSearch}
+              title="Search"
+              aria-label="Search"
+              className="pl-3.5 pr-1.5 text-[#e8590c] hover:text-[#f97316] transition-colors cursor-pointer flex items-center justify-center shrink-0"
+            >
+              <FaSearch className="text-sm" />
+            </button>
+
+            {/* Input field: Enter triggers search */}
+            <input
+              type="search"
+              enterKeyHint="search"
+              placeholder="Search bikes, cars, flats, plots in Khurja..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.keyCode === 13) {
+                  handleHeroSearch(e);
+                }
+              }}
+              className="flex-1 bg-transparent px-2 py-2.5 text-xs sm:text-sm text-white placeholder-neutral-400 outline-none"
+            />
+
+            {/* Clear Button when text is entered */}
+            {searchQuery?.trim().length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="p-1.5 text-neutral-400 hover:text-white transition-colors mr-1 cursor-pointer shrink-0"
+                title="Clear"
+              >
+                <FaTimes className="text-xs" />
+              </button>
+            )}
+
+            {/* Right Search Button (Clicking icon/button triggers search) */}
+            <button
+              type="submit"
+              onClick={handleHeroSearch}
+              title="Search"
+              aria-label="Search"
+              className="bg-gradient-to-r from-[#e8590c] to-[#f97316] hover:brightness-110 active:scale-95 text-white px-3.5 sm:px-4 py-2.5 flex items-center justify-center transition-all cursor-pointer shrink-0 font-medium text-xs sm:text-sm gap-1.5"
+            >
+              <FaSearch className="text-xs" />
+              <span>Search</span>
+            </button>
+          </form>
+
+          {/* ── Two Category Cards (Vehicles & Properties) ── */}
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
+            {/* Card 1: Vehicles */}
+            <div
+              className="group relative h-[210px] sm:h-[230px] rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+              style={{
+                backgroundImage: "url('https://picsum.photos/seed/vehkh2/800/400')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {/* Dark Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 group-hover:from-black/95 transition-colors" />
+
+              <div className="relative z-10 h-full p-5 sm:p-6 flex flex-col justify-end">
+                <div className="mb-2">
+                  <span className="inline-flex items-center gap-1.5 bg-black/75 border border-[#e8590c]/50 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-wider shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c]" />
+                    Vehicles
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-1">
+                  Bikes, Cars &amp; EVs
+                </h2>
+                <p className="text-xs sm:text-sm text-neutral-300 mb-3.5">
+                  Buy &amp; Sell Verified Vehicles
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2.5">
+                  <Link
+                    href="/products"
+                    onMouseEnter={prefetchProducts}
+                    onTouchStart={prefetchProducts}
+                    className="inline-flex items-center justify-center bg-gradient-to-r from-[#e8590c] to-[#f97316] hover:brightness-110 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl shadow-lg shadow-[#e8590c]/30 hover:scale-105 active:scale-95 transition-all duration-200"
+                  >
+                    Buy
+                  </Link>
+                  <Link
+                    href="/submit-query"
+                    className="inline-flex items-center justify-center bg-black/70 hover:bg-[#e8590c]/20 text-white hover:text-[#fb923c] border border-white/30 hover:border-[#e8590c] text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl backdrop-blur-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+                  >
+                    Sell
+                  </Link>
+                </div>
               </div>
             </div>
 
-            {/* ── Right: Cards ── */}
-            <div className="animate-fade-up delay-200">
-              {/* Stats Grid */}
-              <div className="hero-stat-card">
-                <div className="hero-stat-grid">
-                  {stats.map((s) => (
-                    <div key={s.label} className="stat-box">
-                      <div className="stat-box-val">{s.value}</div>
-                      <div className="stat-box-lbl">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
+            {/* Card 2: Properties */}
+            <div
+              className="group relative h-[210px] sm:h-[230px] rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-1.5"
+              style={{
+                backgroundImage: "url('https://picsum.photos/seed/propkh2/800/400')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {/* Dark Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 group-hover:from-black/95 transition-colors" />
 
-                {/* Mini CTA card */}
-                <div className="hero-cta-card">
-                  <p>Have property or items to sell?</p>
-                  <span>List for free — admin calls you in 24h</span>
-                  <Link href="/submit-query" className="btn btn-primary" style={{ width: "100%" }}>
-                    Post Your Ad — Free
+              <div className="relative z-10 h-full p-5 sm:p-6 flex flex-col justify-end">
+                <div className="mb-2">
+                  <span className="inline-flex items-center gap-1.5 bg-black/75 border border-[#e8590c]/50 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur-md uppercase tracking-wider shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#e8590c]" />
+                    Properties
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight mb-1">
+                  Plots, Flats &amp; Commercial
+                </h2>
+                <p className="text-xs sm:text-sm text-neutral-300 mb-3.5">
+                  Buy &amp; Rent in Khurja
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2.5">
+                  <Link
+                    href="/properties?listingType=sell"
+                    onMouseEnter={prefetchProperties}
+                    onTouchStart={prefetchProperties}
+                    className="inline-flex items-center justify-center bg-gradient-to-r from-[#e8590c] to-[#f97316] hover:brightness-110 text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl shadow-lg shadow-[#e8590c]/30 hover:scale-105 active:scale-95 transition-all duration-200"
+                  >
+                    Buy
+                  </Link>
+                  <Link
+                    href="/properties?listingType=rent"
+                    onMouseEnter={prefetchProperties}
+                    onTouchStart={prefetchProperties}
+                    className="inline-flex items-center justify-center bg-black/70 hover:bg-[#e8590c]/20 text-white hover:text-[#fb923c] border border-white/30 hover:border-[#e8590c] text-xs sm:text-sm font-bold px-4 py-1.5 rounded-xl backdrop-blur-md hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm"
+                  >
+                    Rent
                   </Link>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* ── Quick Browse ── */}
-          <div style={{
-            marginTop: 64, paddingTop: 40,
-            borderTop: "1px solid var(--border-color)",
-          }}>
-            <p style={{
-              textAlign: "center", fontSize: "0.72rem", fontWeight: 700,
-              textTransform: "uppercase", letterSpacing: "0.22em",
-              color: "var(--text-muted)", marginBottom: 24,
-            }}>
-              Quick Browse Categories
-            </p>
-            <div style={{
-              display: "flex", flexWrap: "wrap",
-              justifyContent: "center", gap: 10,
-            }}>
-              {quickLinks.map((cat) => (
-                <Link
-                  key={cat.href}
-                  href={cat.href}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "9px 18px", borderRadius: 999,
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1.5px solid var(--border-color)",
-                    color: "var(--text-muted)", fontSize: "0.86rem", fontWeight: 600,
-                    transition: "var(--transition-smooth)",
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.background = "var(--primary-light)";
-                    el.style.borderColor = "var(--primary)";
-                    el.style.color = "var(--primary)";
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.background = "rgba(255,255,255,0.03)";
-                    el.style.borderColor = "var(--border-color)";
-                    el.style.color = "var(--text-muted)";
-                  }}
-                >
-                  <span className="flex items-center justify-center text-xs">{cat.icon}</span>
-                  {cat.label}
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ── Trust Strip ── */}
-      <div className="trust-strip">
-        <div className="container">
-          <div className="trust-row">
-            {[
-              { icon: <FaCheckCircle />, big: "100% Free", text: "To list your property or product" },
-              { icon: <FaSearch />, big: "Admin Verified", text: "Every listing is manually checked" },
-              { icon: <FaPhoneAlt />, big: "Direct Contact", text: "Direct owner & buyer connection" },
-              { icon: <FaCar />, big: "Local Marketplace", text: "Second-hand bikes, tech & appliances" },
-            ].map((item) => (
-              <div key={item.big} className="trust-cell">
-                <div className="tc-icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span className="flex items-center justify-center text-sm text-[var(--primary)]">{item.icon}</span>
-                </div>
-                <div>
-                  <div className="tc-big">{item.big}</div>
-                  <div className="tc-text">{item.text}</div>
-                </div>
+      {/* ── Floating Quick Categories Bar (6 items) ── */}
+      <div className="max-w-4xl mx-auto px-4 -mt-7 sm:-mt-9 relative z-20 mb-8 sm:mb-12">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 sm:gap-3.5">
+          {quickCategories.map((cat) => (
+            <Link
+              key={cat.label}
+              href={cat.href}
+              onMouseEnter={cat.prefetch}
+              onTouchStart={cat.prefetch}
+              className="group bg-white hover:bg-neutral-50 rounded-2xl p-3 sm:p-4 text-center border border-neutral-200/80 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col items-center justify-center cursor-pointer"
+            >
+              <div className="text-2xl sm:text-3xl text-[#e8590c] group-hover:scale-110 transition-transform duration-200 mb-1.5 flex items-center justify-center h-8">
+                {cat.icon}
               </div>
-            ))}
-          </div>
+              <div className="text-xs sm:text-sm font-bold text-neutral-900 group-hover:text-[#e8590c] transition-colors leading-tight">
+                {cat.label}
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
