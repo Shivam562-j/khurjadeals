@@ -47,9 +47,7 @@ export default function AppSidebar({
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [collapsed, setCollapsed] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1200
-  );
+  const [windowWidth, setWindowWidth] = useState(1200);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const [internalMobileOpen, setInternalMobileOpen] = useState(false);
@@ -82,6 +80,7 @@ export default function AppSidebar({
         setCollapsed(false);
       }
     };
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [collapsed]);
