@@ -6,17 +6,34 @@ export async function seedDatabase(force: boolean = false) {
   if (isSeeded && !force) return;
 
   try {
-    // 1. Admin User Seeding (Ensures admin login always exists)
-    const adminCount = await User.countDocuments();
+    const adminEmail = String(process.env.ADMIN_EMAIL).trim().toLowerCase();
+    const adminPassword = String(process.env.ADMIN_PASSWORD).trim();
+    const adminName = String(process.env.ADMIN_NAME).trim();
+
+    // 1. Admin User Seeding (Driven by .env)
+    const adminCount = await User.countDocuments({ role: "admin" });
     if (adminCount === 0) {
       await User.create({
-        name: "Admin Support",
-        email: "admin@khurjadeals.com",
-        password: "KhurjaDeals@2026",
+        name: adminName,
+        email: adminEmail,
+        password: adminPassword,
         role: "admin",
         status: "active",
       });
-      console.log("Seeded default admin user.");
+      console.log(`Seeded default admin user from .env (${adminEmail}).`);
+    } else {
+      // Ensure admin user specified in .env exists
+      const existingUser = await User.findOne({ email: adminEmail });
+      if (!existingUser) {
+        await User.create({
+          name: adminName,
+          email: adminEmail,
+          password: adminPassword,
+          role: "admin",
+          status: "active",
+        });
+        console.log(`Created admin user from .env (${adminEmail}).`);
+      }
     }
 
     isSeeded = true;
