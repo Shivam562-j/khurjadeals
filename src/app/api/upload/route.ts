@@ -12,8 +12,8 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get("file") as File;
 
-    if (!file) {
-      return NextResponse.json({ message: "No file uploaded" }, { status: 400 });
+    if (!file || file.size === 0) {
+      return NextResponse.json({ message: "No file or empty file uploaded" }, { status: 400 });
     }
 
     const result = await handleImageUpload(file, "khurjadeals");
