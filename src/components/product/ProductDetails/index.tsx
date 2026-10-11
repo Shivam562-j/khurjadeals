@@ -82,8 +82,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
       ? images
       : ["https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1200&q=80"];
 
-  const currentLink = pageUrl || (typeof window !== "undefined" ? window.location.href : "");
-  const linkText = currentLink ? `\nLink: ${currentLink}` : "";
+  const linkText = pageUrl ? `\nLink: ${pageUrl}` : "";
   const waMsg = `Hello, I'm interested in the product "${title}" listed on KhurjaDeals (Price: ${formatPrice(price)}).${linkText}\n\nIs it still available?`;
   const waUrl = whatsappLink(contactPhone, waMsg);
 

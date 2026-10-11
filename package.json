@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "db:drop": "tsx --env-file=.env scripts/drop-db.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

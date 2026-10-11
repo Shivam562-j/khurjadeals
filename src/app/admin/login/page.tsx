@@ -231,7 +231,7 @@ export default function LoginPage() {
                 <input
                   id="admin-email"
                   type="email"
-                  placeholder="admin@khurjadeals.com"
+                  placeholder="Please Enter Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{

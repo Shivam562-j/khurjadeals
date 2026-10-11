@@ -58,9 +58,18 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    if (!body.title || !body.price || !body.location || !body.contactName || !body.contactPhone) {
+    if (
+      !body.title ||
+      !body.price ||
+      !body.location ||
+      !body.contactName ||
+      !body.contactPhone ||
+      !body.images ||
+      !Array.isArray(body.images) ||
+      body.images.length === 0
+    ) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { message: "All required fields and at least one property image are required" },
         { status: 400 }
       );
     }
@@ -78,3 +87,53 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const isAll = searchParams.get("all") === "true";
+
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch {
+      // Body may be empty if query params used
+    }
+
+    if (isAll || body.all === true) {
+      const { dropAllProperties } = await import("@/services/property");
+      const result = await dropAllProperties();
+      return NextResponse.json({
+        success: true,
+        message: `Successfully dropped all properties and cleaned up ${result.deletedImages} attached Cloudinary images.`,
+        ...result,
+      });
+    }
+
+    if (Array.isArray(body.ids) && body.ids.length > 0) {
+      const { deletePropertiesByIds } = await import("@/services/property");
+      const deletedCount = await deletePropertiesByIds(body.ids);
+      return NextResponse.json({
+        success: true,
+        message: `Deleted ${deletedCount} properties and their attached Cloudinary images.`,
+        deletedCount,
+      });
+    }
+
+    return NextResponse.json(
+      { message: "Specify 'ids' array or 'all: true' to delete properties." },
+      { status: 400 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error.message || "Failed to delete properties" },
+      { status: 500 }
+    );
+  }
+}
+

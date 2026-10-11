@@ -79,8 +79,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
     }
   }, []);
 
-  const currentLink = pageUrl || (typeof window !== "undefined" ? window.location.href : "");
-  const linkText = currentLink ? `\nLink: ${currentLink}` : "";
+  const linkText = pageUrl ? `\nLink: ${pageUrl}` : "";
   const waMsg = `Hello, I'm interested in the property "${title}" listed on KhurjaDeals (Price: ${formatPrice(price)}).${linkText}\n\nCan we discuss?`;
   const waUrl = whatsappLink(contactPhone, waMsg);
 

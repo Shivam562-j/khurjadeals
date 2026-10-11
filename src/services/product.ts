@@ -1,7 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Product, { IProduct } from "@/models/Product";
 import { ProductFilter, PaginatedProductResponse } from "@/types/product";
-
+import { deleteImagesByUrls } from "@/lib/cloudinary";
 import mongoose from "mongoose";
 
 /** Get paginated and filtered products with cursor & lightweight DTO projection */
@@ -167,14 +167,65 @@ export async function createProduct(data: Partial<IProduct>) {
 /** Update product */
 export async function updateProduct(id: string, data: Partial<IProduct>) {
   await connectDB();
+  if (data.images && Array.isArray(data.images)) {
+    try {
+      const existing = await Product.findById(id).select("images").lean();
+      if (existing && Array.isArray(existing.images)) {
+        const removedImages = existing.images.filter((img) => !data.images!.includes(img));
+        if (removedImages.length > 0) {
+          deleteImagesByUrls(removedImages).catch((err) =>
+            console.error("Failed to delete removed product images from Cloudinary:", err)
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error checking removed product images:", err);
+    }
+  }
   const product = await Product.findByIdAndUpdate(id, data, { returnDocument: "after" }).lean();
   if (!product) return null;
   return JSON.parse(JSON.stringify(product));
 }
 
-/** Delete product */
+/** Delete product and its Cloudinary images */
 export async function deleteProduct(id: string) {
   await connectDB();
   const product = await Product.findByIdAndDelete(id).lean();
-  return !!product;
+  if (!product) return false;
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    try {
+      await deleteImagesByUrls(product.images);
+    } catch (err) {
+      console.error("Failed to delete product images from Cloudinary:", err);
+    }
+  }
+  return true;
+}
+
+/** Bulk delete products by IDs with Cloudinary cleanup */
+export async function deleteProductsByIds(ids: string[]) {
+  await connectDB();
+  const products = await Product.find({ _id: { $in: ids } }).select("images").lean();
+  const allImages = products.flatMap((p: any) => (Array.isArray(p.images) ? p.images : []));
+  if (allImages.length > 0) {
+    await deleteImagesByUrls(allImages);
+  }
+  const result = await Product.deleteMany({ _id: { $in: ids } });
+  return result.deletedCount;
+}
+
+/** Drop or clear all products and delete all their Cloudinary images */
+export async function dropAllProducts() {
+  await connectDB();
+  const allProducts = await Product.find({}).select("images").lean();
+  const allImages = allProducts.flatMap((p: any) => (Array.isArray(p.images) ? p.images : []));
+  if (allImages.length > 0) {
+    await deleteImagesByUrls(allImages);
+  }
+  try {
+    await Product.collection.drop();
+  } catch {
+    await Product.deleteMany({});
+  }
+  return { deletedImages: allImages.length, count: allProducts.length };
 }
