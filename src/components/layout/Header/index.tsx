@@ -218,9 +218,9 @@ export default function Header() {
           </Link>
         ))}
 
-        <a className="btn btn-outline" href={`tel:${SITE_CONFIG.phone}`}>
+        <a className="btn btn-outline" href={`tel:${SITE_CONFIG.devPhone}`}>
           <FaPhoneAlt />
-          Call {SITE_CONFIG.phone}
+          Call {SITE_CONFIG.devPhone}
         </a>
         <Link className="btn btn-primary" href="/submit-query" onClick={() => setIsOpen(false)}>
           <FaPlus className="text-xs" />
