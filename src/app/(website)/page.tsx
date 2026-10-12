@@ -3,8 +3,9 @@ import Hero from "@/components/home/Hero";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import Services from "@/components/home/Services";
-import HomeFaq from "@/components/home/Faq";
 import CTA from "@/components/home/CTA";
+import HowItWorks from "@/components/home/HowItWorks";
+import HomeFaq from "@/components/home/Faq";
 import { getProperties } from "@/services/property";
 import { getProducts } from "@/services/product";
 
@@ -22,8 +23,10 @@ export default async function HomePage() {
       <FeaturedProperties properties={properties} />
       <FeaturedProducts products={products} />
       <Services />
-      <HomeFaq />
       <CTA />
+      <HowItWorks />
+      <HomeFaq />
     </div>
   );
 }
+
