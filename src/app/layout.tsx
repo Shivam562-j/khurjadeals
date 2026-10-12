@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
+import ThemeInitializer from "@/components/providers/ThemeInitializer";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { AdminToaster } from "@/utils/toast";
 
@@ -39,25 +40,9 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var storedTheme = localStorage.getItem('theme');
-                  var theme = storedTheme || 'dark';
-                  if (theme === 'light') {
-                    document.documentElement.classList.add('light');
-                  } else {
-                    document.documentElement.classList.remove('light');
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
       </head>
       <body className="antialiased">
+        <ThemeInitializer />
         <QueryProvider>
           {children}
         </QueryProvider>
