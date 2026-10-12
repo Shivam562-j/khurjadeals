@@ -893,21 +893,23 @@ textarea {
   box-shadow: 0 5px 20px rgba(20, 184, 166, 0.55);
 }
 
-/* Page Hero layout styling */
+/* Page Hero layout styling — Consistent across ALL pages in both Light & Dark modes matching Home Hero */
 
 .page-hero,
 .hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #0d1117 0%, #24140e 50%, #0d1117 100%);
+  background: linear-gradient(135deg, #191411 0%, #2a160f 50%, #15110f 100%) !important;
   padding: 140px 0 60px 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid rgba(232, 89, 12, 0.15) !important;
+  color: #ffffff;
 }
 
 .hero {
   padding: 100px 0 60px 0;
 }
 
+/* Diagonal stripes texture overlay matching Home Hero */
 .page-hero::before,
 .hero::before {
   content: '';
@@ -916,18 +918,33 @@ textarea {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(232, 89, 12, 0.07) 35px, rgba(232, 89, 12, 0.07) 70px),
-    linear-gradient(rgba(232, 89, 12, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232, 89, 12, 0.04) 1px, transparent 1px);
-  background-size: auto, 60px 60px, 60px 60px;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(232, 89, 12, 0.08) 35px, rgba(232, 89, 12, 0.08) 70px) !important;
+  background-size: auto !important;
   pointer-events: none;
+  z-index: 1;
+}
+
+/* Ambient warm radial glow matching Home Hero */
+.page-hero::after,
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px;
+  max-width: 90vw;
+  height: 500px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(232, 89, 12, 0.18) 0%, transparent 70%) !important;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .page-hero .container,
 .hero .container {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -936,14 +953,28 @@ textarea {
 
 .page-hero .eyebrow {
   margin-bottom: 8px;
+  color: #f97316 !important;
 }
 
-.page-hero .h1 {
+.page-hero .eyebrow svg {
+  color: #e8590c !important;
+}
+
+.page-hero .h1,
+.page-hero h1 {
   margin-bottom: 16px;
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
-.page-hero .lead {
+.page-hero .lead,
+.page-hero p {
   max-width: 620px;
+  color: #d4d4d8 !important;
+}
+
+.page-hero span[style*="var(--text-white)"] {
+  color: #ffffff !important;
 }
 
 .section-light {
@@ -5482,27 +5513,43 @@ body,
     background: rgba(0, 0, 0, 0.02) !important;
   }
 
-  /* Page Hero & Homepage Hero Light Mode Background */
+  /* Page Hero & Homepage Hero in Light Mode: Exactly the same dark warm striped hero bg as home */
   .page-hero,
   .hero {
-    background: linear-gradient(135deg, #ffffff 0%, #fff4e6 50%, #f8fafc 100%) !important;
-    border-bottom-color: #e2e8f0 !important;
+    background: linear-gradient(135deg, #191411 0%, #2a160f 50%, #15110f 100%) !important;
+    border-bottom-color: rgba(232, 89, 12, 0.15) !important;
+    color: #ffffff !important;
   }
 
   .page-hero::before,
   .hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(232, 89, 12, 0.05) 35px, rgba(232, 89, 12, 0.05) 70px),
-      linear-gradient(rgba(232, 89, 12, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(232, 89, 12, 0.03) 1px, transparent 1px) !important;
-    background-size: auto, 60px 60px, 60px 60px !important;
-    pointer-events: none;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(232, 89, 12, 0.08) 35px, rgba(232, 89, 12, 0.08) 70px) !important;
+    background-size: auto !important;
+  }
+
+  .page-hero::after,
+  .hero::after {
+    background: radial-gradient(circle, rgba(232, 89, 12, 0.18) 0%, transparent 70%) !important;
+  }
+
+  .page-hero .h1,
+  .page-hero h1 {
+    color: #ffffff !important;
+  }
+
+  .page-hero .lead,
+  .page-hero p {
+    color: #d4d4d8 !important;
+  }
+
+  .page-hero .eyebrow {
+    color: #f97316 !important;
+  }
+
+  .page-hero .thankyou-badge-eyebrow {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(34, 197, 94, 0.4) !important;
+    color: #4ade80 !important;
   }
 
   /* View All button, Carousel Nav, Search & Filter light overrides */
