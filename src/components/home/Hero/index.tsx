@@ -207,7 +207,7 @@ export default function Hero() {
             <div
               className="group relative h-[210px] sm:h-[230px] rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-1.5"
               style={{
-                backgroundImage: "url('https://picsum.photos/seed/vehkh2/800/400')",
+                backgroundImage: "url('/images/hero-vehicles.webp')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
@@ -253,7 +253,7 @@ export default function Hero() {
             <div
               className="group relative h-[210px] sm:h-[230px] rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-1.5"
               style={{
-                backgroundImage: "url('https://picsum.photos/seed/propkh2/800/400')",
+                backgroundImage: "url('/images/hero-properties.webp')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
